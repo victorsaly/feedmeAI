@@ -87,6 +87,9 @@
 }
 
 @layer base {
+  :root {
+    --spacing: 4px;
+  }
   #spark-app {
     --tomato-contrast: #fff;
     --red-contrast: #fff;
