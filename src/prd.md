@@ -42,6 +42,11 @@
 - **Why it matters**: Enables bulk shopping and meal planning
 - **Success criteria**: Categorized by store section, quantity optimization
 
+### Ingredient Substitution Engine
+- **What it does**: AI-powered suggestions for alternative ingredients when items are unavailable, focusing on UK supermarket staples
+- **Why it matters**: Prevents cooking roadblocks, helps users adapt recipes to available ingredients, reduces food waste
+- **Success criteria**: Provides 2-3 realistic alternatives per missing ingredient, includes substitution ratios and cooking tips, categorizes by similarity level
+
 ## Design Direction
 
 ### Visual Tone & Identity

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Trash, Check, X, PencilSimple } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
+import { IngredientSubstitutions } from '@/components/IngredientSubstitutions'
 
 interface IngredientsListProps {
   ingredients: Ingredient[]
@@ -233,6 +234,14 @@ export function IngredientsList({ ingredients, onIngredientsUpdate }: Ingredient
           )}
         </CardContent>
       </Card>
+
+      {/* Ingredient Substitutions Section */}
+      {ingredients.length > 0 && (
+        <IngredientSubstitutions 
+          ingredients={ingredients}
+          onIngredientsUpdate={onIngredientsUpdate}
+        />
+      )}
     </div>
   )
 }
