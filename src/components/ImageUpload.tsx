@@ -104,6 +104,13 @@ export function ImageUpload({ onIngredientsDetected }: ImageUploadProps) {
     fileInputRef.current?.click()
   }
 
+  const triggerCameraInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.setAttribute('capture', 'environment')
+      fileInputRef.current.click()
+    }
+  }
+
   return (
     <div className="space-y-4">
       <Card 
@@ -118,23 +125,23 @@ export function ImageUpload({ onIngredientsDetected }: ImageUploadProps) {
         onDrop={handleDrop}
         onClick={triggerFileInput}
       >
-        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
           {isUploading ? (
             <div className="flex flex-col items-center space-y-3">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-              <p className="text-muted-foreground">Analyzing your ingredients...</p>
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary" />
+              <p className="text-muted-foreground text-sm sm:text-base">Analysing your ingredients...</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center space-y-4">
-              <div className="rounded-full bg-primary/10 p-4">
-                <ImageIcon size={32} className="text-primary" />
+            <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+              <div className="rounded-full bg-primary/10 p-3 sm:p-4">
+                <ImageIcon size={28} className="text-primary sm:size-32" />
               </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">Upload Kitchen Photo</h3>
-                <p className="text-muted-foreground">
+              <div className="space-y-1 sm:space-y-2">
+                <h3 className="text-base sm:text-lg font-medium">Upload Kitchen Photo</h3>
+                <p className="text-muted-foreground text-sm">
                   Drag and drop an image or click to browse
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Take a clear photo of your fridge, pantry, or ingredients
                 </p>
               </div>
@@ -143,23 +150,24 @@ export function ImageUpload({ onIngredientsDetected }: ImageUploadProps) {
         </CardContent>
       </Card>
 
-      <div className="flex gap-3 justify-center">
+      {/* Mobile-first button layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Button 
-          onClick={triggerFileInput} 
+          onClick={triggerCameraInput} 
           disabled={isUploading}
-          className="flex items-center gap-2"
+          className="w-full flex items-center justify-center gap-2 h-12"
         >
-          <Upload size={18} />
-          Choose File
+          <Camera size={18} />
+          Take Photo
         </Button>
         <Button 
           variant="outline" 
           onClick={triggerFileInput}
           disabled={isUploading}
-          className="flex items-center gap-2"
+          className="w-full flex items-center justify-center gap-2 h-12"
         >
-          <Camera size={18} />
-          Take Photo
+          <Upload size={18} />
+          Choose File
         </Button>
       </div>
 
@@ -171,7 +179,7 @@ export function ImageUpload({ onIngredientsDetected }: ImageUploadProps) {
         className="hidden"
       />
 
-      <div className="text-xs text-muted-foreground text-center">
+      <div className="text-xs text-muted-foreground text-center px-4">
         <p>For best results, ensure good lighting and clear visibility of all ingredients.</p>
       </div>
     </div>

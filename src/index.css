@@ -4,54 +4,70 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Mobile-first touch targets and spacing */
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
 :root {
-  --background: oklch(1.00 0 0);
-  --foreground: oklch(0.10 0.005 240);
-  --card: oklch(1.00 0 0);
-  --card-foreground: oklch(0.10 0.005 240);
+  /* UK Market Brand Colors - British Racing Green & Cream */
+  --background: oklch(0.95 0.02 85); /* Warm cream background */
+  --foreground: oklch(0.20 0.08 150); /* Dark green text */
+  --card: oklch(1.00 0 0); /* Pure white cards */
+  --card-foreground: oklch(0.20 0.08 150); /* Dark green on cards */
   --popover: oklch(1.00 0 0);
-  --popover-foreground: oklch(0.10 0.005 240);
-  --primary: oklch(0.45 0.15 260);
-  --primary-foreground: oklch(1.00 0 0);
-  --secondary: oklch(0.98 0.002 240);
-  --secondary-foreground: oklch(0.35 0.008 240);
-  --muted: oklch(0.96 0.005 240);
-  --muted-foreground: oklch(0.45 0.01 240);
-  --accent: oklch(0.10 0.005 240);
-  --accent-foreground: oklch(1.00 0 0);
-  --destructive: oklch(0.55 0.22 25);
+  --popover-foreground: oklch(0.20 0.08 150);
+  --primary: oklch(0.35 0.12 150); /* British Racing Green */
+  --primary-foreground: oklch(1.00 0 0); /* White text on primary */
+  --secondary: oklch(0.92 0.03 85); /* Light cream */
+  --secondary-foreground: oklch(0.25 0.08 150); /* Dark green text */
+  --muted: oklch(0.90 0.03 85); /* Muted cream */
+  --muted-foreground: oklch(0.45 0.06 150); /* Medium green text */
+  --accent: oklch(0.65 0.15 45); /* Vibrant orange for CTAs */
+  --accent-foreground: oklch(1.00 0 0); /* White text on orange */
+  --destructive: oklch(0.55 0.22 25); /* Red for warnings */
   --destructive-foreground: oklch(1.00 0 0);
-  --border: oklch(0.88 0.01 240);
-  --input: oklch(1.00 0 0);
-  --ring: oklch(0.45 0.15 260);
-  --radius: 0.5rem;
-  --chart-1: oklch(0.45 0.15 260);
-  --chart-2: oklch(0.10 0.005 240);
-  --chart-3: oklch(0.45 0.01 240);
-  --chart-4: oklch(0.35 0.008 240);
+  --border: oklch(0.85 0.03 85); /* Light cream borders */
+  --input: oklch(1.00 0 0); /* White input backgrounds */
+  --ring: oklch(0.65 0.15 45); /* Orange focus rings */
+  --radius: 0.75rem; /* Slightly more rounded for friendlier feel */
+  
+  /* Chart colors using the brand palette */
+  --chart-1: oklch(0.35 0.12 150);
+  --chart-2: oklch(0.65 0.15 45);
+  --chart-3: oklch(0.45 0.06 150);
+  --chart-4: oklch(0.25 0.08 150);
   --chart-5: oklch(0.55 0.22 25);
-  --sidebar: oklch(0.96 0.005 240);
-  --sidebar-foreground: oklch(0.10 0.005 240);
-  --sidebar-primary: oklch(0.45 0.15 260);
+  
+  /* Sidebar colors */
+  --sidebar: oklch(0.92 0.03 85);
+  --sidebar-foreground: oklch(0.20 0.08 150);
+  --sidebar-primary: oklch(0.35 0.12 150);
   --sidebar-primary-foreground: oklch(1.00 0 0);
-  --sidebar-accent: oklch(0.10 0.005 240);
+  --sidebar-accent: oklch(0.65 0.15 45);
   --sidebar-accent-foreground: oklch(1.00 0 0);
-  --sidebar-border: oklch(0.88 0.01 240);
-  --sidebar-ring: oklch(0.45 0.15 260);
-  --shadow-color: oklch(0.10 0.005 240);
-  --shadow-opacity: 0.05;
-  --shadow-blur: 10px;
+  --sidebar-border: oklch(0.85 0.03 85);
+  --sidebar-ring: oklch(0.65 0.15 45);
+  
+  /* Shadow system for depth */
+  --shadow-color: oklch(0.35 0.12 150);
+  --shadow-opacity: 0.08;
+  --shadow-blur: 12px;
   --shadow-spread: 0px;
   --shadow-offset-x: 0px;
-  --shadow-offset-y: 4px;
-  --font-sans: Oswald;
+  --shadow-offset-y: 2px;
+  
+  /* Typography - Inter for mobile readability */
+  --font-sans: Inter;
   --font-serif: "Noto Serif";
   --font-mono: "JetBrains Mono";
-  --spacing: 0.25rem;
+  
+  /* Mobile-first spacing system */
+  --spacing: 0.25rem; /* 4px base unit */
 }
 
 @theme {
@@ -84,4 +100,35 @@
 
 body{
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  
+  /* Mobile-first optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Prevent zoom on input focus in iOS */
+  font-size: 16px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Ensure proper touch target spacing */
+  .mobile-touch button,
+  .mobile-touch [role="button"],
+  .mobile-touch input,
+  .mobile-touch select {
+    margin: 2px;
+  }
+  
+  /* Optimize text for mobile reading */
+  p, span, div {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  /* Improve tap targets */
+  a, button, [role="button"] {
+    padding: 12px;
+    min-height: 44px;
+  }
 }

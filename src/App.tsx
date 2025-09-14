@@ -45,35 +45,43 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Smart Kitchen Assistant</h1>
-          <p className="text-muted-foreground text-lg">Upload a photo of your ingredients and discover what you can cook</p>
+      {/* Mobile-first container with better spacing */}
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <header className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Smart Kitchen Assistant</h1>
+          <p className="text-muted-foreground text-base sm:text-lg px-4">
+            Upload a photo of your ingredients and discover what you can cook with UK supermarket integration
+          </p>
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Camera size={18} />
-              Upload
+          {/* Mobile-optimized tabs */}
+          <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-12">
+            <TabsTrigger value="upload" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Camera size={16} className="sm:size-18" />
+              <span className="hidden xs:inline">Upload</span>
             </TabsTrigger>
-            <TabsTrigger value="ingredients" className="flex items-center gap-2">
-              <List size={18} />
-              Ingredients ({(ingredients || []).length})
+            <TabsTrigger value="ingredients" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <List size={16} className="sm:size-18" />
+              <span className="hidden xs:inline">Ingredients</span>
+              <span className="ml-1">({(ingredients || []).length})</span>
             </TabsTrigger>
-            <TabsTrigger value="recipes" className="flex items-center gap-2">
-              <ChefHat size={18} />
-              Recipes
+            <TabsTrigger value="recipes" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <ChefHat size={16} className="sm:size-18" />
+              <span className="hidden xs:inline">Recipes</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upload" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Camera size={24} className="text-primary" />
-                  Analyze Your Kitchen
+          <TabsContent value="upload" className="space-y-4 sm:space-y-6">
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Camera size={20} className="text-primary sm:size-24" />
+                  Analyse Your Kitchen
                 </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Take a photo of your ingredients and let AI identify what you have
+                </p>
               </CardHeader>
               <CardContent>
                 <ImageUpload onIngredientsDetected={handleIngredientsDetected} />
@@ -81,14 +89,14 @@ function App() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="ingredients" className="space-y-6">
+          <TabsContent value="ingredients" className="space-y-4 sm:space-y-6">
             <IngredientsList 
               ingredients={ingredients || []} 
               onIngredientsUpdate={handleIngredientsUpdate}
             />
           </TabsContent>
 
-          <TabsContent value="recipes" className="space-y-6">
+          <TabsContent value="recipes" className="space-y-4 sm:space-y-6">
             <RecipesSuggestions 
               availableIngredients={availableIngredients}
               allIngredients={ingredients || []}
