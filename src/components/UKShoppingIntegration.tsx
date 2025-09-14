@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { ShoppingCart, MapPin, Clock, ArrowSquareOut } from '@phosphor-icons/react'
+import { ShoppingCart, MapPin, Clock, ArrowSquareOut, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { getAllDeliveryAvailability, type DeliveryArea } from '@/lib/postcode'
 
 export interface UKSupermarket {
   id: string
@@ -30,6 +32,8 @@ export interface ShoppingBasket {
 
 interface UKShoppingIntegrationProps {
   missingIngredients: string[]
+  userPostcode?: string
+  deliveryAreas?: DeliveryArea[]
   recipeName?: string
   className?: string
 }
@@ -70,7 +74,7 @@ const UK_SUPERMARKETS: UKSupermarket[] = [
   }
 ]
 
-export function UKShoppingIntegration({ missingIngredients, recipeName, className = '' }: UKShoppingIntegrationProps) {
+export function UKShoppingIntegration({ missingIngredients, userPostcode, deliveryAreas = [], recipeName, className = '' }: UKShoppingIntegrationProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [baskets, setBaskets] = useState<ShoppingBasket[]>([])
   const [selectedSupermarket, setSelectedSupermarket] = useState<string>('')
@@ -82,18 +86,33 @@ export function UKShoppingIntegration({ missingIngredients, recipeName, classNam
     
     try {
       const ingredientsList = missingIngredients.join(', ')
-      const promptText = `Generate shopping baskets for these ingredients: ${ingredientsList} ${recipeName ? `needed for recipe: ${recipeName}` : ''}
       
-      Create shopping baskets for UK supermarkets (Tesco, ASDA, Sainsbury's, Morrisons).
-      For each ingredient, find realistic UK products with approximate prices in GBP.
+      // Filter for available supermarkets in user's area
+      const availableSupermarkets = deliveryAreas.filter(area => area.available)
+      const supermarketNames = availableSupermarkets.map(area => area.supermarket)
+      
+      if (availableSupermarkets.length === 0) {
+        toast.error('No supermarkets deliver to your postcode. Please update your location.')
+        setIsGenerating(false)
+        return
+      }
+
+      const prompt = (window as any).spark.llmPrompt`Generate shopping baskets for these ingredients: ${ingredientsList} ${recipeName ? `needed for recipe: ${recipeName}` : ''}
+      
+      Create shopping baskets ONLY for these UK supermarkets that deliver to postcode ${userPostcode || 'the user area'}: ${supermarketNames.join(', ')}
+      
+      For each available supermarket, use their specific delivery information:
+      ${availableSupermarkets.map(area => `${area.supermarket}: Min order ${area.minOrder}, Delivery fee ${area.deliveryFee}, Times: ${area.deliveryTimes.join(', ')}`).join('\n')}
       
       Return JSON with "baskets" array containing objects with:
-      - supermarket: supermarket id (tesco, asda, sainsburys, morrisons)
+      - supermarket: supermarket id (${supermarketNames.join(', ')})
       - items: array of {ingredient, product, price, url} objects
-      - totalPrice: estimated total in GBP format "£X.XX"
+      - totalPrice: estimated total in GBP format "£X.XX" (must meet minimum order requirements)
       - basketUrl: realistic deep link URL to the supermarket's online shopping
+      - deliveryInfo: actual delivery fee and available time slots for this postcode
       
-      Use realistic UK product names and prices. For URLs, create realistic deep links to each supermarket's grocery section.
+      Use realistic UK product names and prices. Ensure totals meet minimum order requirements.
+      If an ingredient is not available at a specific supermarket, skip that supermarket or suggest alternatives.
       
       Example format:
       {
@@ -108,24 +127,33 @@ export function UKShoppingIntegration({ missingIngredients, recipeName, classNam
                 "url": "https://www.tesco.com/groceries/en-GB/products/254011747"
               }
             ],
-            "totalPrice": "£8.50",
-            "basketUrl": "https://www.tesco.com/groceries/en-GB/shop/fresh-food"
+            "totalPrice": "£28.50",
+            "basketUrl": "https://www.tesco.com/groceries/en-GB/shop/fresh-food",
+            "deliveryInfo": "£4.50 delivery • Next day available"
           }
         ]
       }`
 
-      const response = await window.spark.llm(promptText, 'gpt-4o', true)
+      const response = await (window as any).spark.llm(prompt, 'gpt-4o', true)
       const result = JSON.parse(response)
       
       if (result.baskets && Array.isArray(result.baskets)) {
-        // Match with supermarket data
-        const enrichedBaskets = result.baskets.map((basket: any) => ({
-          ...basket,
-          supermarket: UK_SUPERMARKETS.find(s => s.id === basket.supermarket) || UK_SUPERMARKETS[0]
-        }))
+        // Match with supermarket data and delivery info
+        const enrichedBaskets = result.baskets.map((basket: any) => {
+          const supermarketData = UK_SUPERMARKETS.find(s => s.id === basket.supermarket) || UK_SUPERMARKETS[0]
+          const deliveryData = deliveryAreas.find(d => d.supermarket === basket.supermarket)
+          
+          return {
+            ...basket,
+            supermarket: {
+              ...supermarketData,
+              deliveryInfo: deliveryData ? `${deliveryData.deliveryFee} delivery • ${deliveryData.deliveryTimes[0]}` : supermarketData.deliveryInfo
+            }
+          }
+        })
         
         setBaskets(enrichedBaskets)
-        toast.success(`Found shopping options at ${result.baskets.length} supermarkets`)
+        toast.success(`Found shopping options at ${result.baskets.length} supermarkets in your area`)
       } else {
         throw new Error('Invalid response format')
       }
@@ -156,6 +184,44 @@ export function UKShoppingIntegration({ missingIngredients, recipeName, classNam
 
   if (missingIngredients.length === 0) {
     return null
+  }
+
+  // Show location warning if no postcode is set
+  if (!userPostcode) {
+    return (
+      <Card className={className}>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ShoppingCart size={20} className="text-accent" />
+            UK Supermarket Shopping
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Get missing ingredients delivered from major UK supermarkets
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg text-center">
+            <Warning size={24} className="mx-auto text-orange-600 mb-2" />
+            <h4 className="font-medium text-orange-800 mb-2">Set Your Location</h4>
+            <p className="text-sm text-orange-700 mb-3">
+              Enter your UK postcode to see accurate delivery availability and pricing from supermarkets in your area.
+            </p>
+            <div className="flex flex-wrap gap-1 justify-center mb-3">
+              {missingIngredients.slice(0, 3).map((ingredient, i) => (
+                <Badge key={i} variant="outline" className="text-xs">
+                  {ingredient}
+                </Badge>
+              ))}
+              {missingIngredients.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{missingIngredients.length - 3} more
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (

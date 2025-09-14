@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Camera, ChefHat, List } from '@phosphor-icons/react'
+import { Camera, ChefHat, List, MapPin } from '@phosphor-icons/react'
 import { ImageUpload } from '@/components/ImageUpload'
 import { IngredientsList } from '@/components/IngredientsList'
 import { RecipesSuggestions } from '@/components/RecipesSuggestions'
+import { PostcodeSetup } from '@/components/PostcodeSetup'
 import { Toaster } from '@/components/ui/sonner'
+import { type DeliveryArea } from '@/lib/postcode'
 
 export interface Ingredient {
   id: string
@@ -30,7 +32,9 @@ export interface Recipe {
 
 function App() {
   const [ingredients, setIngredients] = useKV<Ingredient[]>('kitchen-ingredients', [])
+  const [userPostcode] = useKV<string>('user-postcode', '')
   const [activeTab, setActiveTab] = useState('upload')
+  const [deliveryAreas, setDeliveryAreas] = useState<DeliveryArea[]>([])
 
   const handleIngredientsDetected = (detectedIngredients: Ingredient[]) => {
     setIngredients(detectedIngredients)
@@ -39,6 +43,10 @@ function App() {
 
   const handleIngredientsUpdate = (updatedIngredients: Ingredient[]) => {
     setIngredients(updatedIngredients)
+  }
+
+  const handleLocationSet = (postcode: string, areas: DeliveryArea[]) => {
+    setDeliveryAreas(areas)
   }
 
   const availableIngredients = (ingredients || []).filter(ing => ing.available)
@@ -56,15 +64,19 @@ function App() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile-optimized tabs */}
-          <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-12">
+          <TabsList className="grid w-full grid-cols-4 mb-4 sm:mb-6 h-12">
             <TabsTrigger value="upload" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <Camera size={16} className="sm:size-18" />
               <span className="hidden xs:inline">Upload</span>
             </TabsTrigger>
             <TabsTrigger value="ingredients" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <List size={16} className="sm:size-18" />
-              <span className="hidden xs:inline">Ingredients</span>
+              <span className="hidden xs:inline">Items</span>
               <span className="ml-1">({(ingredients || []).length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="location" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <MapPin size={16} className="sm:size-18" />
+              <span className="hidden xs:inline">Location</span>
             </TabsTrigger>
             <TabsTrigger value="recipes" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <ChefHat size={16} className="sm:size-18" />
@@ -96,10 +108,16 @@ function App() {
             />
           </TabsContent>
 
+          <TabsContent value="location" className="space-y-4 sm:space-y-6">
+            <PostcodeSetup onLocationSet={handleLocationSet} />
+          </TabsContent>
+
           <TabsContent value="recipes" className="space-y-4 sm:space-y-6">
             <RecipesSuggestions 
               availableIngredients={availableIngredients}
               allIngredients={ingredients || []}
+              userPostcode={userPostcode}
+              deliveryAreas={deliveryAreas}
             />
           </TabsContent>
         </Tabs>

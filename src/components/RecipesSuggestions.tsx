@@ -10,13 +10,16 @@ import { Clock, ChefHat, ShoppingCart, Eye } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient, Recipe } from '@/App'
 import { UKShoppingIntegration } from '@/components/UKShoppingIntegration'
+import { type DeliveryArea } from '@/lib/postcode'
 
 interface RecipesSuggestionsProps {
   availableIngredients: Ingredient[]
   allIngredients: Ingredient[]
+  userPostcode?: string
+  deliveryAreas?: DeliveryArea[]
 }
 
-export function RecipesSuggestions({ availableIngredients, allIngredients }: RecipesSuggestionsProps) {
+export function RecipesSuggestions({ availableIngredients, allIngredients, userPostcode, deliveryAreas = [] }: RecipesSuggestionsProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
@@ -312,6 +315,8 @@ export function RecipesSuggestions({ availableIngredients, allIngredients }: Rec
                 <UKShoppingIntegration 
                   missingIngredients={selectedRecipe.missingIngredients}
                   recipeName={selectedRecipe.name}
+                  userPostcode={userPostcode}
+                  deliveryAreas={deliveryAreas}
                 />
               )}
             </div>

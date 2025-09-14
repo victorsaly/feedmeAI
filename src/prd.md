@@ -23,9 +23,14 @@
 - **Success criteria**: 85%+ accuracy on common UK ingredients, handles various lighting/angles
 
 ### UK Supermarket Integration
-- **What it does**: Creates shopping baskets for missing ingredients at major UK chains (Tesco, ASDA, Sainsbury's, Morrisons)
-- **Why it matters**: Removes friction between recipe discovery and ingredient procurement
-- **Success criteria**: Direct links to online shopping, proper product matching
+- **What it does**: Creates location-aware shopping baskets for missing ingredients based on user's postcode and delivery availability
+- **Why it matters**: Shows accurate pricing, delivery options, and availability specific to user's area
+- **Success criteria**: Postcode validation, accurate delivery coverage mapping, realistic pricing from available stores
+
+### Postcode-Based Location Services  
+- **What it does**: Validates UK postcodes and maps to supermarket delivery areas with specific pricing and availability
+- **Why it matters**: Eliminates frustration of seeing unavailable services, provides accurate delivery costs
+- **Success criteria**: Real-time validation, comprehensive coverage mapping, clear availability messaging
 
 ### Mobile-First Recipe Interface
 - **What it does**: Touch-optimized recipe viewing with step-by-step cooking mode
@@ -98,11 +103,13 @@
 
 ## UK Market Considerations
 
-### Supermarket Integration
-- **Target Chains**: Tesco, ASDA, Sainsbury's, Morrisons (covers 70%+ UK market)
-- **Integration Method**: Deep links to online shopping with pre-populated baskets
-- **Product Matching**: UK-specific ingredient names and brands
-- **Delivery Options**: Account for click & collect and delivery services
+### Supermarket Integration & Delivery Coverage
+- **Target Chains**: Tesco, ASDA, Sainsbury's, Morrisons with postcode-specific availability
+- **Coverage Mapping**: Comprehensive UK postcode area mapping with exclusions (Northern Ireland, islands)
+- **Integration Method**: Deep links to online shopping with location-aware pricing and delivery options
+- **Product Matching**: UK-specific ingredient names, brands, and realistic pricing
+- **Delivery Options**: Accurate delivery fees, time slots, and minimum order requirements by area
+- **Postcode Validation**: Real UK postcode format validation with user-friendly error handling
 
 ### Cultural Food Preferences
 - **Recipe Focus**: British classics, multicultural UK favorites, healthy options
