@@ -26,9 +26,9 @@ const menuItems = [
     label: 'Upload',
     icon: Camera,
     description: 'Add ingredients photo',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200'
+    color: 'text-green-800',
+    bgColor: 'bg-green-600',
+    borderColor: 'border-green-500'
   },
   {
     id: 'ideas' as MenuSection,
@@ -66,15 +66,15 @@ export function NavigationMenu({
   hasIngredients = false 
 }: NavigationMenuProps) {
   return (
-    <div className="w-full bg-white border-b sticky top-0 z-40 shadow-sm">
+    <div className="w-full bg-primary border-b border-green-700/20 sticky top-0 z-40 shadow-lg">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header with Logo */}
-        <div className="flex items-center justify-between py-4 border-b">
+        <div className="flex items-center justify-between py-4 border-b border-green-400/20">
           <div className="flex items-center gap-3">
             <Logo size={40} className="drop-shadow-lg" />
             <div>
-              <h1 className="text-xl font-bold text-gray-900">FeedMe AI</h1>
-              <p className="text-sm text-gray-500">Smart Recipe Generator</p>
+              <h1 className="text-xl font-bold text-white">FeedMe AI</h1>
+              <p className="text-sm text-green-100">Smart Recipe Generator</p>
             </div>
           </div>
           
@@ -82,13 +82,13 @@ export function NavigationMenu({
           {(favoritesCount > 0 || hasIngredients) && (
             <div className="flex items-center gap-2">
               {hasIngredients && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-green-200 text-green-800 border-green-300">
                   <Camera className="w-3 h-3 mr-1" />
                   Ingredients Ready
                 </Badge>
               )}
               {favoritesCount > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-amber-200 text-amber-800 border-amber-300">
                   <Heart className="w-3 h-3 mr-1" />
                   {favoritesCount} Saved
                 </Badge>
@@ -112,8 +112,8 @@ export function NavigationMenu({
                   className={`
                     flex-1 min-w-[120px] h-auto p-3 flex flex-col items-center gap-2
                     ${isActive 
-                      ? `${item.bgColor} ${item.borderColor} ${item.color} border` 
-                      : 'hover:bg-gray-50'
+                      ? 'bg-white text-green-700 border border-green-200 shadow-sm' 
+                      : 'text-green-50 hover:bg-green-400/20 hover:text-white'
                     }
                   `}
                 >
@@ -162,13 +162,13 @@ export function MobileNavigationMenu({
   hasIngredients = false 
 }: NavigationMenuProps) {
   return (
-    <div className="w-full bg-white border-b sticky top-0 z-40 shadow-sm sm:hidden">
+    <div className="w-full bg-green-600 border-b border-green-700/20 sticky top-0 z-40 shadow-lg sm:hidden">
       <div className="px-4 py-3">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-3">
           <Logo size={32} className="drop-shadow-lg" />
           <div>
-            <h1 className="text-lg font-bold text-gray-900">FeedMe AI</h1>
+            <h1 className="text-lg font-bold text-white">FeedMe AI</h1>
           </div>
         </div>
 
@@ -185,7 +185,10 @@ export function MobileNavigationMenu({
                 onClick={() => onSectionChange(item.id)}
                 className={`
                   flex-shrink-0 px-4 py-2 flex items-center gap-2
-                  ${isActive ? `${item.bgColor} ${item.color} border-current` : ''}
+                  ${isActive 
+                    ? 'bg-white text-green-700 border-green-200' 
+                    : 'text-green-50 border-green-400/30 hover:bg-green-400/20 hover:border-green-200 hover:text-white'
+                  }
                 `}
               >
                 <Icon size={16} />
@@ -195,13 +198,13 @@ export function MobileNavigationMenu({
                 
                 {/* Mobile badges */}
                 {item.id === 'favorites' && favoritesCount > 0 && (
-                  <Badge variant="secondary" className="text-xs ml-1">
+                  <Badge variant="secondary" className="text-xs ml-1 bg-amber-200 text-amber-800">
                     {favoritesCount}
                   </Badge>
                 )}
                 
                 {item.id === 'ideas' && hasIngredients && (
-                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                 )}
               </Button>
             )

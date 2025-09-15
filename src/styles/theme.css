@@ -206,44 +206,44 @@
     --color-neutral-a12: var(--slate-a12);
     --color-neutral-contrast: var(--slate-contrast);
 
-    /* Accent colors */
-    --color-accent-1: var(--blue-1);
-    --color-accent-2: var(--blue-2);
-    --color-accent-3: var(--blue-3);
-    --color-accent-4: var(--blue-4);
-    --color-accent-5: var(--blue-5);
-    --color-accent-6: var(--blue-6);
-    --color-accent-7: var(--blue-7);
-    --color-accent-8: var(--blue-8);
-    --color-accent-9: var(--blue-9);
-    --color-accent-10: var(--blue-10);
-    --color-accent-11: var(--blue-11);
-    --color-accent-12: var(--blue-12);
-    --color-accent-contrast: var(--blue-contrast);
+    /* Accent colors - Food themed sage and olive */
+    --color-accent-1: var(--sage-1);
+    --color-accent-2: var(--sage-2);
+    --color-accent-3: var(--sage-3);
+    --color-accent-4: var(--sage-4);
+    --color-accent-5: var(--sage-5);
+    --color-accent-6: var(--sage-6);
+    --color-accent-7: var(--sage-7);
+    --color-accent-8: var(--sage-8);
+    --color-accent-9: var(--sage-9);
+    --color-accent-10: var(--sage-10);
+    --color-accent-11: var(--sage-11);
+    --color-accent-12: var(--sage-12);
+    --color-accent-contrast: var(--sage-contrast);
 
-    /* Secondary accent colors */
-    --color-accent-secondary-1: var(--violet-1);
-    --color-accent-secondary-2: var(--violet-2);
-    --color-accent-secondary-3: var(--violet-3);
-    --color-accent-secondary-4: var(--violet-4);
-    --color-accent-secondary-5: var(--violet-5);
-    --color-accent-secondary-6: var(--violet-6);
-    --color-accent-secondary-7: var(--violet-7);
-    --color-accent-secondary-8: var(--violet-8);
-    --color-accent-secondary-9: var(--violet-9);
-    --color-accent-secondary-10: var(--violet-10);
-    --color-accent-secondary-11: var(--violet-11);
-    --color-accent-secondary-12: var(--violet-12);
-    --color-accent-secondary-contrast: var(--violet-contrast);
+    /* Secondary accent colors - Warm amber/gold */
+    --color-accent-secondary-1: var(--amber-1);
+    --color-accent-secondary-2: var(--amber-2);
+    --color-accent-secondary-3: var(--amber-3);
+    --color-accent-secondary-4: var(--amber-4);
+    --color-accent-secondary-5: var(--amber-5);
+    --color-accent-secondary-6: var(--amber-6);
+    --color-accent-secondary-7: var(--amber-7);
+    --color-accent-secondary-8: var(--amber-8);
+    --color-accent-secondary-9: var(--amber-9);
+    --color-accent-secondary-10: var(--amber-10);
+    --color-accent-secondary-11: var(--amber-11);
+    --color-accent-secondary-12: var(--amber-12);
+    --color-accent-secondary-contrast: var(--amber-contrast);
 
     /* Foreground colors */
     --color-fg: var(--color-neutral-12);
     --color-fg-secondary: var(--color-neutral-a11);
 
-    /* Background colors */
-    --color-bg: #ffffff;
-    --color-bg-inset: var(--color-neutral-2);
-    --color-bg-overlay: #ffffff;
+    /* Background colors - Food themed warm palette */
+    --color-bg: #faf8f3; /* Warm cream/beige background */
+    --color-bg-inset: #f5f2eb; /* Slightly darker warm beige for insets */
+    --color-bg-overlay: #fefdf9; /* Very light cream for overlays */
 
     /* Focus ring */
     --color-focus-ring: var(--color-accent-9);

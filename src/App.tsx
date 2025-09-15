@@ -77,8 +77,15 @@ function App() {
   // Show the cooking workflow when ingredients are detected or quick recipe selected
   if (showWorkflow && (ingredients.length > 0 || selectedQuickRecipe)) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-6 max-w-5xl">
+      <div className="min-h-screen bg-primary relative">
+        {/* Food-themed subtle background pattern */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, #22c55e 0%, transparent 50%), 
+                            radial-gradient(circle at 75% 75%, #f59e0b 0%, transparent 50%)`
+        }}></div>
+        
+        <div className="relative z-10">
+          <div className="container mx-auto px-4 py-6 max-w-5xl">
           <header className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <Logo size={48} className="drop-shadow-lg" />
@@ -111,6 +118,7 @@ function App() {
             onBackToUpload={handleBackToUpload}
           />
           <Toaster />
+          </div>
         </div>
       </div>
     )
@@ -225,9 +233,16 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <div className="hidden sm:block">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-green-50/20 to-stone-50/40 relative">
+      {/* Food-themed subtle background pattern */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `radial-gradient(circle at 25% 25%, #22c55e 0%, transparent 50%), 
+                          radial-gradient(circle at 75% 75%, #f59e0b 0%, transparent 50%)`
+      }}></div>
+      
+      <div className="relative z-10">
+        {/* Navigation */}
+        <div className="hidden sm:block">
         <NavigationMenu 
           currentSection={currentSection}
           onSectionChange={setCurrentSection}
@@ -251,6 +266,7 @@ function App() {
 
       <Toaster />
       <ImagePerformanceDashboard />
+      </div>
     </div>
   )
 }

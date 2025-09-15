@@ -208,7 +208,7 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
           className="w-full flex items-center justify-center gap-3"
         >
           <Upload size={20} />
-          � Photo Library
+          Photo Library
         </Button>
       </div>
 
