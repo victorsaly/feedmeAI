@@ -5,8 +5,8 @@ import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  // GitHub Pages deployment configuration
-  base: '/food-inventory-recip/',
+  // Custom domain deployment (feedmeai.victorsaly.com) - use root path
+  base: '/',
   
   plugins: [
     react(),
