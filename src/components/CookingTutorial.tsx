@@ -19,6 +19,8 @@ import { toast } from 'sonner'
 import type { Recipe } from '../lib/openai-analyzer'
 import { OpenAIAnalyzer } from '../lib/openai-analyzer'
 import { FavoritesStorage } from '../lib/favorites-storage'
+import { CookingStepImage } from './CookingStepImage'
+import { recipes } from '@/data'
 
 // Simple image cache to avoid regenerating images
 const imageCache = new Map<string, string>()
@@ -49,57 +51,78 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
 
   const analyzer = new OpenAIAnalyzer(import.meta.env.VITE_OPENAI_API_KEY)
 
-  // Enhanced cooking steps with detailed visual prompts
-  const cookingSteps: CookingStep[] = recipe.instructions.map((instruction, index) => {
-    const stepNumber = index + 1
-    const recipeTitle = recipe.title.toLowerCase()
+  // Get structured recipe data if available
+  const getStructuredRecipeData = () => {
+    return recipes.find(r => r.id === recipe.id)
+  }
+
+  // Enhanced cooking steps - use structured data if available, otherwise generate from instructions
+  const cookingSteps: CookingStep[] = (() => {
+    const structuredRecipe = getStructuredRecipeData()
     
-    // Generate specific image prompts for each step
-    let imagePrompt = ""
-    let estimatedTime = "2-3 min"
-    let tip = ""
-
-    if (instruction.toLowerCase().includes('boil') || instruction.toLowerCase().includes('water')) {
-      imagePrompt = `A large pot of boiling water on stove, steam rising, professional kitchen photography`
-      estimatedTime = "5-8 min"
-      tip = "Water is ready when you see large bubbles breaking the surface"
-    } else if (instruction.toLowerCase().includes('chop') || instruction.toLowerCase().includes('dice') || instruction.toLowerCase().includes('cut')) {
-      imagePrompt = `Fresh ingredients being chopped on wooden cutting board, sharp knife, organized prep station, professional food photography`
-      estimatedTime = "3-5 min"
-      tip = "Keep fingers curled and use a rocking motion with the knife"
-    } else if (instruction.toLowerCase().includes('heat') || instruction.toLowerCase().includes('oil') || instruction.toLowerCase().includes('pan')) {
-      imagePrompt = `Pan heating on stovetop with oil shimmering, ready for cooking, professional kitchen photography`
-      estimatedTime = "1-2 min"
-      tip = "Oil is ready when it shimmers and moves easily around the pan"
-    } else if (instruction.toLowerCase().includes('sauté') || instruction.toLowerCase().includes('cook') || instruction.toLowerCase().includes('fry')) {
-      imagePrompt = `Ingredients sautéing in pan with golden color, steam rising, professional cooking photography`
-      estimatedTime = "3-7 min"
-      tip = "Don't overcrowd the pan - cook in batches if needed"
-    } else if (instruction.toLowerCase().includes('add') || instruction.toLowerCase().includes('mix') || instruction.toLowerCase().includes('combine')) {
-      imagePrompt = `Ingredients being combined in pan or bowl, colors mixing together, professional food photography`
-      estimatedTime = "1-2 min"
-      tip = "Add ingredients gradually for better flavor integration"
-    } else if (instruction.toLowerCase().includes('simmer') || instruction.toLowerCase().includes('reduce')) {
-      imagePrompt = `${recipeTitle} simmering in pan with gentle bubbling, rich colors, professional cooking photography`
-      estimatedTime = "5-10 min"
-      tip = "Simmer means gentle bubbles, not a rolling boil"
-    } else if (instruction.toLowerCase().includes('serve') || instruction.toLowerCase().includes('plate')) {
-      imagePrompt = `Beautiful plated ${recipeTitle}, garnished and ready to serve, restaurant quality presentation`
-      estimatedTime = "1-2 min"
-      tip = "Let hot dishes rest briefly before serving for best flavor"
-    } else {
-      imagePrompt = `Step ${stepNumber} of cooking ${recipeTitle}, professional food photography, detailed cooking process`
-      tip = "Take your time and taste as you go"
+    if (structuredRecipe?.steps) {
+      // Use the detailed step data from our structured recipes
+      return structuredRecipe.steps.map((step, index) => ({
+        id: index,
+        instruction: step.instruction,
+        tip: step.tip || "",
+        estimatedTime: step.estimatedTime || "2-3 min",
+        imagePrompt: step.imagePrompt
+      }))
     }
+    
+    // Fallback: Generate from basic instructions for non-structured recipes
+    return recipe.instructions.map((instruction, index) => {
+      const stepNumber = index + 1
+      const recipeTitle = recipe.title.toLowerCase()
+      
+      // Generate specific image prompts for each step
+      let imagePrompt = ""
+      let estimatedTime = "2-3 min"
+      let tip = ""
 
-    return {
-      id: index,
-      instruction,
-      tip,
-      estimatedTime,
-      imagePrompt
-    }
-  })
+      if (instruction.toLowerCase().includes('boil') || instruction.toLowerCase().includes('water')) {
+        imagePrompt = `A large pot of boiling water on stove, steam rising, professional kitchen photography`
+        estimatedTime = "5-8 min"
+        tip = "Water is ready when you see large bubbles breaking the surface"
+      } else if (instruction.toLowerCase().includes('chop') || instruction.toLowerCase().includes('dice') || instruction.toLowerCase().includes('cut')) {
+        imagePrompt = `Fresh ingredients being chopped on wooden cutting board, sharp knife, organized prep station, professional food photography`
+        estimatedTime = "3-5 min"
+        tip = "Keep fingers curled and use a rocking motion with the knife"
+      } else if (instruction.toLowerCase().includes('heat') || instruction.toLowerCase().includes('oil') || instruction.toLowerCase().includes('pan')) {
+        imagePrompt = `Pan heating on stovetop with oil shimmering, ready for cooking, professional kitchen photography`
+        estimatedTime = "1-2 min"
+        tip = "Oil is ready when it shimmers and moves easily around the pan"
+      } else if (instruction.toLowerCase().includes('sauté') || instruction.toLowerCase().includes('cook') || instruction.toLowerCase().includes('fry')) {
+        imagePrompt = `Ingredients sautéing in pan with golden color, steam rising, professional cooking photography`
+        estimatedTime = "3-7 min"
+        tip = "Don't overcrowd the pan - cook in batches if needed"
+      } else if (instruction.toLowerCase().includes('add') || instruction.toLowerCase().includes('mix') || instruction.toLowerCase().includes('combine')) {
+        imagePrompt = `Ingredients being combined in pan or bowl, colors mixing together, professional food photography`
+        estimatedTime = "1-2 min"
+        tip = "Add ingredients gradually for better flavor integration"
+      } else if (instruction.toLowerCase().includes('simmer') || instruction.toLowerCase().includes('reduce')) {
+        imagePrompt = `${recipeTitle} simmering in pan with gentle bubbling, rich colors, professional cooking photography`
+        estimatedTime = "5-10 min"
+        tip = "Simmer means gentle bubbles, not a rolling boil"
+      } else if (instruction.toLowerCase().includes('serve') || instruction.toLowerCase().includes('plate')) {
+        imagePrompt = `Beautiful plated ${recipeTitle}, garnished and ready to serve, restaurant quality presentation`
+        estimatedTime = "1-2 min"
+        tip = "Let hot dishes rest briefly before serving for best flavor"
+      } else {
+        imagePrompt = `Step ${stepNumber} of cooking ${recipeTitle}, professional food photography, detailed cooking process`
+        tip = "Take your time and taste as you go"
+      }
+
+      return {
+        id: index,
+        instruction,
+        tip,
+        estimatedTime,
+        imagePrompt
+      }
+    })
+  })() // Close the immediate function call
 
   const totalSteps = cookingSteps.length
   const progress = ((currentStep + 1) / totalSteps) * 100
@@ -392,37 +415,15 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
       {/* Main Slide Card */}
       <Card className="overflow-hidden shadow-xl">
         <CardContent className="p-0">
-          {/* Image Section with consistent dimensions */}
-          <div className="relative h-80 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center overflow-hidden">
-            {stepImages[currentStep] ? (
-              <img 
-                src={stepImages[currentStep]} 
-                alt={`Step ${currentStep + 1}`}
-                className="w-full h-full object-cover transition-all duration-500 ease-in-out"
-                style={{
-                  animation: isPlaying ? 'slideIn 0.5s ease-out' : undefined
-                }}
-              />
-            ) : (
-              <div className="text-center space-y-4 w-full h-full flex flex-col items-center justify-center">
-                {imageLoadingStates[currentStep] === 'loading' ? (
-                  <>
-                    <div className="animate-pulse w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                      <ChefHat size={24} className="text-primary/40" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-2 bg-primary/20 rounded w-24 animate-pulse"></div>
-                      <p className="text-sm text-muted-foreground">Preparing step image...</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <ChefHat size={48} className="text-muted-foreground/40" />
-                    <p className="text-muted-foreground">Step {currentStep + 1}</p>
-                  </>
-                )}
-              </div>
-            )}
+          {/* Image Section with improved loading states */}
+          <div className="relative">
+            <CookingStepImage
+              stepImage={stepImages[currentStep]}
+              imagePrompt={cookingSteps[currentStep]?.imagePrompt || ""}
+              isLoading={imageLoadingStates[currentStep] === 'loading'}
+              stepNumber={currentStep + 1}
+              instruction={cookingSteps[currentStep]?.instruction || ""}
+            />
             
             {/* Step Number Overlay */}
             <div className="absolute top-4 left-4">

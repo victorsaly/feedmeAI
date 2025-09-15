@@ -1,0 +1,6 @@
+[
+  { "id": "italian", "name": "Italian", "color": "#22c55e" },
+  { "id": "asian", "name": "Asian", "color": "#f59e0b" },
+  { "id": "american", "name": "American", "color": "#ef4444" },
+  { "id": "fusion", "name": "Fusion", "color": "#8b5cf6" }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&auto=format",
+    "caption": "Fresh ingredients work best",
+    "tip": "Upload clear photos of your ingredients for better recipe suggestions"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400&h=300&fit=crop&auto=format",
+    "caption": "Good lighting helps AI recognition",
+    "tip": "Natural light or bright kitchen lighting gives the best results"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&auto=format",
+    "caption": "Spread ingredients out clearly",
+    "tip": "Arrange ingredients separately so the AI can identify each item"
+  }
+]

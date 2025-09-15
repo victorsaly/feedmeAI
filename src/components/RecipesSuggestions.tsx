@@ -6,12 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Clock, ChefHat, Eye, Sparkle, Heart, Image } from '@phosphor-icons/react'
+import { Clock, ChefHat, Eye, Sparkle, Heart, Image as ImageIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
 import type { Recipe } from '../lib/openai-analyzer'
 import { OpenAIAnalyzer } from '../lib/openai-analyzer'
 import { FavoritesStorage } from '../lib/favorites-storage'
+import { RecipeImage } from './RecipeImage'
+import { recipes as recipeData } from '@/data'
 
 interface RecipesSuggestionsProps {
   ingredients: Ingredient[]
@@ -19,43 +21,21 @@ interface RecipesSuggestionsProps {
   originalImageBase64?: string
 }
 
-// Demo recipes for development/fallback
-const DEMO_RECIPES: Recipe[] = [
-  {
-    id: "demo-1",
-    title: "Classic Tomato Pasta",
-    description: "Simple and delicious pasta with fresh tomatoes, garlic, and herbs.",
-    cookingTime: "20 minutes",
-    difficulty: "Easy",
-    ingredients: ["pasta", "tomatoes", "garlic", "olive oil", "basil", "parmesan"],
-    instructions: [
-      "Cook pasta according to package instructions",
-      "Heat olive oil and sauté garlic until fragrant",
-      "Add diced tomatoes and cook for 5-7 minutes",
-      "Toss pasta with tomato sauce and fresh basil",
-      "Serve with grated parmesan cheese"
-    ],
-    createdAt: new Date().toISOString(),
-    isFavorite: false
-  },
-  {
-    id: "demo-2",
-    title: "Vegetable Stir Fry",
-    description: "Quick and healthy stir fry with mixed vegetables and soy sauce.",
-    cookingTime: "15 minutes",
-    difficulty: "Easy",
-    ingredients: ["bell peppers", "onion", "carrots", "garlic", "soy sauce", "rice"],
-    instructions: [
-      "Cook rice according to package instructions",
-      "Heat oil in a wok or large pan",
-      "Add vegetables in order of cooking time needed",
-      "Stir fry for 5-7 minutes until crisp-tender",
-      "Add soy sauce and serve over rice"
-    ],
-    createdAt: new Date().toISOString(),
-    isFavorite: false
-  }
-]
+// Convert structured recipe data to Recipe format for compatibility
+const convertToRecipe = (recipeData: any): Recipe => ({
+  id: recipeData.id,
+  title: recipeData.title,
+  description: recipeData.description,
+  cookingTime: recipeData.totalTime,
+  difficulty: recipeData.difficulty,
+  ingredients: recipeData.ingredients,
+  instructions: recipeData.instructions,
+  createdAt: new Date().toISOString(),
+  isFavorite: false
+})
+
+// Use actual recipe data instead of hardcoded demo recipes
+const DEMO_RECIPES: Recipe[] = recipeData.slice(0, 6).map(convertToRecipe)
 
 export function RecipesSuggestions({ ingredients, isAnalyzing, originalImageBase64 }: RecipesSuggestionsProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -285,44 +265,18 @@ export function RecipesSuggestions({ ingredients, isAnalyzing, originalImageBase
               return (
                 <Card key={recipe.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4 space-y-4">
-                    {/* Recipe Image */}
-                    {recipe.generatedImageUrl && (
-                      <div className="relative">
-                        <img
-                          src={recipe.generatedImageUrl}
-                          alt={recipe.title}
-                          className="w-full h-32 object-cover rounded-lg"
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm"
-                          onClick={() => toggleFavorite(recipe)}
-                        >
-                          <Heart 
-                            size={16} 
-                            className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}
-                          />
-                        </Button>
-                      </div>
-                    )}
+                    {/* Recipe Image with improved loading states */}
+                    <RecipeImage
+                      recipe={recipe}
+                      isGeneratingImage={isGeneratingImage}
+                      onGenerateImage={() => generateRecipeImage(recipe)}
+                      onToggleFavorite={() => toggleFavorite(recipe)}
+                      isFavorited={isFavorited}
+                    />
 
                     <div>
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-semibold text-base leading-tight flex-1">{recipe.title}</h4>
-                        {!recipe.generatedImageUrl && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="shrink-0 ml-2"
-                            onClick={() => toggleFavorite(recipe)}
-                          >
-                            <Heart 
-                              size={16} 
-                              className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}
-                            />
-                          </Button>
-                        )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
                     </div>
@@ -344,25 +298,6 @@ export function RecipesSuggestions({ ingredients, isAnalyzing, originalImageBase
                       <div className="text-xs text-muted-foreground">
                         {recipe.ingredients.length} ingredients
                       </div>
-                      
-                      {!recipe.generatedImageUrl && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => generateRecipeImage(recipe)}
-                          disabled={isGeneratingImage}
-                          className="flex items-center gap-1"
-                        >
-                          {isGeneratingImage ? (
-                            <div className="animate-spin w-3 h-3 border border-current border-t-transparent rounded-full" />
-                          ) : (
-                            <Image size={12} />
-                          )}
-                          <span className="text-xs">
-                            {isGeneratingImage ? 'Generating...' : 'Generate Image'}
-                          </span>
-                        </Button>
-                      )}
                     </div>
 
                     {/* Mobile-optimized recipe view */}

@@ -1,11 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Lightbulb, Camera } from '@phosphor-icons/react'
-import quickRecipesData from '@/data/quick-recipes.json'
+import { exampleImages } from '@/data'
 
 export function ExampleImages() {
-  const { exampleImages } = quickRecipesData
-
   return (
     <div className="space-y-6">
       {/* Header */}

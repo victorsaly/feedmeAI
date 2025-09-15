@@ -1,0 +1,602 @@
+[
+  {
+    "id": "pasta-aglio-olio",
+    "title": "Quick Garlic Pasta (Aglio e Olio)",
+    "description": "A classic Italian pasta dish that's ready in under 15 minutes with just a few ingredients.",
+    "prepTime": "5 minutes",
+    "cookTime": "12 minutes",
+    "totalTime": "17 minutes",
+    "servings": 2,
+    "difficulty": "Easy",
+    "category": "Italian",
+    "tags": ["quick", "vegetarian", "pasta", "garlic"],
+    "ingredients": [
+      "8 oz spaghetti or linguine",
+      "6 cloves garlic, thinly sliced",
+      "1/3 cup extra virgin olive oil",
+      "1/4 tsp red pepper flakes",
+      "1/4 cup fresh parsley, chopped",
+      "1/2 cup Parmesan cheese, grated",
+      "Salt and black pepper to taste"
+    ],
+    "instructions": [
+      "Bring a large pot of salted water to boil and cook pasta according to package directions until al dente.",
+      "While pasta cooks, heat olive oil in a large skillet over medium-low heat.",
+      "Add sliced garlic and red pepper flakes, cook for 2-3 minutes until garlic is golden and fragrant.",
+      "Reserve 1/2 cup pasta water, then drain the pasta.",
+      "Add pasta to the skillet with garlic oil and toss to combine.",
+      "Add pasta water gradually until you achieve a silky sauce consistency.",
+      "Remove from heat, add parsley and Parmesan cheese, toss well.",
+      "Season with salt and pepper, serve immediately with extra cheese."
+    ],
+    "steps": [
+      {
+        "instruction": "Bring a large pot of salted water to boil and cook pasta according to package directions until al dente.",
+        "imagePrompt": "Large pot of boiling salted water with spaghetti pasta cooking",
+        "estimatedTime": "10-12 minutes",
+        "tip": "Salt the water generously - it should taste like the sea"
+      },
+      {
+        "instruction": "While pasta cooks, heat olive oil in a large skillet over medium-low heat.",
+        "imagePrompt": "Extra virgin olive oil heating in a large stainless steel skillet",
+        "estimatedTime": "2 minutes",
+        "tip": "Use medium-low heat to prevent the oil from smoking"
+      },
+      {
+        "instruction": "Add sliced garlic and red pepper flakes, cook for 2-3 minutes until garlic is golden and fragrant.",
+        "imagePrompt": "Thinly sliced garlic and red pepper flakes sizzling in olive oil, turning golden",
+        "estimatedTime": "2-3 minutes",
+        "tip": "Watch carefully - garlic goes from golden to burnt very quickly"
+      },
+      {
+        "instruction": "Reserve 1/2 cup pasta water, then drain the pasta.",
+        "imagePrompt": "Pasta water being reserved in a cup while draining cooked spaghetti in a colander",
+        "estimatedTime": "1 minute",
+        "tip": "The starchy pasta water is key to creating a silky sauce"
+      },
+      {
+        "instruction": "Add pasta to the skillet with garlic oil and toss to combine.",
+        "imagePrompt": "Cooked spaghetti being tossed with garlic oil in the skillet",
+        "estimatedTime": "1 minute",
+        "tip": "Toss vigorously to coat every strand with the flavored oil"
+      },
+      {
+        "instruction": "Add pasta water gradually until you achieve a silky sauce consistency.",
+        "imagePrompt": "Pasta water being added gradually to create a creamy, silky sauce coating the pasta",
+        "estimatedTime": "1-2 minutes",
+        "tip": "Add water little by little - you can always add more but can't take it away"
+      },
+      {
+        "instruction": "Remove from heat, add parsley and Parmesan cheese, toss well.",
+        "imagePrompt": "Fresh chopped parsley and grated Parmesan cheese being tossed with the pasta",
+        "estimatedTime": "30 seconds",
+        "tip": "Remove from heat before adding cheese to prevent clumping"
+      },
+      {
+        "instruction": "Season with salt and pepper, serve immediately with extra cheese.",
+        "imagePrompt": "Perfect aglio e olio pasta plated with fresh parsley and extra Parmesan on top",
+        "estimatedTime": "30 seconds",
+        "tip": "Taste and adjust seasoning - the pasta should be perfectly balanced"
+      }
+    ],
+    "tips": [
+      "Don't let the garlic burn - it should be golden, not brown",
+      "Save some pasta water - the starch helps create a creamy sauce",
+      "Serve immediately for the best texture"
+    ],
+    "nutrition": {
+      "calories": 420,
+      "protein": "14g",
+      "carbs": "58g",
+      "fat": "16g"
+    }
+  },
+  {
+    "id": "chicken-stir-fry",
+    "title": "Lightning Fast Chicken Stir Fry",
+    "description": "A colorful and nutritious stir fry that's packed with vegetables and ready in 20 minutes.",
+    "prepTime": "8 minutes",
+    "cookTime": "12 minutes",
+    "totalTime": "20 minutes",
+    "servings": 3,
+    "difficulty": "Easy",
+    "category": "Asian",
+    "tags": ["quick", "healthy", "protein", "vegetables"],
+    "ingredients": [
+      "1 lb chicken breast, cut into bite-sized pieces",
+      "2 tbsp vegetable oil",
+      "1 bell pepper, sliced",
+      "1 cup broccoli florets",
+      "1 carrot, julienned",
+      "3 cloves garlic, minced",
+      "1 inch ginger, grated",
+      "3 tbsp soy sauce",
+      "1 tbsp oyster sauce",
+      "1 tsp sesame oil",
+      "2 green onions, chopped",
+      "Cooked rice for serving"
+    ],
+    "instructions": [
+      "Heat 1 tablespoon oil in a large wok or skillet over high heat.",
+      "Add chicken pieces and cook for 4-5 minutes until golden and cooked through.",
+      "Remove chicken and set aside.",
+      "Add remaining oil to the same pan, add garlic and ginger, stir for 30 seconds.",
+      "Add bell pepper, broccoli, and carrot. Stir-fry for 3-4 minutes until crisp-tender.",
+      "Return chicken to the pan.",
+      "Mix soy sauce, oyster sauce, and sesame oil in a small bowl.",
+      "Pour sauce over the stir-fry and toss everything together for 1-2 minutes.",
+      "Garnish with green onions and serve over rice."
+    ],
+    "steps": [
+      {
+        "instruction": "Heat 1 tablespoon oil in a large wok or skillet over high heat.",
+        "imagePrompt": "Hot oil shimmering in a large wok over high heat with wisps of steam",
+        "estimatedTime": "1-2 minutes",
+        "tip": "The oil should shimmer and move freely when the pan is hot enough"
+      },
+      {
+        "instruction": "Add chicken pieces and cook for 4-5 minutes until golden and cooked through.",
+        "imagePrompt": "Bite-sized chicken pieces searing and turning golden brown in the hot wok",
+        "estimatedTime": "4-5 minutes",
+        "tip": "Don't move the chicken too soon - let it develop a golden crust first"
+      },
+      {
+        "instruction": "Remove chicken and set aside.",
+        "imagePrompt": "Golden cooked chicken pieces being removed from wok and placed in a clean bowl",
+        "estimatedTime": "30 seconds",
+        "tip": "Keep the chicken warm by covering with foil"
+      },
+      {
+        "instruction": "Add remaining oil to the same pan, add garlic and ginger, stir for 30 seconds.",
+        "imagePrompt": "Minced garlic and grated ginger sizzling in oil in the wok, very aromatic",
+        "estimatedTime": "30 seconds",
+        "tip": "Work quickly - garlic and ginger can burn easily at high heat"
+      },
+      {
+        "instruction": "Add bell pepper, broccoli, and carrot. Stir-fry for 3-4 minutes until crisp-tender.",
+        "imagePrompt": "Colorful vegetables - bell pepper, broccoli, and julienned carrots being stir-fried",
+        "estimatedTime": "3-4 minutes",
+        "tip": "Keep the vegetables moving constantly for even cooking"
+      },
+      {
+        "instruction": "Return chicken to the pan.",
+        "imagePrompt": "Cooked chicken being added back to the wok with the colorful vegetables",
+        "estimatedTime": "30 seconds",
+        "tip": "Add the chicken back to warm through and combine flavors"
+      },
+      {
+        "instruction": "Mix soy sauce, oyster sauce, and sesame oil in a small bowl.",
+        "imagePrompt": "Dark soy sauce, oyster sauce, and sesame oil being mixed together in a small bowl",
+        "estimatedTime": "30 seconds",
+        "tip": "Mix the sauce beforehand for quick addition to the hot wok"
+      },
+      {
+        "instruction": "Pour sauce over the stir-fry and toss everything together for 1-2 minutes.",
+        "imagePrompt": "Dark glossy sauce being poured over the chicken and vegetables, everything glistening",
+        "estimatedTime": "1-2 minutes",
+        "tip": "Toss quickly to coat everything evenly with the sauce"
+      },
+      {
+        "instruction": "Garnish with green onions and serve over rice.",
+        "imagePrompt": "Beautiful stir-fry garnished with chopped green onions served over steamed white rice",
+        "estimatedTime": "1 minute",
+        "tip": "Serve immediately while everything is hot and vibrant"
+      }
+    ],
+    "tips": [
+      "Cut all ingredients before you start cooking - stir frying is fast!",
+      "Keep the heat high for that perfect 'wok hei' flavor",
+      "Don't overcrowd the pan or vegetables will steam instead of stir-fry"
+    ],
+    "nutrition": {
+      "calories": 285,
+      "protein": "32g",
+      "carbs": "12g",
+      "fat": "12g"
+    }
+  },
+  {
+    "id": "caprese-grilled-cheese",
+    "title": "Gourmet Caprese Grilled Cheese",
+    "description": "Elevate your grilled cheese game with fresh mozzarella, tomatoes, and basil.",
+    "prepTime": "5 minutes",
+    "cookTime": "8 minutes",
+    "totalTime": "13 minutes",
+    "servings": 2,
+    "difficulty": "Easy",
+    "category": "American",
+    "tags": ["quick", "comfort food", "cheese", "vegetarian"],
+    "ingredients": [
+      "4 slices artisan bread",
+      "8 oz fresh mozzarella, sliced",
+      "2 large tomatoes, sliced",
+      "1/4 cup fresh basil leaves",
+      "2 tbsp butter, softened",
+      "1 tbsp balsamic glaze",
+      "Salt and pepper to taste"
+    ],
+    "instructions": [
+      "Butter one side of each bread slice.",
+      "On the unbuttered side, layer mozzarella, tomato slices, and basil leaves.",
+      "Season tomatoes with salt and pepper.",
+      "Top with remaining bread slices, buttered side facing out.",
+      "Heat a skillet over medium heat.",
+      "Cook sandwiches for 3-4 minutes per side until golden and cheese is melted.",
+      "Remove from heat and let cool for 1 minute.",
+      "Drizzle with balsamic glaze before serving.",
+      "Cut diagonally and serve warm."
+    ],
+    "steps": [
+      {
+        "instruction": "Butter one side of each bread slice.",
+        "imagePrompt": "Artisan bread slices being buttered with softened butter using a knife",
+        "estimatedTime": "2 minutes",
+        "tip": "Use softened butter for easy spreading without tearing the bread"
+      },
+      {
+        "instruction": "On the unbuttered side, layer mozzarella, tomato slices, and basil leaves.",
+        "imagePrompt": "Fresh mozzarella, tomato slices, and basil leaves being layered on unbuttered bread",
+        "estimatedTime": "2 minutes",
+        "tip": "Don't overfill - the cheese needs room to melt properly"
+      },
+      {
+        "instruction": "Season tomatoes with salt and pepper.",
+        "imagePrompt": "Salt and black pepper being sprinkled over fresh tomato slices",
+        "estimatedTime": "30 seconds",
+        "tip": "Seasoning the tomatoes brings out their natural sweetness"
+      },
+      {
+        "instruction": "Top with remaining bread slices, buttered side facing out.",
+        "imagePrompt": "Assembled sandwich with buttered sides facing outward, ready for grilling",
+        "estimatedTime": "30 seconds",
+        "tip": "Make sure the buttered sides are on the outside for perfect browning"
+      },
+      {
+        "instruction": "Heat a skillet over medium heat.",
+        "imagePrompt": "Cast iron skillet heating up over medium heat on stovetop",
+        "estimatedTime": "2 minutes",
+        "tip": "Medium heat ensures the cheese melts before the bread burns"
+      },
+      {
+        "instruction": "Cook sandwiches for 3-4 minutes per side until golden and cheese is melted.",
+        "imagePrompt": "Golden brown grilled cheese sandwich cooking in the skillet with melted cheese visible",
+        "estimatedTime": "6-8 minutes",
+        "tip": "Press gently with spatula to ensure even browning and cheese melting"
+      },
+      {
+        "instruction": "Remove from heat and let cool for 1 minute.",
+        "imagePrompt": "Perfect golden grilled cheese sandwich cooling on a cutting board",
+        "estimatedTime": "1 minute",
+        "tip": "Let it cool slightly to prevent burns and allow cheese to set"
+      },
+      {
+        "instruction": "Drizzle with balsamic glaze before serving.",
+        "imagePrompt": "Balsamic glaze being drizzled artistically over the grilled cheese sandwich",
+        "estimatedTime": "30 seconds",
+        "tip": "The balsamic adds a sweet-tangy finish that complements the caprese flavors"
+      },
+      {
+        "instruction": "Cut diagonally and serve warm.",
+        "imagePrompt": "Beautiful caprese grilled cheese cut diagonally, showing melted cheese and fresh ingredients",
+        "estimatedTime": "30 seconds",
+        "tip": "Diagonal cuts look more appealing and are easier to eat"
+      }
+    ],
+    "tips": [
+      "Use day-old bread for better structure",
+      "Pat tomatoes dry to prevent soggy bread",
+      "Cook on medium heat to ensure cheese melts before bread burns"
+    ],
+    "nutrition": {
+      "calories": 465,
+      "protein": "22g",
+      "carbs": "35g",
+      "fat": "28g"
+    }
+  },
+  {
+    "id": "shrimp-scampi",
+    "title": "Buttery Shrimp Scampi",
+    "description": "Restaurant-quality shrimp scampi that's surprisingly easy to make at home.",
+    "prepTime": "10 minutes",
+    "cookTime": "15 minutes",
+    "totalTime": "25 minutes",
+    "servings": 4,
+    "difficulty": "Medium",
+    "category": "Italian",
+    "tags": ["seafood", "garlic", "pasta", "butter"],
+    "ingredients": [
+      "1 lb large shrimp, peeled and deveined",
+      "12 oz linguine pasta",
+      "6 tbsp butter",
+      "6 cloves garlic, minced",
+      "1/2 cup white wine",
+      "1/4 cup fresh lemon juice",
+      "1/4 cup fresh parsley, chopped",
+      "1/4 tsp red pepper flakes",
+      "Salt and black pepper",
+      "Parmesan cheese for serving"
+    ],
+    "instructions": [
+      "Cook linguine according to package directions, reserve 1/2 cup pasta water.",
+      "Season shrimp with salt and pepper.",
+      "Heat 2 tablespoons butter in a large skillet over medium-high heat.",
+      "Add shrimp and cook for 1-2 minutes per side until pink. Remove and set aside.",
+      "Add garlic to the same pan and cook for 30 seconds until fragrant.",
+      "Add white wine and lemon juice, simmer for 2 minutes.",
+      "Stir in remaining butter and red pepper flakes.",
+      "Return shrimp to pan and add cooked pasta.",
+      "Toss with pasta water to create a silky sauce.",
+      "Garnish with parsley and serve with Parmesan."
+    ],
+    "steps": [
+      {
+        "instruction": "Cook linguine according to package directions, reserve 1/2 cup pasta water.",
+        "imagePrompt": "Linguine pasta cooking in boiling salted water, pasta water being reserved in a cup",
+        "estimatedTime": "10-12 minutes",
+        "tip": "Cook pasta just until al dente as it will finish cooking in the sauce"
+      },
+      {
+        "instruction": "Season shrimp with salt and pepper.",
+        "imagePrompt": "Large peeled shrimp being seasoned with salt and black pepper",
+        "estimatedTime": "1 minute",
+        "tip": "Pat shrimp dry first for better seasoning adherence and searing"
+      },
+      {
+        "instruction": "Heat 2 tablespoons butter in a large skillet over medium-high heat.",
+        "imagePrompt": "Butter melting and foaming in a large stainless steel skillet",
+        "estimatedTime": "1-2 minutes",
+        "tip": "The butter should foam but not brown - that's the perfect heat"
+      },
+      {
+        "instruction": "Add shrimp and cook for 1-2 minutes per side until pink. Remove and set aside.",
+        "imagePrompt": "Large shrimp searing in butter, turning pink and golden on both sides",
+        "estimatedTime": "2-4 minutes",
+        "tip": "Don't overcook - shrimp should be just pink and slightly firm"
+      },
+      {
+        "instruction": "Add garlic to the same pan and cook for 30 seconds until fragrant.",
+        "imagePrompt": "Minced garlic sizzling in the same pan with butter and shrimp drippings",
+        "estimatedTime": "30 seconds",
+        "tip": "Garlic cooks quickly - stir constantly to prevent burning"
+      },
+      {
+        "instruction": "Add white wine and lemon juice, simmer for 2 minutes.",
+        "imagePrompt": "White wine and fresh lemon juice being added to the pan, creating a light sauce",
+        "estimatedTime": "2 minutes",
+        "tip": "The wine will reduce and concentrate, creating a flavorful base"
+      },
+      {
+        "instruction": "Stir in remaining butter and red pepper flakes.",
+        "imagePrompt": "Cold butter being whisked into the wine sauce with red pepper flakes",
+        "estimatedTime": "1 minute",
+        "tip": "Add cold butter off heat and whisk vigorously for a silky sauce"
+      },
+      {
+        "instruction": "Return shrimp to pan and add cooked pasta.",
+        "imagePrompt": "Cooked shrimp and linguine being combined in the buttery wine sauce",
+        "estimatedTime": "1 minute",
+        "tip": "Toss gently to coat the pasta and reheat the shrimp"
+      },
+      {
+        "instruction": "Toss with pasta water to create a silky sauce.",
+        "imagePrompt": "Pasta water being added to create a glossy, silky sauce coating everything",
+        "estimatedTime": "1 minute",
+        "tip": "Add pasta water gradually until you achieve the perfect consistency"
+      },
+      {
+        "instruction": "Garnish with parsley and serve with Parmesan.",
+        "imagePrompt": "Beautiful shrimp scampi garnished with fresh parsley and grated Parmesan cheese",
+        "estimatedTime": "30 seconds",
+        "tip": "Serve immediately in warmed bowls for the best experience"
+      }
+    ],
+    "tips": [
+      "Don't overcook shrimp - they cook very quickly",
+      "Use real Parmesan cheese for the best flavor",
+      "Pasta water helps bind the sauce together"
+    ],
+    "nutrition": {
+      "calories": 445,
+      "protein": "28g",
+      "carbs": "52g",
+      "fat": "14g"
+    }
+  },
+  {
+    "id": "mediterranean-quesadilla",
+    "title": "Mediterranean Veggie Quesadilla",
+    "description": "A fusion twist on quesadillas with Mediterranean flavors and vegetables.",
+    "prepTime": "8 minutes",
+    "cookTime": "12 minutes",
+    "totalTime": "20 minutes",
+    "servings": 2,
+    "difficulty": "Easy",
+    "category": "Fusion",
+    "tags": ["vegetarian", "mediterranean", "quick", "cheese"],
+    "ingredients": [
+      "4 large flour tortillas",
+      "1 cup feta cheese, crumbled",
+      "1/2 cup sun-dried tomatoes, chopped",
+      "1/2 cup spinach leaves",
+      "1/4 cup kalamata olives, sliced",
+      "1/4 red onion, thinly sliced",
+      "2 tbsp olive oil",
+      "1 tsp dried oregano",
+      "Tzatziki sauce for serving"
+    ],
+    "instructions": [
+      "Brush one side of each tortilla with olive oil.",
+      "On the unbuttered side of 2 tortillas, layer feta, sun-dried tomatoes, spinach, olives, and red onion.",
+      "Sprinkle with oregano and top with remaining tortillas (oiled side up).",
+      "Heat a large skillet over medium heat.",
+      "Cook quesadillas one at a time, 3-4 minutes per side until golden and crispy.",
+      "Remove from heat and let cool for 2 minutes.",
+      "Cut into wedges and serve with tzatziki sauce.",
+      "Garnish with fresh herbs if desired."
+    ],
+    "steps": [
+      {
+        "instruction": "Brush one side of each tortilla with olive oil.",
+        "imagePrompt": "Large flour tortillas being brushed with golden olive oil using a pastry brush",
+        "estimatedTime": "2 minutes",
+        "tip": "Brush evenly for consistent browning and crispiness"
+      },
+      {
+        "instruction": "On the unbuttered side of 2 tortillas, layer feta, sun-dried tomatoes, spinach, olives, and red onion.",
+        "imagePrompt": "Mediterranean ingredients - feta, sun-dried tomatoes, spinach, olives being layered on tortilla",
+        "estimatedTime": "3-4 minutes",
+        "tip": "Don't overfill or the quesadilla will be difficult to flip"
+      },
+      {
+        "instruction": "Sprinkle with oregano and top with remaining tortillas (oiled side up).",
+        "imagePrompt": "Dried oregano being sprinkled over the filling, topped with oiled tortilla",
+        "estimatedTime": "1 minute",
+        "tip": "Press gently to help the tortillas stick together"
+      },
+      {
+        "instruction": "Heat a large skillet over medium heat.",
+        "imagePrompt": "Large non-stick skillet heating on stovetop over medium heat",
+        "estimatedTime": "2 minutes",
+        "tip": "Medium heat prevents burning while allowing the cheese to melt"
+      },
+      {
+        "instruction": "Cook quesadillas one at a time, 3-4 minutes per side until golden and crispy.",
+        "imagePrompt": "Golden crispy quesadilla cooking in the skillet, showing beautiful browning",
+        "estimatedTime": "6-8 minutes per quesadilla",
+        "tip": "Press lightly with spatula to ensure even browning"
+      },
+      {
+        "instruction": "Remove from heat and let cool for 2 minutes.",
+        "imagePrompt": "Perfectly golden quesadilla cooling on a cutting board",
+        "estimatedTime": "2 minutes",
+        "tip": "Cooling prevents the hot filling from spilling out when cut"
+      },
+      {
+        "instruction": "Cut into wedges and serve with tzatziki sauce.",
+        "imagePrompt": "Mediterranean quesadilla cut into wedges served with creamy tzatziki sauce",
+        "estimatedTime": "1 minute",
+        "tip": "Use a sharp knife or pizza cutter for clean cuts"
+      },
+      {
+        "instruction": "Garnish with fresh herbs if desired.",
+        "imagePrompt": "Quesadilla wedges beautifully plated with tzatziki and fresh herb garnish",
+        "estimatedTime": "30 seconds",
+        "tip": "Fresh dill or parsley complement the Mediterranean flavors perfectly"
+      }
+    ],
+    "tips": [
+      "Don't overfill or ingredients will spill out",
+      "Press gently with spatula while cooking for even browning",
+      "Let cool slightly before cutting to prevent filling from falling out"
+    ],
+    "nutrition": {
+      "calories": 385,
+      "protein": "16g",
+      "carbs": "38g",
+      "fat": "20g"
+    }
+  },
+  {
+    "id": "teriyaki-salmon",
+    "title": "Honey Teriyaki Salmon",
+    "description": "Flaky salmon glazed with a sweet and savory teriyaki sauce, ready in 20 minutes.",
+    "prepTime": "5 minutes",
+    "cookTime": "15 minutes",
+    "totalTime": "20 minutes",
+    "servings": 4,
+    "difficulty": "Medium",
+    "category": "Asian",
+    "tags": ["seafood", "healthy", "protein", "glaze"],
+    "ingredients": [
+      "4 salmon fillets (6 oz each)",
+      "1/4 cup soy sauce",
+      "3 tbsp honey",
+      "2 tbsp rice vinegar",
+      "2 cloves garlic, minced",
+      "1 tsp fresh ginger, grated",
+      "1 tbsp cornstarch",
+      "2 tbsp water",
+      "2 green onions, sliced",
+      "1 tbsp sesame seeds"
+    ],
+    "instructions": [
+      "Preheat oven to 400°F (200°C).",
+      "In a small saucepan, whisk together soy sauce, honey, rice vinegar, garlic, and ginger.",
+      "Bring to a simmer over medium heat.",
+      "Mix cornstarch and water, add to the sauce and cook until thickened, about 2 minutes.",
+      "Place salmon fillets on a lined baking sheet.",
+      "Brush salmon with half of the teriyaki glaze.",
+      "Bake for 12-15 minutes or until salmon flakes easily.",
+      "Brush with remaining glaze during the last 5 minutes of cooking.",
+      "Garnish with green onions and sesame seeds before serving."
+    ],
+    "steps": [
+      {
+        "instruction": "Preheat oven to 400°F (200°C).",
+        "imagePrompt": "Oven being preheated to 400°F, showing temperature display",
+        "estimatedTime": "10 minutes",
+        "tip": "Proper preheating ensures even cooking of the salmon"
+      },
+      {
+        "instruction": "In a small saucepan, whisk together soy sauce, honey, rice vinegar, garlic, and ginger.",
+        "imagePrompt": "Soy sauce, honey, rice vinegar, minced garlic and ginger being whisked in small saucepan",
+        "estimatedTime": "2 minutes",
+        "tip": "Whisk thoroughly to ensure honey is completely dissolved"
+      },
+      {
+        "instruction": "Bring to a simmer over medium heat.",
+        "imagePrompt": "Teriyaki sauce mixture gently simmering in the saucepan with small bubbles",
+        "estimatedTime": "3-4 minutes",
+        "tip": "Simmer, don't boil - gentle heat prevents scorching"
+      },
+      {
+        "instruction": "Mix cornstarch and water, add to the sauce and cook until thickened, about 2 minutes.",
+        "imagePrompt": "Cornstarch slurry being stirred into the simmering sauce, becoming glossy and thick",
+        "estimatedTime": "2 minutes",
+        "tip": "Stir constantly when adding cornstarch to prevent lumps"
+      },
+      {
+        "instruction": "Place salmon fillets on a lined baking sheet.",
+        "imagePrompt": "Fresh salmon fillets arranged on parchment-lined baking sheet",
+        "estimatedTime": "1 minute",
+        "tip": "Line with parchment for easy cleanup and prevent sticking"
+      },
+      {
+        "instruction": "Brush salmon with half of the teriyaki glaze.",
+        "imagePrompt": "Glossy teriyaki glaze being brushed onto raw salmon fillets with a pastry brush",
+        "estimatedTime": "1 minute",
+        "tip": "Reserve half the glaze for the final coating"
+      },
+      {
+        "instruction": "Bake for 12-15 minutes or until salmon flakes easily.",
+        "imagePrompt": "Glazed salmon fillets baking in the oven, starting to caramelize beautifully",
+        "estimatedTime": "12-15 minutes",
+        "tip": "Test doneness by gently flaking with a fork - center should be slightly translucent"
+      },
+      {
+        "instruction": "Brush with remaining glaze during the last 5 minutes of cooking.",
+        "imagePrompt": "Nearly cooked salmon being brushed with remaining glaze for final glossy coating",
+        "estimatedTime": "1 minute",
+        "tip": "This final glaze creates a beautiful lacquered finish"
+      },
+      {
+        "instruction": "Garnish with green onions and sesame seeds before serving.",
+        "imagePrompt": "Perfect honey teriyaki salmon garnished with sliced green onions and sesame seeds",
+        "estimatedTime": "30 seconds",
+        "tip": "Serve immediately while the glaze is still glossy and the salmon is warm"
+      }
+    ],
+    "tips": [
+      "Don't overcook salmon - it should be slightly translucent in the center",
+      "Let the glaze thicken properly for better coating",
+      "Serve with steamed rice and vegetables"
+    ],
+    "nutrition": {
+      "calories": 320,
+      "protein": "35g",
+      "carbs": "15g",
+      "fat": "14g"
+    }
+  }
+]
