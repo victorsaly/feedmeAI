@@ -113,7 +113,7 @@ export function NavigationMenu({
                     flex-1 min-w-[120px] h-auto p-3 flex flex-col items-center gap-2
                     ${isActive 
                       ? 'bg-white text-green-700 border border-green-200 shadow-sm' 
-                      : 'text-green-50 hover:bg-green-400/20 hover:text-white'
+                      : 'text-white hover:bg-white/10 hover:border hover:border-white/20 hover:shadow-sm transition-all duration-200'
                     }
                   `}
                 >
@@ -184,10 +184,10 @@ export function MobileNavigationMenu({
                 variant={isActive ? "default" : "outline"}
                 onClick={() => onSectionChange(item.id)}
                 className={`
-                  flex-shrink-0 px-4 py-2 flex items-center gap-2
+                  flex-shrink-0 px-4 py-2 flex items-center gap-2 transition-all duration-200
                   ${isActive 
                     ? 'bg-white text-green-700 border-green-200' 
-                    : 'text-green-50 border-green-400/30 hover:bg-green-400/20 hover:border-green-200 hover:text-white'
+                    : 'text-white border-white/20 hover:bg-white/10 hover:border-white/30 hover:shadow-sm'
                   }
                 `}
               >

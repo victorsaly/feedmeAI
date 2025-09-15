@@ -12,6 +12,9 @@ import {
   Clock,
   ChefHat,
   ArrowLeft,
+  ArrowRight,
+  CaretLeft,
+  CaretRight,
   Heart,
   Check
 } from '@phosphor-icons/react'
@@ -47,6 +50,8 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
   const [imageLoadingStates, setImageLoadingStates] = useState<{ [key: number]: 'idle' | 'loading' | 'loaded' | 'error' }>({})
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [autoPlayTimer, setAutoPlayTimer] = useState<ReturnType<typeof setTimeout> | null>(null)
+  const [autoPlayProgress, setAutoPlayProgress] = useState(0)
+  const [progressTimer, setProgressTimer] = useState<ReturnType<typeof setInterval> | null>(null)
 
   const analyzer = new OpenAIAnalyzer(import.meta.env.VITE_OPENAI_API_KEY)
 
@@ -176,11 +181,33 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
   }, [])
 
   useEffect(() => {
-    if (isPlaying && autoPlayTimer) {
+    // Clear existing timers
+    if (autoPlayTimer) {
       clearTimeout(autoPlayTimer)
+    }
+    if (progressTimer) {
+      clearInterval(progressTimer)
     }
 
     if (isPlaying) {
+      const duration = 8000 // 8 seconds per step
+      const interval = 50 // Update every 50ms for smooth progress
+      let elapsed = 0
+      
+      setAutoPlayProgress(0)
+      
+      // Progress update timer
+      const pTimer = setInterval(() => {
+        elapsed += interval
+        const progress = (elapsed / duration) * 100
+        setAutoPlayProgress(Math.min(progress, 100))
+        
+        if (elapsed >= duration) {
+          clearInterval(pTimer)
+        }
+      }, interval)
+      
+      // Auto-advance timer
       const timer = setTimeout(() => {
         if (currentStep < totalSteps - 1) {
           nextStep()
@@ -188,17 +215,53 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
           setIsPlaying(false)
           toast.success("🎉 Cooking tutorial completed!")
         }
-      }, 8000) // 8 seconds per step
+        setAutoPlayProgress(0)
+      }, duration)
       
+      setProgressTimer(pTimer)
       setAutoPlayTimer(timer)
+    } else {
+      setAutoPlayProgress(0)
     }
 
     return () => {
       if (autoPlayTimer) {
         clearTimeout(autoPlayTimer)
       }
+      if (progressTimer) {
+        clearInterval(progressTimer)
+      }
     }
   }, [isPlaying, currentStep])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          if (currentStep > 0) {
+            previousStep()
+          }
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          if (currentStep < totalSteps - 1) {
+            nextStep()
+          }
+          break
+        case ' ':
+          event.preventDefault()
+          togglePlayPause()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [currentStep, totalSteps])
 
   const generateAllStepImages = async () => {
     // Initialize loading states for all steps
@@ -431,10 +494,25 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
               recipeTitle={recipe.title}
             />
             
-            {/* Step Number Overlay */}
+            {/* Step Number Overlay with Auto-play Progress */}
             <div className="absolute top-4 left-4">
-              <div className="bg-white/90 backdrop-blur-sm rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">
-                {currentStep + 1}
+              <div className="relative">
+                {/* Progress ring for auto-play */}
+                {isPlaying && (
+                  <div className="absolute -inset-2">
+                    <div 
+                      className="w-16 h-16 rounded-full border-4 border-transparent"
+                      style={{
+                        background: `conic-gradient(from -90deg, hsl(var(--primary)) ${autoPlayProgress}%, transparent ${autoPlayProgress}%)`
+                      }}
+                    />
+                    <div className="absolute inset-1 bg-white rounded-full" />
+                  </div>
+                )}
+                
+                <div className="relative bg-white/90 backdrop-blur-sm rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">
+                  {currentStep + 1}
+                </div>
               </div>
             </div>
 
@@ -454,6 +532,31 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
                   <div className="w-3 h-3 border border-white/50 border-t-white rounded-full animate-spin"></div>
                 </div>
               </div>
+            )}
+
+            {/* Floating Arrow Navigation */}
+            {!isFirstStep && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={previousStep}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg border-white/20 z-10"
+                title="Previous step"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+            )}
+            
+            {!isLastStep && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={nextStep}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg border-white/20 z-10"
+                title="Next step"
+              >
+                <ArrowRight size={20} />
+              </Button>
             )}
 
             {/* Time Estimate */}
@@ -488,48 +591,71 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
               )}
             </div>
 
-            {/* Video-Style Controls */}
+            {/* Enhanced Controls with Arrow Navigation */}
             <div className="flex items-center justify-between pt-4 border-t">
+              {/* Left Side - Navigation */}
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={previousStep}
                   disabled={isFirstStep}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 hover:bg-primary/10"
+                  title="Previous step (← arrow key)"
                 >
-                  <SkipBack size={16} />
+                  <CaretLeft size={16} />
                   Previous
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={togglePlayPause}
-                  className="flex items-center gap-2"
-                >
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                  {isPlaying ? 'Pause' : 'Play'}
-                </Button>
+                <div className="relative">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={togglePlayPause}
+                    className="flex items-center gap-2 relative overflow-hidden"
+                    title="Toggle auto-play (spacebar)"
+                  >
+                    {/* Auto-play progress ring */}
+                    {isPlaying && (
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div 
+                          className="absolute inset-0 rounded-md border-2 border-primary/20"
+                          style={{
+                            background: `conic-gradient(from 0deg, hsl(var(--primary)) ${autoPlayProgress}%, transparent ${autoPlayProgress}%)`
+                          }}
+                        />
+                        <div className="absolute inset-0.5 bg-background rounded-sm" />
+                      </div>
+                    )}
+                    
+                    <div className="relative z-10 flex items-center gap-2">
+                      {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                      {isPlaying ? 'Pause' : 'Auto-Play'}
+                    </div>
+                  </Button>
+                </div>
                 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={nextStep}
                   disabled={isLastStep}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 hover:bg-primary/10"
+                  title="Next step (→ arrow key)"
                 >
                   Next
-                  <SkipForward size={16} />
+                  <CaretRight size={16} />
                 </Button>
               </div>
 
+              {/* Right Side - Actions */}
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={restartTutorial}
                   className="flex items-center gap-2"
+                  title="Restart from beginning"
                 >
                   <ArrowCounterClockwise size={16} />
                   Restart
@@ -584,6 +710,22 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
                 Step {index + 1}
               </Button>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Keyboard Shortcuts Help */}
+      <Card className="bg-muted/50">
+        <CardContent className="p-3">
+          <div className="text-sm text-muted-foreground text-center space-x-4">
+            <span><strong>←</strong> Previous</span>
+            <span><strong>→</strong> Next</span>
+            <span><strong>Space</strong> Play/Pause</span>
+            {isPlaying && (
+              <span className="text-primary font-medium">
+                • Auto-advance in {Math.ceil((100 - autoPlayProgress) / 12.5)}s
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
