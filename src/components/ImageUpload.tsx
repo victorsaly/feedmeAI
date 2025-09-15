@@ -16,6 +16,7 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
   const [dragActive, setDragActive] = useState(false)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -38,6 +39,12 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
   }
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0])
+    }
+  }
+
+  const handleCameraInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0])
     }
@@ -102,16 +109,16 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
   }
 
   const triggerCameraInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.setAttribute('capture', 'environment')
-      fileInputRef.current.click()
-    }
+    cameraInputRef.current?.click()
   }
 
   const resetUpload = () => {
     setUploadedImage(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = ''
     }
   }
 
@@ -201,15 +208,26 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
           className="w-full flex items-center justify-center gap-3"
         >
           <Upload size={20} />
-          💾 Choose File
+          � Photo Library
         </Button>
       </div>
 
+      {/* Gallery/File input - no capture attribute */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileInput}
+        className="hidden"
+      />
+      
+      {/* Camera input - with capture attribute */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleCameraInput}
         className="hidden"
       />
 
