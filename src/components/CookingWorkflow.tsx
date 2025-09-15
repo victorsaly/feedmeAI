@@ -5,12 +5,13 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
-import { Clock, ChefHat, ArrowRight, ArrowLeft, CheckCircle, Warning, Lightbulb, Image as ImageIcon } from '@phosphor-icons/react'
+import { Clock, ChefHat, ArrowRight, ArrowLeft, CheckCircle, Warning, Lightbulb, Image as ImageIcon, Play } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
 import type { Recipe } from '../lib/openai-analyzer'
 import { OpenAIAnalyzer } from '../lib/openai-analyzer'
 import { FavoritesStorage } from '../lib/favorites-storage'
+import { CookingTutorial } from './CookingTutorial'
 
 interface CookingWorkflowProps {
   ingredients: Ingredient[]
@@ -18,7 +19,7 @@ interface CookingWorkflowProps {
   onBackToUpload: () => void
 }
 
-type WorkflowStep = 'selection' | 'preparation' | 'cooking'
+type WorkflowStep = 'selection' | 'preparation' | 'cooking' | 'tutorial'
 
 // Enhanced demo recipes with detailed instructions and tips
 const DEMO_RECIPES: Recipe[] = [
@@ -145,6 +146,15 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
   const startCooking = () => {
     setCurrentStep('cooking')
     toast.success('🍳 Let\'s start cooking! Follow along step by step.')
+  }
+
+  const startTutorial = () => {
+    setCurrentStep('tutorial')
+    toast.success('🎬 Starting interactive cooking tutorial!')
+  }
+
+  const backToPreparation = () => {
+    setCurrentStep('preparation')
   }
 
   const saveRecipeAsFavorite = () => {
@@ -412,14 +422,25 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
         </Card>
 
         <div className="text-center">
-          <Button 
-            onClick={startCooking}
-            size="lg"
-            className="flex items-center gap-2 px-8"
-          >
-            Start Cooking!
-            <ArrowRight size={18} />
-          </Button>
+          <div className="flex gap-3 justify-center">
+            <Button 
+              onClick={startCooking}
+              size="lg"
+              className="flex items-center gap-2 px-6"
+            >
+              <ChefHat size={18} />
+              Quick Start
+            </Button>
+            <Button 
+              onClick={startTutorial}
+              variant="secondary"
+              size="lg"
+              className="flex items-center gap-2 px-6"
+            >
+              <Play size={18} />
+              Video Tutorial
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -512,6 +533,43 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
             Save This Recipe
           </Button>
         </div>
+      </div>
+    )
+  }
+
+  // Tutorial Step
+  if (currentStep === 'tutorial' && selectedRecipe) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Play className="w-6 h-6" />
+                Interactive Cooking Tutorial
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={backToPreparation}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CookingTutorial 
+              recipe={selectedRecipe}
+              onBack={backToPreparation}
+              onComplete={() => {
+                toast.success('🎉 Tutorial completed! Great job!')
+                setCurrentStep('preparation')
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
     )
   }
