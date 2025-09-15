@@ -120,9 +120,9 @@ export function NavigationMenu({
                   <div className="flex items-center gap-2">
                     <Icon 
                       size={20} 
-                      className={isActive ? item.color : 'text-gray-600'} 
+                      className={isActive ? item.color : 'text-white'} 
                     />
-                    <span className={`font-medium text-sm ${isActive ? item.color : 'text-gray-700'}`}>
+                    <span className={`font-medium text-sm ${isActive ? item.color : 'text-white'}`}>
                       {item.label}
                     </span>
                     
@@ -141,7 +141,7 @@ export function NavigationMenu({
                     )}
                   </div>
                   
-                  <span className={`text-xs text-center ${isActive ? item.color : 'text-gray-500'}`}>
+                  <span className={`text-xs text-center ${isActive ? item.color : 'text-green-100'}`}>
                     {item.description}
                   </span>
                 </Button>

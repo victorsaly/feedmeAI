@@ -265,7 +265,7 @@ function App() {
       </div>
 
       <Toaster />
-      <ImagePerformanceDashboard />
+      {import.meta.env.DEV && <ImagePerformanceDashboard />}
       </div>
     </div>
   )
