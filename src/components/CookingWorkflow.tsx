@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
-import { Clock, ChefHat, ArrowRight, ArrowLeft, CheckCircle, Warning, Lightbulb, Image as ImageIcon, Play } from '@phosphor-icons/react'
+import { Clock, ChefHat, ArrowRight, ArrowLeft, CheckCircle, Warning, Lightbulb, Image as ImageIcon, Play, Heart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
 import type { Recipe } from '../lib/openai-analyzer'
@@ -95,6 +95,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
   const [isLoadingRecipes, setIsLoadingRecipes] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
 
   const analyzer = new OpenAIAnalyzer(import.meta.env.VITE_OPENAI_API_KEY)
 
@@ -108,6 +109,14 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
     
     generateRecipes()
   }, [ingredients, selectedRecipe])
+
+  // Check favorite status when recipe changes
+  useEffect(() => {
+    if (workflowSelectedRecipe) {
+      const favoriteStatus = FavoritesStorage.isFavorite(workflowSelectedRecipe.id || workflowSelectedRecipe.title)
+      setIsFavorited(favoriteStatus)
+    }
+  }, [workflowSelectedRecipe])
 
   const generateRecipes = async () => {
     setIsLoadingRecipes(true)
@@ -166,18 +175,30 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
   }
 
   const saveRecipeAsFavorite = () => {
-    if (!selectedRecipe) return
+    if (!workflowSelectedRecipe) return
     
-    const recipeToSave = {
-      ...selectedRecipe,
-      originalImageBase64,
-      generatedImageUrl: generatedImage || undefined,
-      createdAt: new Date().toISOString(),
-      isFavorite: true
+    const recipeId = workflowSelectedRecipe.id || workflowSelectedRecipe.title
+    
+    if (isFavorited) {
+      // Remove from favorites
+      FavoritesStorage.removeFavorite(recipeId)
+      setIsFavorited(false)
+      toast.success('💔 Recipe removed from favorites')
+    } else {
+      // Add to favorites
+      const recipeToSave = {
+        ...workflowSelectedRecipe,
+        id: recipeId,
+        originalImageBase64,
+        generatedImageUrl: generatedImage || undefined,
+        createdAt: new Date().toISOString(),
+        isFavorite: true
+      }
+      
+      FavoritesStorage.saveFavorite(recipeToSave)
+      setIsFavorited(true)
+      toast.success('❤️ Recipe saved to your favorites!')
     }
-    
-    FavoritesStorage.saveFavorite(recipeToSave)
-    toast.success('❤️ Recipe saved to your favorites!')
   }
 
   const checkIngredientFreshness = (ingredient: string) => {
@@ -330,22 +351,22 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
         </div>
 
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-2">{selectedRecipe.title}</h2>
+          <h2 className="text-3xl font-bold mb-2">{workflowSelectedRecipe.title}</h2>
           <p className="text-muted-foreground text-lg mb-4">
-            {selectedRecipe.description}
+            {workflowSelectedRecipe.description}
           </p>
           
           <div className="flex gap-3 justify-center mb-6">
             <Badge variant="outline" className="flex items-center gap-2 px-4 py-2">
               <Clock size={16} />
-              {selectedRecipe.cookingTime}
+              {workflowSelectedRecipe.cookingTime}
             </Badge>
             <Badge 
-              variant={selectedRecipe.difficulty === 'Easy' ? 'default' : selectedRecipe.difficulty === 'Medium' ? 'secondary' : 'destructive'}
+              variant={workflowSelectedRecipe.difficulty === 'Easy' ? 'default' : workflowSelectedRecipe.difficulty === 'Medium' ? 'secondary' : 'destructive'}
               className="px-4 py-2"
             >
               <ChefHat size={16} className="mr-1" />
-              {selectedRecipe.difficulty}
+              {workflowSelectedRecipe.difficulty}
             </Badge>
           </div>
         </div>
@@ -360,7 +381,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
           ) : generatedImage ? (
             <img 
               src={generatedImage} 
-              alt={selectedRecipe.title}
+              alt={workflowSelectedRecipe.title}
               className="w-full max-w-md mx-auto rounded-lg shadow-lg mb-6"
             />
           ) : (
@@ -389,7 +410,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
             </Alert>
             
             <div className="space-y-3">
-              {selectedRecipe.ingredients.map((ingredient, index) => {
+              {workflowSelectedRecipe.ingredients.map((ingredient, index) => {
                 const isPantryStaple = PANTRY_STAPLES.some(staple => 
                   ingredient.toLowerCase().includes(staple.toLowerCase())
                 )
@@ -455,7 +476,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
   }
 
   // Cooking Instructions Step
-  if (currentStep === 'cooking' && selectedRecipe) {
+  if (currentStep === 'cooking' && workflowSelectedRecipe) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -469,7 +490,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
           </Button>
           <Badge variant="outline" className="flex items-center gap-2">
             <Clock size={14} />
-            {selectedRecipe.cookingTime}
+            {workflowSelectedRecipe.cookingTime}
           </Badge>
         </div>
 
@@ -484,7 +505,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
           <div className="text-center mb-6">
             <img 
               src={generatedImage} 
-              alt={selectedRecipe.title}
+              alt={workflowSelectedRecipe.title}
               className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
             />
           </div>
@@ -496,7 +517,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {selectedRecipe.instructions.map((instruction, index) => (
+              {workflowSelectedRecipe.instructions.map((instruction, index) => (
                 <div key={index} className="flex gap-4">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
@@ -505,7 +526,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
                   </div>
                   <div className="flex-1">
                     <p className="leading-relaxed">{instruction}</p>
-                    {index < selectedRecipe.instructions.length - 1 && (
+                    {index < workflowSelectedRecipe.instructions.length - 1 && (
                       <Separator className="mt-4" />
                     )}
                   </div>
@@ -534,11 +555,12 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
 
         <div className="text-center">
           <Button 
-            variant="outline"
+            variant={isFavorited ? "default" : "outline"}
             onClick={saveRecipeAsFavorite}
-            className="flex items-center gap-2 mx-auto"
+            className={`flex items-center gap-2 mx-auto ${isFavorited ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
           >
-            Save This Recipe
+            <Heart size={16} className={isFavorited ? "fill-current" : ""} />
+            {isFavorited ? "Saved to Favorites" : "Save to Favorites"}
           </Button>
         </div>
       </div>
@@ -546,7 +568,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
   }
 
   // Tutorial Step
-  if (currentStep === 'tutorial' && selectedRecipe) {
+  if (currentStep === 'tutorial' && workflowSelectedRecipe) {
     return (
       <div className="space-y-6">
         <Card>
@@ -569,7 +591,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, selectedReci
           </CardHeader>
           <CardContent>
             <CookingTutorial 
-              recipe={selectedRecipe}
+              recipe={workflowSelectedRecipe}
               onBack={backToPreparation}
               onComplete={() => {
                 toast.success('🎉 Tutorial completed! Great job!')

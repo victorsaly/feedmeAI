@@ -11,9 +11,10 @@ import { useIsMobile } from '../hooks/use-mobile'
 
 interface FavoritesViewProps {
   onClose?: () => void
+  onSelectRecipe?: (recipe: Recipe) => void
 }
 
-export function FavoritesView({ onClose }: FavoritesViewProps) {
+export function FavoritesView({ onClose, onSelectRecipe }: FavoritesViewProps) {
   const [favorites, setFavorites] = React.useState<Recipe[]>([])
   const isMobile = useIsMobile()
 
@@ -29,6 +30,15 @@ export function FavoritesView({ onClose }: FavoritesViewProps) {
   const handleRemoveFavorite = (recipeId: string) => {
     FavoritesStorage.removeFavorite(recipeId)
     loadFavorites()
+  }
+
+  const handleSelectRecipe = (recipe: Recipe) => {
+    if (onSelectRecipe) {
+      onSelectRecipe(recipe)
+    }
+    if (onClose) {
+      onClose()
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -156,6 +166,16 @@ export function FavoritesView({ onClose }: FavoritesViewProps) {
 
   const RecipeDetails = ({ recipe }: { recipe: Recipe }) => (
     <div className="space-y-4">
+      <div className="flex justify-end mb-4">
+        <Button
+          onClick={() => handleSelectRecipe?.(recipe)}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          <ChefHat size={16} className="mr-2" />
+          Cook This Recipe
+        </Button>
+      </div>
+      
       {recipe.generatedImageUrl && (
         <img
           src={recipe.generatedImageUrl}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Clock, ChefHat, Users, Star } from '@phosphor-icons/react'
+import { Clock, ChefHat, Users, Star, Image as ImageIcon } from '@phosphor-icons/react'
 import quickRecipesData from '@/data/quick-recipes.json'
 
 interface QuickIdeasProps {
@@ -37,6 +37,28 @@ export function QuickIdeas({ onSelectRecipe }: QuickIdeasProps) {
   const [selectedTime, setSelectedTime] = useState<string>('all')
   
   const { quickRecipes, categories } = quickRecipesData
+  
+  // Image component with fallback
+  const RecipeImage = ({ src, alt, className }: { src: string; alt: string; className: string }) => {
+    const [imageError, setImageError] = useState(false)
+    
+    if (imageError) {
+      return (
+        <div className={`${className} bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center`}>
+          <ImageIcon size={48} className="text-orange-400" />
+        </div>
+      )
+    }
+    
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        onError={() => setImageError(true)}
+      />
+    )
+  }
   
   const timeFilters = [
     { id: 'all', name: 'All Times', color: '#6b7280' },
@@ -143,7 +165,7 @@ export function QuickIdeas({ onSelectRecipe }: QuickIdeasProps) {
         {filteredRecipes.map((recipe: QuickRecipe) => (
           <Card key={recipe.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden">
             <div className="relative">
-              <img
+              <RecipeImage
                 src={recipe.heroImage}
                 alt={recipe.title}
                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"

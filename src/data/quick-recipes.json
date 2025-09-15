@@ -11,7 +11,7 @@
       "difficulty": "Easy",
       "category": "Italian",
       "tags": ["quick", "vegetarian", "pasta", "garlic"],
-      "heroImage": "https://images.unsplash.com/photo-1621996346565-e3dbc6d2c5f7?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?q=80&w=600&auto=format&fit=crop",
       "ingredients": [
         "8 oz spaghetti or linguine",
         "6 cloves garlic, thinly sliced",
@@ -54,7 +54,7 @@
       "difficulty": "Easy",
       "category": "Asian",
       "tags": ["quick", "healthy", "protein", "vegetables"],
-      "heroImage": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&h=400&fit=crop&auto=format",
       "ingredients": [
         "1 lb chicken breast, cut into bite-sized pieces",
         "2 tbsp vegetable oil",
@@ -103,7 +103,7 @@
       "difficulty": "Easy",
       "category": "American",
       "tags": ["quick", "comfort food", "cheese", "vegetarian"],
-      "heroImage": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&h=400&fit=crop&auto=format",
       "ingredients": [
         "4 slices artisan bread",
         "8 oz fresh mozzarella, sliced",
@@ -147,7 +147,7 @@
       "difficulty": "Medium",
       "category": "Italian",
       "tags": ["seafood", "garlic", "pasta", "butter"],
-      "heroImage": "https://images.unsplash.com/photo-1563379091339-03246963d96c?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=600&auto=format&fit=crop",
       "ingredients": [
         "1 lb large shrimp, peeled and deveined",
         "12 oz linguine pasta",
@@ -195,7 +195,7 @@
       "difficulty": "Easy",
       "category": "Fusion",
       "tags": ["vegetarian", "mediterranean", "quick", "cheese"],
-      "heroImage": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&h=400&fit=crop&auto=format",
       "ingredients": [
         "4 large flour tortillas",
         "1 cup feta cheese, crumbled",
@@ -240,7 +240,7 @@
       "difficulty": "Medium",
       "category": "Asian",
       "tags": ["seafood", "healthy", "protein", "glaze"],
-      "heroImage": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&h=400&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&h=400&fit=crop&auto=format",
       "ingredients": [
         "4 salmon fillets (6 oz each)",
         "1/4 cup soy sauce",
@@ -285,17 +285,17 @@
   ],
   "exampleImages": [
     {
-      "url": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop",
+      "url": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&auto=format",
       "caption": "Fresh ingredients work best",
       "tip": "Upload clear photos of your ingredients for better recipe suggestions"
     },
     {
-      "url": "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400&h=300&fit=crop",
+      "url": "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400&h=300&fit=crop&auto=format",
       "caption": "Good lighting helps AI recognition",
       "tip": "Natural light or bright kitchen lighting gives the best results"
     },
     {
-      "url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
+      "url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&auto=format",
       "caption": "Spread ingredients out clearly",
       "tip": "Arrange ingredients separately so the AI can identify each item"
     }

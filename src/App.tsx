@@ -53,6 +53,19 @@ function App() {
     setShowWorkflow(true)
   }
 
+  const handleFavoriteRecipeSelect = (recipe: any) => {
+    // Convert favorite recipe to the expected format for the workflow
+    setSelectedQuickRecipe(recipe)
+    const recipeIngredients = recipe.ingredients.map((ingredient: string) => ({
+      name: ingredient,
+      confidence: 1.0
+    }))
+    setIngredients(recipeIngredients)
+    setOriginalImageBase64(recipe.originalImageBase64)
+    setShowFavorites(false)
+    setShowWorkflow(true)
+  }
+
   // Update favorites count when component mounts and when favorites might change
   useEffect(() => {
     setFavoritesCount(FavoritesStorage.getFavoritesCount())
@@ -118,7 +131,10 @@ function App() {
             </Button>
           </header>
           
-          <FavoritesView onClose={() => setShowFavorites(false)} />
+          <FavoritesView 
+            onClose={() => setShowFavorites(false)} 
+            onSelectRecipe={handleFavoriteRecipeSelect}
+          />
           <Toaster />
         </div>
       </div>
