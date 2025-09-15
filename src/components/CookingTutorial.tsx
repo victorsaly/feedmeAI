@@ -20,10 +20,9 @@ import type { Recipe } from '../lib/openai-analyzer'
 import { OpenAIAnalyzer } from '../lib/openai-analyzer'
 import { FavoritesStorage } from '../lib/favorites-storage'
 import { CookingStepImage } from './CookingStepImage'
+import { imageCache } from '@/lib/image-cache'
+import { imagePreloader } from '@/lib/image-preloader'
 import { recipes } from '@/data'
-
-// Simple image cache to avoid regenerating images
-const imageCache = new Map<string, string>()
 
 interface CookingTutorialProps {
   recipe: Recipe
@@ -134,10 +133,16 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
         step => step < cookingSteps.length && !stepImages[step] && imageLoadingStates[step] !== 'loading'
       )
 
+      // Start intelligent preloading
+      imagePreloader.preloadRecipeSteps(recipe.title, cookingSteps.map(step => ({
+        instruction: step.instruction,
+        imagePrompt: step.imagePrompt
+      })), currentStep)
+
       for (const stepIndex of prioritySteps) {
         const step = cookingSteps[stepIndex]
         const cacheKey = `${recipe.title}-step-${stepIndex}-${step.instruction.slice(0, 50)}`
-        const cachedImage = imageCache.get(cacheKey)
+        const cachedImage = await imageCache.get(cacheKey)
 
         if (cachedImage) {
           setStepImages(prev => ({ ...prev, [stepIndex]: cachedImage }))
@@ -220,7 +225,7 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
         
         // Check cache first
         const cacheKey = `${recipe.title}-step-${actualIndex}-${step.instruction.slice(0, 50)}`
-        const cachedImage = imageCache.get(cacheKey)
+        const cachedImage = await imageCache.get(cacheKey)
         
         if (cachedImage) {
           setStepImages(prev => ({ ...prev, [actualIndex]: cachedImage }))
@@ -273,7 +278,7 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
           
           // Check cache first
           const cacheKey = `${recipe.title}-step-${actualIndex}-${step.instruction.slice(0, 50)}`
-          const cachedImage = imageCache.get(cacheKey)
+          const cachedImage = await imageCache.get(cacheKey)
           
           if (cachedImage) {
             setStepImages(prev => ({ ...prev, [actualIndex]: cachedImage }))
@@ -423,6 +428,7 @@ export function CookingTutorial({ recipe, originalImageBase64, onBack, onComplet
               isLoading={imageLoadingStates[currentStep] === 'loading'}
               stepNumber={currentStep + 1}
               instruction={cookingSteps[currentStep]?.instruction || ""}
+              recipeTitle={recipe.title}
             />
             
             {/* Step Number Overlay */}

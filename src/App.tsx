@@ -7,6 +7,7 @@ import { CookingWorkflow } from '@/components/CookingWorkflow'
 import { FavoritesView } from '@/components/FavoritesView'
 import { ExampleImages } from '@/components/ExampleImages'
 import { QuickIdeas } from '@/components/QuickIdeas'
+import { ImagePerformanceDashboard } from '@/components/ImagePerformanceDashboard'
 import { Toaster } from '@/components/ui/sonner'
 import { FavoritesStorage } from '@/lib/favorites-storage'
 
@@ -234,6 +235,7 @@ function App() {
         </div>
 
         <Toaster />
+        <ImagePerformanceDashboard />
       </div>
     </div>
   )

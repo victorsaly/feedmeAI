@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChefHat, Image as ImageIcon, Heart, Sparkle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { imageCache } from '@/lib/image-cache'
 import type { Recipe } from '@/lib/openai-analyzer'
 
 interface RecipeImageProps {
@@ -19,9 +20,35 @@ export function RecipeImage({
   isFavorited 
 }: RecipeImageProps) {
   const [imageError, setImageError] = useState(false)
+  const [cachedImage, setCachedImage] = useState<string | null>(null)
+  const [imageLoading, setImageLoading] = useState(true)
+
+  // Load cached image on mount
+  useEffect(() => {
+    const loadCachedImage = async () => {
+      const cacheKey = `recipe-${recipe.id || recipe.title}`
+      const cached = await imageCache.get(cacheKey)
+      
+      if (cached) {
+        setCachedImage(cached)
+        setImageLoading(false)
+      } else if (recipe.generatedImageUrl) {
+        // Cache the existing image
+        await imageCache.set(cacheKey, recipe.generatedImageUrl)
+        setCachedImage(recipe.generatedImageUrl)
+        setImageLoading(false)
+      } else {
+        setImageLoading(false)
+      }
+    }
+    
+    loadCachedImage()
+  }, [recipe.id, recipe.title, recipe.generatedImageUrl])
+
+  const displayImageUrl = cachedImage || recipe.generatedImageUrl
 
   // Don't show any image if we don't have a generated one - just show cooking icon
-  if (!recipe.generatedImageUrl) {
+  if (!displayImageUrl || imageLoading) {
     return (
       <div className="relative bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-lg p-6">
         <div className="flex flex-col items-center justify-center space-y-3 min-h-[120px]">
@@ -29,6 +56,10 @@ export function RecipeImage({
           <div className="p-3 bg-orange-100 rounded-full">
             <ChefHat size={28} className="text-orange-600" />
           </div>
+          
+          {imageLoading && (
+            <div className="w-6 h-6 border-2 border-orange-300 border-t-orange-600 rounded-full animate-spin"></div>
+          )}
           
           {/* Optional generate image button */}
           {onGenerateImage && (
@@ -74,11 +105,15 @@ export function RecipeImage({
     <div className="relative">
       {!imageError ? (
         <img
-          src={recipe.generatedImageUrl}
+          src={displayImageUrl}
           alt={`${recipe.title} recipe`}
-          className="w-full h-32 object-cover rounded-lg"
+          className="w-full h-32 object-cover rounded-lg transition-opacity duration-300"
           onError={() => setImageError(true)}
           loading="lazy"
+          style={{
+            filter: imageLoading ? 'blur(5px)' : 'none',
+            transition: 'filter 0.3s ease-in-out'
+          }}
         />
       ) : (
         // Fallback when image fails to load
