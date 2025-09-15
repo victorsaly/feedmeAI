@@ -5,6 +5,7 @@ import { Camera, Upload, Image as ImageIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
 import { OpenAIAnalyzer } from '@/lib/openai-analyzer'
+import { optimizeForOpenAI, getImageSizeInfo } from '@/lib/image-optimizer'
 
 interface ImageUploadProps {
   onIngredientsDetected: (ingredients: Ingredient[], imageBase64: string) => void
@@ -72,16 +73,29 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
     onAnalyzing?.(true)
     
     try {
+      // Show original file size info
+      const originalSize = Math.round(file.size / (1024 * 1024) * 100) / 100
+      console.log(`Original image: ${originalSize}MB`)
+      
+      // Optimize image for OpenAI analysis
+      const optimizedImageData = await optimizeForOpenAI(file)
+      const sizeInfo = getImageSizeInfo(optimizedImageData)
+      
+      console.log(`Optimized image: ${sizeInfo.sizeInMB}MB (${Math.round((1 - sizeInfo.sizeInBytes/file.size) * 100)}% reduction)`)
+      
+      // Use original image for display, optimized for analysis
       const reader = new FileReader()
       reader.onload = async (event) => {
-        const imageData = event.target?.result as string
-        setUploadedImage(imageData)
+        const originalImageData = event.target?.result as string
+        setUploadedImage(originalImageData)
         
         try {
-          const ingredients = await analyzeIngredients(imageData)
+          // Use optimized image for AI analysis (faster + cheaper)
+          const ingredients = await analyzeIngredients(optimizedImageData)
           
           if (ingredients && ingredients.length > 0) {
-            onIngredientsDetected(ingredients, imageData)
+            // Pass original image data for display purposes
+            onIngredientsDetected(ingredients, originalImageData)
             toast.success(`🎉 Detected ${ingredients.length} ingredients!`)
           } else {
             toast.warning('No ingredients detected. Try a clearer photo with more visible ingredients.')
@@ -97,7 +111,7 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
       
       reader.readAsDataURL(file)
     } catch (error) {
-      console.error('File processing failed:', error)
+      console.error('Image optimization failed:', error)
       toast.error('Failed to process image')
       setIsAnalyzing(false)
       onAnalyzing?.(false)
