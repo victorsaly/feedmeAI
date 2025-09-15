@@ -5,6 +5,8 @@ import { Camera, ChefHat, Heart } from '@phosphor-icons/react'
 import { ImageUpload } from '@/components/ImageUpload'
 import { CookingWorkflow } from '@/components/CookingWorkflow'
 import { FavoritesView } from '@/components/FavoritesView'
+import { ExampleImages } from '@/components/ExampleImages'
+import { QuickIdeas } from '@/components/QuickIdeas'
 import { Toaster } from '@/components/ui/sonner'
 import { FavoritesStorage } from '@/lib/favorites-storage'
 
@@ -20,6 +22,7 @@ function App() {
   const [showFavorites, setShowFavorites] = useState(false)
   const [showWorkflow, setShowWorkflow] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
+  const [selectedQuickRecipe, setSelectedQuickRecipe] = useState<any>(null)
 
   const handleIngredientsDetected = (detectedIngredients: Ingredient[], imageBase64: string) => {
     setIngredients(detectedIngredients)
@@ -36,6 +39,18 @@ function App() {
     setShowWorkflow(false)
     setIngredients([])
     setOriginalImageBase64(undefined)
+    setSelectedQuickRecipe(null)
+  }
+
+  const handleQuickRecipeSelect = (recipe: any) => {
+    setSelectedQuickRecipe(recipe)
+    // Set ingredients based on the recipe for the workflow
+    const recipeIngredients = recipe.ingredients.map((ingredient: string) => ({
+      name: ingredient,
+      confidence: 1.0
+    }))
+    setIngredients(recipeIngredients)
+    setShowWorkflow(true)
   }
 
   // Update favorites count when component mounts and when favorites might change
@@ -43,8 +58,8 @@ function App() {
     setFavoritesCount(FavoritesStorage.getFavoritesCount())
   }, [showFavorites])
 
-  // Show the cooking workflow when ingredients are detected
-  if (showWorkflow && ingredients.length > 0) {
+  // Show the cooking workflow when ingredients are detected or quick recipe selected
+  if (showWorkflow && (ingredients.length > 0 || selectedQuickRecipe)) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-5xl">
@@ -52,7 +67,7 @@ function App() {
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">🍳 Feed me - Cooking Guide</h1>
               <p className="text-muted-foreground">
-                Let's create something delicious together!
+                {selectedQuickRecipe ? `Quick Recipe: ${selectedQuickRecipe.title}` : "Let's create something delicious together!"}
               </p>
             </div>
             <Button
@@ -73,6 +88,7 @@ function App() {
           <CookingWorkflow 
             ingredients={ingredients}
             originalImageBase64={originalImageBase64}
+            selectedRecipe={selectedQuickRecipe}
             onBackToUpload={handleBackToUpload}
           />
           <Toaster />
@@ -137,7 +153,10 @@ function App() {
           </div>
         </header>
 
-        <div className="space-y-8">
+        <div className="space-y-12">
+          {/* Example Images Section */}
+          <ExampleImages />
+          
           {/* Image Upload Section */}
           <Card className="shadow-lg">
             <CardHeader className="pb-4">
@@ -163,6 +182,19 @@ function App() {
               )}
             </CardContent>
           </Card>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-background text-muted-foreground font-medium">OR</span>
+            </div>
+          </div>
+
+          {/* Quick Recipe Ideas Section */}
+          <QuickIdeas onSelectRecipe={handleQuickRecipeSelect} />
         </div>
 
         <Toaster />

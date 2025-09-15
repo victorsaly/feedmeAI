@@ -16,6 +16,7 @@ import { CookingTutorial } from './CookingTutorial'
 interface CookingWorkflowProps {
   ingredients: Ingredient[]
   originalImageBase64?: string
+  selectedRecipe?: any
   onBackToUpload: () => void
 }
 
@@ -87,9 +88,9 @@ const FRESHNESS_TIPS: { [key: string]: string } = {
   "herbs": "Fresh herbs should be bright green with no wilting or dark spots."
 }
 
-export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUpload }: CookingWorkflowProps) {
+export function CookingWorkflow({ ingredients, originalImageBase64, selectedRecipe, onBackToUpload }: CookingWorkflowProps) {
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('selection')
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
+  const [workflowSelectedRecipe, setWorkflowSelectedRecipe] = useState<Recipe | null>(null)
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [isLoadingRecipes, setIsLoadingRecipes] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
@@ -98,8 +99,15 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
   const analyzer = new OpenAIAnalyzer(import.meta.env.VITE_OPENAI_API_KEY)
 
   useEffect(() => {
+    // If a recipe is pre-selected from quick ideas, skip to preparation
+    if (selectedRecipe) {
+      setWorkflowSelectedRecipe(selectedRecipe)
+      setCurrentStep('preparation')
+      return
+    }
+    
     generateRecipes()
-  }, [ingredients])
+  }, [ingredients, selectedRecipe])
 
   const generateRecipes = async () => {
     setIsLoadingRecipes(true)
@@ -122,7 +130,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
   }
 
   const handleRecipeSelect = async (recipe: Recipe) => {
-    setSelectedRecipe(recipe)
+    setWorkflowSelectedRecipe(recipe)
     setCurrentStep('preparation')
     
     // Auto-generate recipe image
@@ -300,7 +308,7 @@ export function CookingWorkflow({ ingredients, originalImageBase64, onBackToUplo
   }
 
   // Recipe Preparation Step
-  if (currentStep === 'preparation' && selectedRecipe) {
+  if (currentStep === 'preparation' && workflowSelectedRecipe) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
