@@ -7,7 +7,7 @@ import { Ingredient } from '@/App'
 import { OpenAIAnalyzer } from '@/lib/openai-analyzer'
 
 interface ImageUploadProps {
-  onIngredientsDetected: (ingredients: Ingredient[]) => void
+  onIngredientsDetected: (ingredients: Ingredient[], imageBase64: string) => void
   onAnalyzing?: (analyzing: boolean) => void
 }
 
@@ -74,7 +74,7 @@ export function ImageUpload({ onIngredientsDetected, onAnalyzing }: ImageUploadP
           const ingredients = await analyzeIngredients(imageData)
           
           if (ingredients && ingredients.length > 0) {
-            onIngredientsDetected(ingredients)
+            onIngredientsDetected(ingredients, imageData)
             toast.success(`🎉 Detected ${ingredients.length} ingredients!`)
           } else {
             toast.warning('No ingredients detected. Try a clearer photo with more visible ingredients.')

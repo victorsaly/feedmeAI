@@ -6,8 +6,27 @@ export interface Ingredient {
   confidence: number
 }
 
+export interface Recipe {
+  id: string
+  title: string
+  description: string
+  cookingTime: string
+  difficulty: 'Easy' | 'Medium' | 'Hard'
+  instructions: string[]
+  ingredients: string[]
+  generatedImageUrl?: string
+  originalImageBase64?: string
+  createdAt: string
+  isFavorite?: boolean
+}
+
 export interface AnalysisResponse {
   ingredients: Ingredient[]
+  error?: string
+}
+
+export interface ImageGenerationResponse {
+  imageUrl: string
   error?: string
 }
 
@@ -89,6 +108,64 @@ Do not include any other text or markdown formatting.`
     } catch (error) {
       console.error('OpenAI analysis failed:', error)
       return this.getDemoData()
+    }
+  }
+
+  async generateRecipeImage(recipeTitle: string, ingredients: string[]): Promise<ImageGenerationResponse> {
+    if (!this.apiKey) {
+      console.warn('OpenAI API key not provided, returning demo image')
+      return {
+        imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center'
+      }
+    }
+
+    try {
+      const prompt = `A beautiful, appetizing photo of ${recipeTitle} made with ${ingredients.slice(0, 5).join(', ')}. Professional food photography, well-lit, restaurant quality presentation, colorful and delicious looking.`
+      
+      const response = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt: prompt,
+          n: 1,
+          size: '1024x1024',
+          quality: 'standard',
+          style: 'natural'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`OpenAI DALL-E API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const imageUrl = data.data[0]?.url
+
+      if (!imageUrl) {
+        throw new Error('No image URL received from DALL-E')
+      }
+
+      return { imageUrl }
+
+    } catch (error) {
+      console.error('DALL-E image generation failed:', error)
+      // Return a fallback image from Unsplash
+      const fallbackImages = [
+        'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center',
+        'https://images.unsplash.com/photo-1546554137-f86b9593a222?w=400&h=300&fit=crop&crop=center',
+        'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&crop=center',
+        'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop&crop=center'
+      ]
+      const randomImage = fallbackImages[Math.floor(Math.random() * fallbackImages.length)]
+      
+      return {
+        imageUrl: randomImage,
+        error: 'Using fallback image due to generation failure'
+      }
     }
   }
 

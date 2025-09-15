@@ -6,33 +6,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Clock, ChefHat, Eye, Sparkle } from '@phosphor-icons/react'
+import { Clock, ChefHat, Eye, Sparkle, Heart, Image } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Ingredient } from '@/App'
-
-interface Recipe {
-  id: string
-  name: string
-  description: string
-  cookTime: string
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  ingredients: string[]
-  instructions: string[]
-  rating: number
-}
+import type { Recipe } from '../lib/openai-analyzer'
+import { OpenAIAnalyzer } from '../lib/openai-analyzer'
+import { FavoritesStorage } from '../lib/favorites-storage'
 
 interface RecipesSuggestionsProps {
   ingredients: Ingredient[]
   isAnalyzing: boolean
+  originalImageBase64?: string
 }
 
 // Demo recipes for development/fallback
 const DEMO_RECIPES: Recipe[] = [
   {
-    id: "1",
-    name: "Classic Tomato Pasta",
+    id: "demo-1",
+    title: "Classic Tomato Pasta",
     description: "Simple and delicious pasta with fresh tomatoes, garlic, and herbs.",
-    cookTime: "20 minutes",
+    cookingTime: "20 minutes",
     difficulty: "Easy",
     ingredients: ["pasta", "tomatoes", "garlic", "olive oil", "basil", "parmesan"],
     instructions: [
@@ -42,13 +35,14 @@ const DEMO_RECIPES: Recipe[] = [
       "Toss pasta with tomato sauce and fresh basil",
       "Serve with grated parmesan cheese"
     ],
-    rating: 4.5
+    createdAt: new Date().toISOString(),
+    isFavorite: false
   },
   {
-    id: "2",
-    name: "Vegetable Stir Fry",
+    id: "demo-2",
+    title: "Vegetable Stir Fry",
     description: "Quick and healthy stir fry with mixed vegetables and soy sauce.",
-    cookTime: "15 minutes",
+    cookingTime: "15 minutes",
     difficulty: "Easy",
     ingredients: ["bell peppers", "onion", "carrots", "garlic", "soy sauce", "rice"],
     instructions: [
@@ -58,29 +52,72 @@ const DEMO_RECIPES: Recipe[] = [
       "Stir fry for 5-7 minutes until crisp-tender",
       "Add soy sauce and serve over rice"
     ],
-    rating: 4.2
-  },
-  {
-    id: "3",
-    name: "Herb-Roasted Chicken",
-    description: "Juicy roasted chicken with fresh herbs and vegetables.",
-    cookTime: "45 minutes",
-    difficulty: "Medium",
-    ingredients: ["chicken", "potatoes", "carrots", "rosemary", "thyme", "garlic"],
-    instructions: [
-      "Preheat oven to 200°C (180°C fan)",
-      "Season chicken with herbs, salt, and pepper",
-      "Place chicken and vegetables in roasting pan",
-      "Roast for 35-40 minutes until chicken is cooked through",
-      "Let rest for 5 minutes before serving"
-    ],
-    rating: 4.7
+    createdAt: new Date().toISOString(),
+    isFavorite: false
   }
 ]
 
-export function RecipesSuggestions({ ingredients, isAnalyzing }: RecipesSuggestionsProps) {
+export function RecipesSuggestions({ ingredients, isAnalyzing, originalImageBase64 }: RecipesSuggestionsProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [isLoadingRecipes, setIsLoadingRecipes] = useState(false)
+  const [generatingImages, setGeneratingImages] = useState<Set<string>>(new Set())
+
+  const analyzer = new OpenAIAnalyzer(import.meta.env.VITE_OPENAI_API_KEY)
+
+  const generateRecipeImage = async (recipe: Recipe) => {
+    if (recipe.generatedImageUrl) return
+    
+    setGeneratingImages(prev => new Set([...prev, recipe.id]))
+    
+    try {
+      const imageResult = await analyzer.generateRecipeImage(recipe.title, recipe.ingredients)
+      
+      setRecipes(prev => prev.map(r => 
+        r.id === recipe.id 
+          ? { ...r, generatedImageUrl: imageResult.imageUrl }
+          : r
+      ))
+      
+      if (imageResult.error) {
+        toast.warning('Using fallback image - generation service unavailable')
+      } else {
+        toast.success('✨ Recipe image generated!')
+      }
+    } catch (error) {
+      console.error('Image generation failed:', error)
+      toast.error('Failed to generate recipe image')
+    } finally {
+      setGeneratingImages(prev => {
+        const next = new Set(prev)
+        next.delete(recipe.id)
+        return next
+      })
+    }
+  }
+
+  const toggleFavorite = (recipe: Recipe) => {
+    const isFavorited = FavoritesStorage.isFavorite(recipe.id)
+    
+    if (isFavorited) {
+      FavoritesStorage.removeFavorite(recipe.id)
+      toast.success('💔 Removed from favorites')
+    } else {
+      const recipeToSave = {
+        ...recipe,
+        originalImageBase64,
+        createdAt: new Date().toISOString(),
+        isFavorite: true
+      }
+      FavoritesStorage.saveFavorite(recipeToSave)
+      toast.success('❤️ Added to favorites!')
+    }
+    
+    setRecipes(prev => prev.map(r => 
+      r.id === recipe.id 
+        ? { ...r, isFavorite: !isFavorited }
+        : r
+    ))
+  }
 
   useEffect(() => {
     if (ingredients.length > 0 && !isAnalyzing) {
@@ -92,23 +129,20 @@ export function RecipesSuggestions({ ingredients, isAnalyzing }: RecipesSuggesti
     setIsLoadingRecipes(true)
     
     try {
-      // For now, use demo recipes with some randomization
-      // In a real app, this would call OpenAI's API to generate personalized recipes
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
       
       const ingredientNames = ingredients.map(ing => ing.name).join(', ')
       console.log('Generating recipes for ingredients:', ingredientNames)
       
-      // Return shuffled demo recipes
       const shuffled = [...DEMO_RECIPES].sort(() => 0.5 - Math.random())
-      setRecipes(shuffled.slice(0, Math.min(3, shuffled.length)))
+      setRecipes(shuffled.slice(0, Math.min(2, shuffled.length)))
       
-      toast.success(`🍳 Generated ${shuffled.slice(0, 3).length} recipes based on your ingredients!`)
+      toast.success(`🍳 Generated ${shuffled.slice(0, 2).length} recipes based on your ingredients!`)
       
     } catch (error) {
       console.error('Recipe generation failed:', error)
       toast.error('Failed to generate recipes. Please try again.')
-      setRecipes(DEMO_RECIPES.slice(0, 2)) // Fallback
+      setRecipes(DEMO_RECIPES.slice(0, 2))
     } finally {
       setIsLoadingRecipes(false)
     }
@@ -123,16 +157,13 @@ export function RecipesSuggestions({ ingredients, isAnalyzing }: RecipesSuggesti
       <div className="flex gap-3 flex-wrap">
         <Badge variant="outline" className="flex items-center gap-2 px-3 py-1">
           <Clock size={14} />
-          {recipe.cookTime}
+          {recipe.cookingTime}
         </Badge>
         <Badge 
           variant={recipe.difficulty === 'Easy' ? 'default' : recipe.difficulty === 'Medium' ? 'secondary' : 'destructive'}
           className="px-3 py-1"
         >
           {recipe.difficulty}
-        </Badge>
-        <Badge variant="outline" className="px-3 py-1">
-          ⭐ {recipe.rating}/5
         </Badge>
       </div>
 
@@ -210,8 +241,8 @@ export function RecipesSuggestions({ ingredients, isAnalyzing }: RecipesSuggesti
 
       {/* Recipes */}
       {isLoadingRecipes ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[...Array(2)].map((_, i) => (
             <Card key={i} className="p-4">
               <Skeleton className="h-6 w-3/4 mb-3" />
               <Skeleton className="h-4 w-full mb-2" />
@@ -246,73 +277,136 @@ export function RecipesSuggestions({ ingredients, isAnalyzing }: RecipesSuggesti
             </Button>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recipes.map((recipe) => (
-              <Card key={recipe.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-base leading-tight mb-2">{recipe.name}</h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
-                  </div>
-
-                  <div className="flex gap-2 flex-wrap">
-                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                      <Clock size={12} />
-                      {recipe.cookTime}
-                    </Badge>
-                    <Badge 
-                      variant={recipe.difficulty === 'Easy' ? 'default' : recipe.difficulty === 'Medium' ? 'secondary' : 'destructive'}
-                      className="text-xs"
-                    >
-                      {recipe.difficulty}
-                    </Badge>
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    ⭐ {recipe.rating}/5 • {recipe.ingredients.length} ingredients
-                  </div>
-
-                  {/* Mobile-optimized recipe view */}
-                  <div className="block sm:hidden">
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button className="w-full flex items-center gap-2" size="sm">
-                          <Eye size={14} />
-                          View Recipe
+          <div className="grid gap-4 sm:grid-cols-2">
+            {recipes.map((recipe) => {
+              const isFavorited = FavoritesStorage.isFavorite(recipe.id)
+              const isGeneratingImage = generatingImages.has(recipe.id)
+              
+              return (
+                <Card key={recipe.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4 space-y-4">
+                    {/* Recipe Image */}
+                    {recipe.generatedImageUrl && (
+                      <div className="relative">
+                        <img
+                          src={recipe.generatedImageUrl}
+                          alt={recipe.title}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm"
+                          onClick={() => toggleFavorite(recipe)}
+                        >
+                          <Heart 
+                            size={16} 
+                            className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}
+                          />
                         </Button>
-                      </SheetTrigger>
-                      <SheetContent side="bottom" className="h-[90vh] overflow-hidden">
-                        <SheetHeader>
-                          <SheetTitle className="text-left">{recipe.name}</SheetTitle>
-                        </SheetHeader>
-                        <ScrollArea className="h-full pr-4 mt-4">
-                          {renderRecipeDetails(recipe)}
-                        </ScrollArea>
-                      </SheetContent>
-                    </Sheet>
-                  </div>
-                  
-                  <div className="hidden sm:block">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="w-full flex items-center gap-2" size="sm">
-                          <Eye size={14} />
-                          View Recipe
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-base leading-tight flex-1">{recipe.title}</h4>
+                        {!recipe.generatedImageUrl && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 ml-2"
+                            onClick={() => toggleFavorite(recipe)}
+                          >
+                            <Heart 
+                              size={16} 
+                              className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}
+                            />
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                        <Clock size={12} />
+                        {recipe.cookingTime}
+                      </Badge>
+                      <Badge 
+                        variant={recipe.difficulty === 'Easy' ? 'default' : recipe.difficulty === 'Medium' ? 'secondary' : 'destructive'}
+                        className="text-xs"
+                      >
+                        {recipe.difficulty}
+                      </Badge>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs text-muted-foreground">
+                        {recipe.ingredients.length} ingredients
+                      </div>
+                      
+                      {!recipe.generatedImageUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => generateRecipeImage(recipe)}
+                          disabled={isGeneratingImage}
+                          className="flex items-center gap-1"
+                        >
+                          {isGeneratingImage ? (
+                            <div className="animate-spin w-3 h-3 border border-current border-t-transparent rounded-full" />
+                          ) : (
+                            <Image size={12} />
+                          )}
+                          <span className="text-xs">
+                            {isGeneratingImage ? 'Generating...' : 'Generate Image'}
+                          </span>
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
-                        <DialogHeader>
-                          <DialogTitle>{recipe.name}</DialogTitle>
-                        </DialogHeader>
-                        <ScrollArea className="max-h-[60vh] pr-4">
-                          {renderRecipeDetails(recipe)}
-                        </ScrollArea>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      )}
+                    </div>
+
+                    {/* Mobile-optimized recipe view */}
+                    <div className="block sm:hidden">
+                      <Sheet>
+                        <SheetTrigger asChild>
+                          <Button className="w-full flex items-center gap-2" size="sm">
+                            <Eye size={14} />
+                            View Recipe
+                          </Button>
+                        </SheetTrigger>
+                        <SheetContent side="bottom" className="h-[90vh] overflow-hidden">
+                          <SheetHeader>
+                            <SheetTitle className="text-left">{recipe.title}</SheetTitle>
+                          </SheetHeader>
+                          <ScrollArea className="h-full pr-4 mt-4">
+                            {renderRecipeDetails(recipe)}
+                          </ScrollArea>
+                        </SheetContent>
+                      </Sheet>
+                    </div>
+                    
+                    <div className="hidden sm:block">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className="w-full flex items-center gap-2" size="sm">
+                            <Eye size={14} />
+                            View Recipe
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+                          <DialogHeader>
+                            <DialogTitle>{recipe.title}</DialogTitle>
+                          </DialogHeader>
+                          <ScrollArea className="max-h-[60vh] pr-4">
+                            {renderRecipeDetails(recipe)}
+                          </ScrollArea>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       )}
