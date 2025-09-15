@@ -1,25 +1,41 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import { defineConfig, PluginOption } from "vite";
-
-import sparkPlugin from "@github/spark/spark-vite-plugin";
-import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
-import { resolve } from 'path'
-
-const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
+import { defineConfig } from "vite";
+import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages deployment configuration
+  base: '/food-inventory-recip/',
+  
   plugins: [
     react(),
     tailwindcss(),
-    // DO NOT REMOVE
-    createIconImportProxy() as PluginOption,
-    sparkPlugin() as PluginOption,
   ],
   resolve: {
     alias: {
-      '@': resolve(projectRoot, 'src')
+      '@': resolve(__dirname, 'src')
     }
   },
+  
+  // Build configuration for GitHub Pages
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@phosphor-icons/react']
+        }
+      }
+    }
+  },
+  
+  // Preview server configuration
+  preview: {
+    port: 4173,
+    host: true
+  }
 });
