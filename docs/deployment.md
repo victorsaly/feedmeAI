@@ -49,6 +49,30 @@ The project is configured for automatic deployment using GitHub Actions:
 5. **Access Your App**:
    Your app will be available at: `https://yourusername.github.io/food-inventory-recip/`
 
+### Custom Domain Configuration
+
+**Important**: When using a custom domain, the Vite configuration must be set correctly:
+
+#### For Custom Domain (e.g., feedmeai.victorsaly.com):
+```typescript
+// vite.config.ts
+export default defineConfig({
+  base: '/',  // Root path for custom domains
+  // ... rest of config
+})
+```
+
+#### For GitHub Pages Subdirectory (username.github.io/repo-name):
+```typescript
+// vite.config.ts  
+export default defineConfig({
+  base: '/repository-name/',  // Subdirectory path
+  // ... rest of config
+})
+```
+
+The current configuration uses `base: '/'` for the custom domain `feedmeai.victorsaly.com`.
+
 ### Custom Domain Setup
 
 To use a custom domain like `feedmeai.victorsaly.com`:
