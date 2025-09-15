@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Logo } from '@/components/Logo'
 import { 
   Camera, 
   Heart, 
   Lightbulb, 
   Image as ImageIcon,
   ChefHat,
-  Sparkle,
   Upload as UploadIcon
 } from '@phosphor-icons/react'
 
@@ -71,9 +71,7 @@ export function NavigationMenu({
         {/* Header with Logo */}
         <div className="flex items-center justify-between py-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Sparkle className="w-5 h-5 text-white" />
-            </div>
+            <Logo size={40} className="drop-shadow-lg" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">FeedMe AI</h1>
               <p className="text-sm text-gray-500">Smart Recipe Generator</p>
@@ -168,9 +166,7 @@ export function MobileNavigationMenu({
       <div className="px-4 py-3">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-            <Sparkle className="w-4 h-4 text-white" />
-          </div>
+          <Logo size={32} className="drop-shadow-lg" />
           <div>
             <h1 className="text-lg font-bold text-gray-900">FeedMe AI</h1>
           </div>

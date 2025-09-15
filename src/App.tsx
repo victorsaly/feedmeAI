@@ -9,6 +9,7 @@ import { ExampleImages } from '@/components/ExampleImages'
 import { QuickIdeas } from '@/components/QuickIdeas'
 import { ImagePerformanceDashboard } from '@/components/ImagePerformanceDashboard'
 import { NavigationMenu, MobileNavigationMenu, type MenuSection } from '@/components/NavigationMenu'
+import { Logo } from '@/components/Logo'
 import { Toaster } from '@/components/ui/sonner'
 import { FavoritesStorage } from '@/lib/favorites-storage'
 
@@ -79,11 +80,14 @@ function App() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-5xl">
           <header className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">🍳 FeedmeAI - Cooking Guide</h1>
-              <p className="text-muted-foreground">
-                {selectedQuickRecipe ? `Quick Recipe: ${selectedQuickRecipe.title}` : "Let's create something delicious together!"}
-              </p>
+            <div className="flex items-center gap-3">
+              <Logo size={48} className="drop-shadow-lg" />
+              <div>
+                <h1 className="text-3xl font-bold text-primary mb-2">FeedmeAI - Cooking Guide</h1>
+                <p className="text-muted-foreground">
+                  {selectedQuickRecipe ? `Quick Recipe: ${selectedQuickRecipe.title}` : "Let's create something delicious together!"}
+                </p>
+              </div>
             </div>
             <Button
               variant="outline"

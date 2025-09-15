@@ -1,0 +1,45 @@
+interface LogoProps {
+  className?: string
+  size?: number
+}
+
+export function Logo({ className = "", size = 40 }: LogoProps) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 100 100"
+      className={`${className}`}
+      width={size}
+      height={size}
+    >
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:"#ff6b35", stopOpacity:1}} />
+          <stop offset="100%" style={{stopColor:"#f7931e", stopOpacity:1}} />
+        </linearGradient>
+      </defs>
+      
+      {/* Background circle */}
+      <circle cx="50" cy="50" r="45" fill="url(#grad1)" stroke="#fff" strokeWidth="2"/>
+      
+      {/* Chef hat */}
+      <ellipse cx="50" cy="35" rx="20" ry="15" fill="#fff"/>
+      <rect x="30" y="35" width="40" height="8" fill="#fff"/>
+      
+      {/* Chef hat details */}
+      <circle cx="42" cy="28" r="3" fill="#fff" opacity="0.8"/>
+      <circle cx="58" cy="26" r="2.5" fill="#fff" opacity="0.8"/>
+      <circle cx="50" cy="23" r="2" fill="#fff" opacity="0.8"/>
+      
+      {/* Plate */}
+      <ellipse cx="50" cy="65" rx="25" ry="8" fill="#fff"/>
+      <ellipse cx="50" cy="63" rx="25" ry="8" fill="#f0f0f0"/>
+      
+      {/* Fork and spoon (simplified) */}
+      <rect x="25" y="52" width="2" height="20" fill="#fff" rx="1"/>
+      <circle cx="26" cy="50" r="1.5" fill="#fff"/>
+      <rect x="73" y="52" width="2" height="20" fill="#fff" rx="1"/>
+      <ellipse cx="74" cy="49" rx="2" ry="3" fill="#fff"/>
+    </svg>
+  )
+}
