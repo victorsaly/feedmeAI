@@ -24,11 +24,14 @@ The project is configured for automatic deployment using GitHub Actions:
    Repository → Settings → Pages → Source: GitHub Actions
    ```
 
-2. **Configure Environment Variables** (if needed):
+2. **Configure Environment Variables**:
    ```
-   Repository → Settings → Secrets and Variables → Actions
+   Repository → Settings → Secrets and Variables → Actions → Repository secrets
    ```
-   Add your OpenAI API key as `OPENAI_API_KEY`
+   
+   Add the following secret:
+   - **Name**: `VITE_OPENAI_API_KEY`
+   - **Value**: Your OpenAI API key (get one at https://platform.openai.com/api-keys)
 
 3. **Push Your Code**:
    ```bash
@@ -37,7 +40,13 @@ The project is configured for automatic deployment using GitHub Actions:
    git push origin main
    ```
 
-4. **Access Your App**:
+4. **Monitor Deployment**:
+   - Go to your repository's **Actions** tab
+   - Watch the "Deploy to GitHub Pages" workflow run
+   - Deployment typically takes 2-3 minutes
+   - Green checkmark = successful deployment
+
+5. **Access Your App**:
    Your app will be available at: `https://yourusername.github.io/food-inventory-recip/`
 
 ### Custom Domain Setup
@@ -59,6 +68,65 @@ To use a custom domain like `feedmeai.victorsaly.com`:
    - Go to Repository → Settings → Pages
    - Enter your custom domain: `feedmeai.victorsaly.com`
    - Enable "Enforce HTTPS"
+
+### 🔧 Troubleshooting GitHub Pages Deployment
+
+#### Deployment Fails
+
+1. **Check GitHub Actions Log**:
+   - Go to repository **Actions** tab
+   - Click on the failed workflow run
+   - Review build logs for specific errors
+
+2. **Common Issues**:
+
+   **Missing API Key Secret**:
+   ```
+   Error: VITE_OPENAI_API_KEY is not defined
+   ```
+   Solution: Add `VITE_OPENAI_API_KEY` to repository secrets
+
+   **Build Failures**:
+   ```
+   Error: TypeScript errors in production build
+   ```
+   Solution: Fix TypeScript errors locally first:
+   ```bash
+   npm run type-check
+   npm run build
+   ```
+
+   **Node Version Issues**:
+   ```
+   Error: Node version compatibility
+   ```
+   Solution: Workflow uses Node.js 20, ensure local development uses compatible version
+
+#### Site Not Loading
+
+1. **Check GitHub Pages Settings**:
+   - Repository → Settings → Pages
+   - Source should be: **GitHub Actions**
+   - Custom domain configured correctly
+
+2. **Clear Browser Cache**:
+   - Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
+   - Try incognito/private browsing
+
+3. **Check DNS Propagation** (for custom domains):
+   ```bash
+   nslookup feedmeai.victorsaly.com
+   ```
+
+#### API Not Working
+
+1. **Check Console Errors**:
+   - Open browser dev tools → Console
+   - Look for API key or CORS errors
+
+2. **Verify Environment Variables**:
+   - Ensure `VITE_OPENAI_API_KEY` secret is set
+   - Check that the key has proper OpenAI permissions
 
 ## 🌐 Alternative Deployment Platforms
 
