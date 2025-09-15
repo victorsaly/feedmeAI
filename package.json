@@ -1,9 +1,9 @@
 {
-    "name": "feed-me-ai",
+    "name": "feedmeai",
     "private": false,
     "version": "1.0.0",
     "type": "module",
-    "description": "AI-powered recipe suggestion app that transforms your ingredients into delicious meals",
+    "description": "FeedmeAI - AI-powered recipe suggestion app that transforms your ingredients into delicious meals",
     "keywords": [
         "ai",
         "recipe",

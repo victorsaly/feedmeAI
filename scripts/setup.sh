@@ -1,6 +1,6 @@
 #!/bin/bash
 # Project setup script for new developers
-echo "🔧 Setting up Feed Me AI development environment..."
+echo "🔧 Setting up FeedmeAI development environment..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then

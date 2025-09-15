@@ -1,6 +1,6 @@
 #!/bin/bash
 # Complete deployment guide script
-echo "🚀 GitHub Pages Deployment Setup Guide"
+echo "🚀 FeedmeAI - GitHub Pages Deployment Setup Guide"
 echo "========================================"
 echo ""
 

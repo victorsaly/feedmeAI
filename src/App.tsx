@@ -78,7 +78,7 @@ function App() {
         <div className="container mx-auto px-4 py-6 max-w-5xl">
           <header className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">🍳 Feed me - Cooking Guide</h1>
+              <h1 className="text-3xl font-bold text-primary mb-2">🍳 FeedmeAI - Cooking Guide</h1>
               <p className="text-muted-foreground">
                 {selectedQuickRecipe ? `Quick Recipe: ${selectedQuickRecipe.title}` : "Let's create something delicious together!"}
               </p>
@@ -118,7 +118,7 @@ function App() {
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">My Favorite Recipes</h1>
               <p className="text-muted-foreground">
-                Your saved recipes from Feed me
+                Your saved recipes from FeedmeAI
               </p>
             </div>
             <Button
@@ -148,7 +148,7 @@ function App() {
           <div className="flex justify-between items-center mb-4">
             <div /> {/* Spacer */}
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-2">🍳 Feed me</h1>
+              <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-2">🍳 FeedmeAI</h1>
               <p className="text-muted-foreground text-lg">
                 Upload a photo of your ingredients and discover delicious recipes
               </p>
@@ -211,6 +211,26 @@ function App() {
 
           {/* Quick Recipe Ideas Section */}
           <QuickIdeas onSelectRecipe={handleQuickRecipeSelect} />
+
+          {/* Creator Attribution */}
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                Built with ❤️ using AI-powered technology
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Created by{' '}
+                <a 
+                  href="https://victorsaly.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+                >
+                  Victor Saly
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
 
         <Toaster />

@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document provides comprehensive instructions for deploying Feed me AI to various platforms.
+This document provides comprehensive instructions for deploying FeedmeAI to various platforms.
 
 ## 🚀 GitHub Pages Deployment (Automated)
 

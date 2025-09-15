@@ -1,4 +1,4 @@
-# 🍳 Feed Me AI
+# 🍳 FeedmeAI
 
 Transform your ingredients into delicious meals with AI-powered recipe suggestions. Upload a photo, get instant cooking ideas, and enjoy step-by-step guided cooking.
 
