@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Heart, Clock, ChefHat, Play, Fire } from '@phosphor-icons/react'
+import { Heart, Clock, ChefHat, Play, Fire, Plus, Check } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { FavoritesStorage } from '@/lib/favorites-storage'
+import { signIn, useSessionToken } from '@/lib/account'
+import { addTodo } from '@/lib/todos'
 import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Recipe } from '@/lib/kitchen'
 
 interface IdeaSheetProps {
@@ -25,12 +27,15 @@ export function IdeaSheet({ idea, items, photo, onClose, onCook }: IdeaSheetProp
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [failed, setFailed] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [added, setAdded] = useState<Set<string>>(new Set())
+  const token = useSessionToken()
 
   useEffect(() => {
     if (!idea) return
     let live = true
     setRecipe(null)
     setFailed(false)
+    setAdded(new Set())
     const cached = cache.get(idea.id)
     if (cached) {
       setRecipe(cached)
@@ -64,6 +69,19 @@ export function IdeaSheet({ idea, items, photo, onClose, onCook }: IdeaSheetProp
     })
     return () => { live = false }
   }, [idea, recipe])
+
+  async function addToList(line: string) {
+    if (!token) {
+      toast('Sign in to keep a shopping list', { action: { label: 'Sign in', onClick: signIn } })
+      return
+    }
+    setAdded((prev) => new Set(prev).add(line))
+    const created = await addTodo(token, line, { id: idea!.id, name: idea!.title })
+    if (!created) {
+      setAdded((prev) => { const next = new Set(prev); next.delete(line); return next })
+      toast.error("Couldn't add that to the list.")
+    }
+  }
 
   function toggleSave() {
     if (!recipe) return
@@ -115,11 +133,21 @@ export function IdeaSheet({ idea, items, photo, onClose, onCook }: IdeaSheetProp
           <ul className="sheet-ings">
             {recipe.ingredients.map((line, n) => {
               const got = [...have].some((h) => line.toLowerCase().includes(h))
+              const isAdded = added.has(line)
               return (
                 <li key={n} className={got ? 'got' : ''}>
                   <span className="sheet-dot" aria-hidden="true" />
-                  {line}
+                  <span className="sheet-ing-text">{line}</span>
                   {got && <span className="sr-only"> (you have this)</span>}
+                  <button
+                    type="button"
+                    className="sheet-ing-add"
+                    onClick={() => addToList(line)}
+                    disabled={isAdded}
+                    aria-label={isAdded ? `${line} added to list` : `Add ${line} to list`}
+                  >
+                    {isAdded ? <Check size={15} weight="bold" /> : <Plus size={15} weight="bold" />}
+                  </button>
                 </li>
               )
             })}

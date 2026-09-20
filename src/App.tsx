@@ -8,10 +8,14 @@ import { HaulList } from '@/components/HaulList'
 import { IdeaList } from '@/components/IdeaList'
 import { IdeaSheet } from '@/components/IdeaSheet'
 import { SavedList } from '@/components/SavedList'
+import { ListTab } from '@/components/ListTab'
+import { SignIn } from '@/components/SignIn'
 import { CookScreen } from '@/components/CookScreen'
 import { MealPicker } from '@/components/MealPicker'
 import { TabBar, type Tab } from '@/components/TabBar'
 import { FavoritesStorage } from '@/lib/favorites-storage'
+import { completeSignIn, useSessionToken } from '@/lib/account'
+import { listTodos } from '@/lib/todos'
 import {
   identify, suggest, ideaFromLocal, recipesForMeal, loadMeal, saveMeal, hasKey, explain,
   type Idea, type Ingredient, type Recipe, type Meal,
@@ -49,11 +53,26 @@ function App() {
   const [lastIdea, setLastIdea] = useState<Idea | null>(null) // the sheet to reopen after Cook → back
   const [cameFrom, setCameFrom] = useState<Tab>('fridge') // the tab Cook was opened from
   const [savedCount, setSavedCount] = useState(0)
+  const [listCount, setListCount] = useState(0)
   const [tab, setTab] = useState<Tab>('fridge')
   const [meal, setMeal] = useState<Meal>(() => loadMeal())
   const run = useRef(0) // a newer request makes an older result irrelevant
+  const token = useSessionToken()
 
   useEffect(() => { setSavedCount(FavoritesStorage.getFavoritesCount()) }, [stage, tab, openIdea])
+
+  // The return trip from Google, if this load is one — comes back with
+  // `?auth=` on whichever tab sign-in was offered from.
+  useEffect(() => {
+    completeSignIn().then((session) => { if (session) toast.success(`Signed in as ${session.name}`) })
+  }, [])
+
+  useEffect(() => {
+    if (!token) { setListCount(0); return }
+    let live = true
+    listTodos(token).then((todos) => { if (live) setListCount(todos.filter((t) => !t.checked).length) })
+    return () => { live = false }
+  }, [token, tab, openIdea])
 
   async function onPhoto(display: string, small: string) {
     setPhoto(display)
@@ -146,6 +165,7 @@ function App() {
             <ArrowLeft size={16} weight="bold" /> New photo
           </button>
         )}
+        <SignIn />
       </header>
 
       <main className="page">
@@ -211,9 +231,11 @@ function App() {
             />
           </>
         )}
+
+        {tab === 'list' && <ListTab />}
       </main>
 
-      <TabBar tab={tab} savedCount={savedCount} onChange={setTab} />
+      <TabBar tab={tab} savedCount={savedCount} listCount={listCount} onChange={setTab} />
 
       <IdeaSheet
         idea={openIdea}
