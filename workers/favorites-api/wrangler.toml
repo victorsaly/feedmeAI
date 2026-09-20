@@ -1,0 +1,10 @@
+name = "feedmeai-favorites-api"
+main = "src/index.ts"
+compatibility_date = "2026-09-20"
+
+# The same D1 database feedmeai-api's todos table already lives in — this
+# worker only adds a new `favorites` table to it, nothing shared is touched.
+[[d1_databases]]
+binding = "DB"
+database_name = "feedmeai"
+database_id = "b4326a73-299b-4fc6-a87b-3ff39bab2d87"

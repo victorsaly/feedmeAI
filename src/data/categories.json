@@ -1,6 +1,23 @@
 [
-  { "id": "italian", "name": "Italian", "color": "#22c55e" },
-  { "id": "asian", "name": "Asian", "color": "#f59e0b" },
-  { "id": "american", "name": "American", "color": "#ef4444" },
-  { "id": "fusion", "name": "Fusion", "color": "#8b5cf6" }
+  { "id": "quick", "name": "Under 20 min", "kind": "quick", "value": "20", "tags": ["quick"] },
+  { "id": "vegetarian", "name": "Vegetarian", "kind": "diet", "value": "vegetarian", "tags": ["vegetarian"] },
+  { "id": "vegan", "name": "Vegan", "kind": "diet", "value": "vegan", "tags": ["vegan"] },
+  { "id": "gluten-free", "name": "Gluten free", "kind": "diet", "value": "gluten free", "tags": ["gluten free"] },
+  { "id": "healthy", "name": "Healthy", "kind": "query", "value": "healthy", "tags": ["healthy"] },
+  { "id": "pasta", "name": "Pasta", "kind": "query", "value": "pasta", "tags": ["pasta"] },
+  { "id": "chicken", "name": "Chicken", "kind": "query", "value": "chicken", "tags": ["chicken", "protein"] },
+  { "id": "seafood", "name": "Seafood", "kind": "query", "value": "seafood", "tags": ["seafood"] },
+  { "id": "soup", "name": "Soup", "kind": "type", "value": "soup", "tags": ["soup"] },
+  { "id": "salad", "name": "Salad", "kind": "type", "value": "salad", "tags": ["salad"] },
+  { "id": "snack", "name": "Snack", "kind": "type", "value": "snack", "tags": ["snack"] },
+  { "id": "dessert", "name": "Dessert", "kind": "type", "value": "dessert", "tags": ["dessert"] },
+  { "id": "italian", "name": "Italian", "kind": "cuisine", "value": "italian", "tags": ["italian"] },
+  { "id": "mexican", "name": "Mexican", "kind": "cuisine", "value": "mexican", "tags": ["mexican"] },
+  { "id": "asian", "name": "Asian", "kind": "cuisine", "value": "asian", "tags": ["asian"] },
+  { "id": "indian", "name": "Indian", "kind": "cuisine", "value": "indian", "tags": ["indian"] },
+  { "id": "mediterranean", "name": "Mediterranean", "kind": "cuisine", "value": "mediterranean", "tags": ["mediterranean"] },
+  { "id": "middle-eastern", "name": "Middle Eastern", "kind": "cuisine", "value": "middle eastern", "tags": ["middle eastern"] },
+  { "id": "american", "name": "American", "kind": "cuisine", "value": "american", "tags": ["american"] },
+  { "id": "french", "name": "French", "kind": "cuisine", "value": "french", "tags": ["french"] },
+  { "id": "british", "name": "British", "kind": "cuisine", "value": "british", "tags": ["british"] }
 ]

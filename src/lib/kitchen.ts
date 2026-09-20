@@ -1,11 +1,15 @@
 /*
  * The three calls behind the flow: photo → what you've got → draft ideas →
- * one idea expanded into a recipe. Each goes to OpenAI when a key is set and
- * falls back to the bundled recipes (scored by ingredient overlap) when it is
- * not, so the app still does something honest offline. Every result says
+ * one idea expanded into a recipe. Each goes to the model through
+ * feedmeai-api (which holds the key and meters the calls) and falls back to
+ * the bundled recipes (scored by ingredient overlap) when the worker says
+ * no model is configured, so the app still does something honest offline.
+ * Signed in, real recipes from Spoonacular join the draft alongside the
+ * model's, and open as the published site wrote them. Every result says
  * which it was via `source`.
  */
-import { recipes as localRecipes } from '@/data'
+import { recipes as localRecipes, categories } from '@/data'
+import { fetchRecipe, findRecipes, isSpoonacular, type Video } from '@/lib/spoonacular'
 
 export type Meal = 'breakfast' | 'lunch' | 'dinner' | 'dessert'
 
@@ -70,6 +74,10 @@ export interface Recipe {
   image?: string
   /** a generated look at a genuinely new AI idea, fetched once, lazily */
   previewImage?: string
+  /** who published it, for a real recipe — shown and linked, as its licence asks */
+  credit?: { name: string; url: string }
+  /** someone making it; undefined = not looked yet, null = looked, nothing */
+  video?: Video | null
   createdAt: string
   isFavorite?: boolean
 }
@@ -90,16 +98,15 @@ export interface Idea {
   uses: string[]
   /** things you would still need (pantry staples excluded) */
   missing: string[]
-  source: 'ai' | 'local'
-  /** a representative photo of the finished dish, for a built-in recipe */
+  source: Source
+  /** a representative photo of the finished dish, for a built-in or real recipe */
   image?: string
 }
 
-export type Source = 'ai' | 'local'
+/** `ai` the model wrote it; `spoonacular` a published recipe; `local` bundled. */
+export type Source = 'ai' | 'spoonacular' | 'local'
 
-const API = 'https://api.openai.com/v1/chat/completions'
-const IMAGES_API = 'https://api.openai.com/v1/images/generations'
-const MODEL = 'gpt-4o-mini'
+const API = import.meta.env.VITE_FEEDME_API ?? 'https://feedmeai-api.still-union-ef8a.workers.dev'
 
 const PANTRY = [
   'salt', 'pepper', 'oil', 'olive oil', 'butter', 'sugar', 'flour', 'water',
@@ -117,55 +124,55 @@ export function explain(err: unknown, fallback: string): string {
   return err instanceof KitchenError ? err.message : fallback
 }
 
+/** Whether the worker has a model behind it. Assumed until the worker
+ *  says otherwise — either from `probeAI()` at startup or a 503 on any
+ *  call — so a cold start still tries the real thing first. */
+let aiReady = true
+
 export function hasKey(): boolean {
-  return Boolean(import.meta.env.VITE_OPENAI_API_KEY)
+  return aiReady
 }
 
-async function chatJSON<T>(system: string, user: unknown[], maxTokens: number): Promise<T> {
-  const res = await fetch(API, {
+export async function probeAI(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API}/v1/ai`, { cache: 'no-store' })
+    if (res.ok) aiReady = Boolean(((await res.json()) as { ready?: boolean }).ready)
+  } catch {
+    // unreachable: leave the assumption; a call will settle it
+  }
+  return aiReady
+}
+
+class NotConfigured extends Error {}
+
+async function ask<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  const res = await fetch(`${API}/v1/ai/${path}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      response_format: { type: 'json_object' },
-      temperature: 0.4,
-      max_tokens: maxTokens,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-    }),
+    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify(body),
   })
-  if (res.status === 401) throw new KitchenError('auth', 'The AI key was rejected. Check VITE_OPENAI_API_KEY.')
-  if (res.status === 429) throw new KitchenError('busy', 'The AI is rate-limited right now. Try again in a moment.')
-  if (!res.ok) throw new KitchenError('http', `OpenAI answered ${res.status}.`)
-  const data = await res.json()
-  const content = data.choices?.[0]?.message?.content
-  if (!content) throw new Error('Empty response')
-  return JSON.parse(content) as T
+  if (res.status === 503) { aiReady = false; throw new NotConfigured() }
+  const data = (await res.json().catch(() => ({}))) as { error?: string } & T
+  if (res.status === 401) throw new KitchenError('auth', 'Sign in to do that.')
+  if (res.status === 429) throw new KitchenError('busy', data.error ?? 'The AI is busy right now. Try again in a moment.')
+  if (!res.ok) throw new KitchenError('http', data.error ?? `The kitchen answered ${res.status}.`)
+  return data
 }
 
 /* ---------- 1. what's in the photo ---------- */
 
-export async function identify(imageDataUrl: string): Promise<{ items: Ingredient[]; source: Source }> {
+export async function identify(imageDataUrl: string, token?: string | null): Promise<{ items: Ingredient[]; source: Source }> {
   if (!hasKey()) {
     await wait(900)
     return { items: DEMO_ITEMS, source: 'local' }
   }
-  const out = await chatJSON<{ ingredients: { name: string; confidence: number }[] }>(
-    'You list the food ingredients visible in a photo of a fridge, cupboard, or worktop. ' +
-      'Be specific ("red bell pepper", "cheddar"), skip kitchenware and packaging you cannot read, ' +
-      'merge duplicates, and give each a confidence from 0.5 to 1. Lowercase names. ' +
-      'Reply with JSON: {"ingredients":[{"name":"...","confidence":0.9}]}',
-    [
-      { type: 'text', text: 'What food is in this photo?' },
-      { type: 'image_url', image_url: { url: imageDataUrl, detail: 'low' } },
-    ],
-    500,
-  )
+  let out: { ingredients: { name: string; confidence: number }[] }
+  try {
+    out = await ask('identify', { image: imageDataUrl }, token)
+  } catch (err) {
+    if (!(err instanceof NotConfigured)) throw err
+    return { items: DEMO_ITEMS, source: 'local' }
+  }
   const items = (out.ingredients ?? [])
     .filter((i) => i && typeof i.name === 'string' && i.name.trim())
     .map((i) => ({ name: i.name.trim().toLowerCase(), confidence: clamp(i.confidence) }))
@@ -174,24 +181,50 @@ export async function identify(imageDataUrl: string): Promise<{ items: Ingredien
 
 /* ---------- 2. draft ideas from the list ---------- */
 
-export async function suggest(items: Ingredient[], meal: Meal = 'dinner'): Promise<{ ideas: Idea[]; source: Source }> {
+/** The model's ideas (or the built-in ones without a key), with real
+ *  recipes from Spoonacular woven in when signed in. The two run at once;
+ *  a Spoonacular miss costs nothing, and a model failure still shows the
+ *  real recipes rather than an error when there are any. `source` names
+ *  the list's lead voice, which is what the heading note reports. */
+export async function suggest(items: Ingredient[], meal: Meal = 'dinner', token?: string | null): Promise<{ ideas: Idea[]; source: Source }> {
   const names = items.map((i) => i.name)
-  if (!hasKey()) {
-    await wait(700)
-    return { ideas: localIdeas(names, meal), source: 'local' }
+  const real = token ? findRecipes(token, names, meal) : Promise.resolve<Idea[]>([])
+
+  let drafted: Idea[]
+  let source: Source
+  try {
+    if (hasKey()) {
+      drafted = await aiIdeas(names, meal, token)
+      source = 'ai'
+    } else {
+      await wait(700)
+      drafted = localIdeas(names, meal)
+      source = 'local'
+    }
+  } catch (err) {
+    if (err instanceof NotConfigured) {
+      drafted = localIdeas(names, meal)
+      source = 'local'
+    } else {
+      const found = await real
+      if (!found.length) throw err
+      return { ideas: found, source: 'spoonacular' }
+    }
   }
-  const phrase = MEAL_PHRASE[meal]
-  const out = await chatJSON<{ ideas: Omit<Idea, 'id' | 'source'>[] }>(
-    `You are a practical home cook. Given what someone has in, propose 5 ${phrase} they could make. ` +
-      'Prefer dishes that use several of their items and need at most 2–3 extras beyond pantry staples ' +
-      '(salt, pepper, oil, butter, sugar, flour, vinegar, soy sauce, stock, dried herbs and spices). ' +
-      'Mix quick and slower, plain and interesting. "uses" must repeat their item names exactly. ' +
-      'Reply with JSON: {"ideas":[{"title":"...","blurb":"one sentence, why it suits what they have",' +
-      '"minutes":25,"uses":["..."],"missing":["..."]}]}',
-    [{ type: 'text', text: `They have: ${names.join(', ')}.` }],
-    900,
-  )
-  const ideas = (out.ideas ?? []).slice(0, 6).map((i, n) => ({
+
+  const found = await real
+  if (!found.length) return { ideas: drafted, source }
+  // Same dish from both sides: keep the real one, it has the photo. Then
+  // real recipes lead a built-in list; with the model they alternate so a
+  // photo sits in every other row rather than all at the bottom.
+  const fresh = drafted.filter((d) => !found.some((f) => sameTitle(f.title, d.title)))
+  const merged = source === 'local' ? [...found, ...fresh] : interleave(fresh, found)
+  return { ideas: merged, source: source === 'local' ? 'spoonacular' : 'ai' }
+}
+
+async function aiIdeas(names: string[], meal: Meal, token?: string | null): Promise<Idea[]> {
+  const out = await ask<{ ideas: Omit<Idea, 'id' | 'source'>[] }>('suggest', { names, meal }, token)
+  return (out.ideas ?? []).slice(0, 6).map((i, n) => ({
     id: `ai-${Date.now()}-${n}`,
     title: str(i.title),
     blurb: str(i.blurb),
@@ -200,44 +233,46 @@ export async function suggest(items: Ingredient[], meal: Meal = 'dinner'): Promi
     missing: arr(i.missing),
     source: 'ai' as const,
   }))
-  return { ideas, source: 'ai' }
 }
 
 /* ---------- 3. one idea, written out ---------- */
 
-export async function expand(idea: Idea, items: Ingredient[]): Promise<Recipe> {
+/** A real recipe comes back as published — the model never rewrites it. If
+ *  that fetch fails (quota, signed out since) the model writes it from the
+ *  title instead, and without a key the sheet says so. */
+export async function expand(idea: Idea, items: Ingredient[], token?: string | null): Promise<Recipe> {
+  if (isSpoonacular(idea.id)) {
+    const real = token ? await fetchRecipe(token, idea) : null
+    if (real) return real
+    if (!hasKey()) throw new KitchenError('http', 'Sign in to open this recipe.')
+  }
   const local = localRecipes.find((r) => r.id === idea.id)
   if (local || !hasKey()) {
     await wait(local ? 300 : 700)
     const r = local ?? localRecipes[0]
     return toRecipe(r)
   }
-  const out = await chatJSON<{
+  let out: {
     description: string
     minutes: number
     difficulty: 'Easy' | 'Medium' | 'Hard'
     ingredients: string[]
     steps: string[]
     nutrition?: { calories: number; protein: string; carbs: string; fat: string }
-  }>(
-    'Write a clear, reliable home recipe. Metric and imperial quantities where useful. ' +
-      'Short numbered steps, each one action, with the timing or cue for doneness inside the step. ' +
-      'Also estimate the nutrition per serving as best you reasonably can from the ingredients — ' +
-      'say so is an estimate, not a lab figure. ' +
-      'Reply with JSON: {"description":"two sentences","minutes":25,"difficulty":"Easy|Medium|Hard",' +
-      '"ingredients":["quantity + item", ...],"steps":["...", ...],' +
-      '"nutrition":{"calories":420,"protein":"18g","carbs":"52g","fat":"14g"}}',
-    [
-      {
-        type: 'text',
-        text:
-          `Recipe: ${idea.title}. ${idea.blurb}\n` +
-          `They have: ${items.map((i) => i.name).join(', ')}.\n` +
-          `Build it around: ${idea.uses.join(', ')}. Extras allowed: ${idea.missing.join(', ') || 'pantry staples only'}.`,
-      },
-    ],
-    1200,
-  )
+  }
+  try {
+    out = await ask('expand', {
+      title: idea.title,
+      blurb: idea.blurb,
+      names: items.map((i) => i.name),
+      uses: idea.uses,
+      missing: idea.missing,
+    }, token)
+  } catch (err) {
+    if (!(err instanceof NotConfigured)) throw err
+    await wait(300)
+    return toRecipe(localRecipes[0])
+  }
   return {
     id: idea.id,
     title: idea.title,
@@ -247,6 +282,7 @@ export async function expand(idea: Idea, items: Ingredient[]): Promise<Recipe> {
     ingredients: arr(out.ingredients),
     instructions: arr(out.steps),
     nutrition: toNutrition(out.nutrition),
+    image: idea.image,
     createdAt: new Date().toISOString(),
   }
 }
@@ -282,16 +318,40 @@ function toRecipe(r: LocalRecipe): Recipe {
   }
 }
 
-const MEAL_PHRASE: Record<Meal, string> = {
-  breakfast: 'breakfast dishes',
-  lunch: 'lunches',
-  dinner: 'dinners',
-  dessert: 'desserts',
-}
-
 /** The built-in recipes tagged for one meal — for browsing, not scoring. */
 export function recipesForMeal(meal: Meal): LocalRecipe[] {
   return localRecipes.filter((r) => r.meal?.includes(meal))
+}
+
+/** A chip on the Recipes tab. `kind`/`value` is what Spoonacular is asked
+ *  for; `tags` is what the built-in recipes are matched on without it. */
+export interface Category {
+  id: string
+  name: string
+  kind: 'cuisine' | 'type' | 'diet' | 'quick' | 'query'
+  value: string
+  tags: string[]
+}
+
+export const CATEGORIES: Category[] = categories as Category[]
+
+/** The built-ins that fit some words and/or a category. Words match the
+ *  title, tags and ingredients; a category matches its tags, its name as
+ *  the recipe's own category, or (for "quick") the time. Only the meal is
+ *  applied when there's nothing else to go on. */
+export function localSearch(q: string, category: Category | undefined, meal: Meal): Idea[] {
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean)
+  const pool = words.length || category ? localRecipes : recipesForMeal(meal)
+  return pool
+    .filter((r) => {
+      const hay = [r.title, r.category, ...(r.tags ?? []), ...r.ingredients].join(' ').toLowerCase()
+      if (!words.every((w) => hay.includes(w))) return false
+      if (!category) return true
+      if (category.kind === 'quick') return (parseInt(r.totalTime) || 99) <= Number(category.value)
+      const own = [r.category, ...(r.tags ?? [])].map((t) => t.toLowerCase())
+      return category.tags.some((t) => own.includes(t))
+    })
+    .map(ideaFromLocal)
 }
 
 /** Score the bundled recipes by how many of the user's items they mention.
@@ -327,29 +387,13 @@ export function localIdeas(names: string[], meal: Meal = 'dinner'): Idea[] {
 
 /** A generated look at a novel AI idea. Decorative and best-effort: no key,
  *  no network, or a failed generation all just mean no image — never a
- *  stand-in photo passed off as the real thing. */
-export async function generateDishImage(idea: Idea): Promise<string | undefined> {
+ *  stand-in photo passed off as the real thing. Costs real money per call,
+ *  so the worker only does it for someone signed in. */
+export async function generateDishImage(idea: Idea, token: string): Promise<string | undefined> {
   if (!hasKey() || idea.source !== 'ai') return undefined
   try {
-    const res = await fetch(IMAGES_API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt:
-          `A simple, appetising photo of the finished dish "${idea.title}" — ${idea.blurb} ` +
-          'Natural light, on a plate, shot from above. No text, no hands, no branding.',
-        n: 1,
-        size: '1024x1024',
-        quality: 'standard',
-      }),
-    })
-    if (!res.ok) return undefined
-    const data = await res.json()
-    return data.data?.[0]?.url as string | undefined
+    const { url } = await ask<{ url: string | null }>('image', { title: idea.title, blurb: idea.blurb }, token)
+    return url ?? undefined
   } catch {
     return undefined
   }
@@ -409,6 +453,18 @@ function dedupe(items: Ingredient[]): Ingredient[] {
   const seen = new Set<string>()
   return items.filter((i) => (seen.has(i.name) ? false : (seen.add(i.name), true)))
 }
+
+/** a, b, a, b … then whatever is left of the longer list */
+function interleave<T>(a: T[], b: T[]): T[] {
+  const out: T[] = []
+  for (let n = 0; n < Math.max(a.length, b.length); n++) {
+    if (n < a.length) out.push(a[n])
+    if (n < b.length) out.push(b[n])
+  }
+  return out
+}
+
+const sameTitle = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
 const clamp = (n: unknown) => (typeof n === 'number' ? Math.min(1, Math.max(0, n)) : undefined)
 const str = (s: unknown) => (typeof s === 'string' ? s.trim() : '')
 const arr = (a: unknown) => (Array.isArray(a) ? a.filter((x): x is string => typeof x === 'string') : [])

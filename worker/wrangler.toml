@@ -13,4 +13,6 @@ ALLOWED_ORIGINS = "https://feedmeai.victorsaly.com,http://localhost:5173,http://
 
 # Secrets (set once, not stored here):
 #   npx wrangler secret put SEARCHAPI_KEY
-#   npx wrangler secret put OPENAI_API_KEY   (optional: move the vision calls server-side too)
+#   npx wrangler secret put SPOONACULAR_KEY  (https://spoonacular.com/food-api/console — free tier, 150 points/day)
+#   npx wrangler secret put OPENAI_API_KEY    (the photo → ideas → recipe calls; metered per address/account)
+#   npx wrangler secret put YOUTUBE_API_KEY   (optional: cooking videos when Spoonacular has none — YouTube Data API v3)

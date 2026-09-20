@@ -8,7 +8,7 @@ Transform your ingredients into delicious meals with AI-powered recipe suggestio
 
 ### Prerequisites
 - **Node.js** (v18+)
-- **OpenAI API Key** - [Get yours here](https://platform.openai.com/api-keys)
+- **An OpenAI API key** on the worker (`worker/`), or run without one in demo mode
 
 ### Setup
 ```bash
@@ -19,8 +19,8 @@ Transform your ingredients into delicious meals with AI-powered recipe suggestio
 git clone https://github.com/victorsaly/food-inventory-recip.git
 cd food-inventory-recip
 npm install
-cp .env.example .env
-# Add your OpenAI API key to .env
+# No .env needed: the deployed worker does the AI. To use your own,
+# see worker/wrangler.toml for the secrets and `npx wrangler deploy`.
 ```
 
 ### Development
@@ -68,9 +68,49 @@ instead, labelled as such, even if that idea happens to also have a stock photo.
 
 A genuinely new AI-suggested dish (no stock photo, no upload precedent) can also get a small "suggested look" image, generated once the recipe is written out and cached alongside it &mdash; best-effort: no key, no network, or a failed generation all just mean no image, never a stand-in photo passed off as the real thing.
 
+## Real recipes and videos
+
+Signed in, [Spoonacular](https://spoonacular.com/food-api) joins the draft: up to three published
+recipes that use the most of what's in the photo, each with a real photo of the dish, alternating
+with the model's own ideas (a title both sides suggest keeps the real one). Opening one shows it as
+the publishing site wrote it, credited and linked, with nutrition from its ingredient data rather
+than the model's estimate. Every recipe &mdash; real, AI or built-in &mdash; also looks for a video
+of it being made (Spoonacular first, then YouTube itself if the worker has a `YOUTUBE_API_KEY`),
+shown as a still that becomes the player on tap, and kept with a saved recipe.
+
+The key lives in the worker (`npx wrangler secret put SPOONACULAR_KEY`, in `worker/`), behind the
+same sign-in as the shopping search, because the free tier is 150 points a day. Signed out, without
+the secret, or over the limit, the app is exactly what it was before.
+
+## Recent, and the Recipes tab
+
+Every fridge photo you run is kept on the device (`src/lib/history.ts`, `localStorage`, newest
+twenty): a thumbnail (the newest three keep a 640px copy too), the list it produced, the ideas,
+and every recipe you opened &mdash; with its video and picture. "Recent" on the start screen
+brings one back exactly as it was, with no network call; the bin forgets it.
+
+The Recipes tab browses the built-ins by meal as before, and now also searches: type anything,
+or tap a chip (`src/data/categories.json` &mdash; time, diet, dish type, cuisine). Matching
+built-ins come first; signed in, Spoonacular's results follow. Each search is remembered for the
+session, so flicking between chips is free &mdash; and the last twelve, results included, are kept
+on the device under "Recent searches" so they come back without a call.
+
+## Saved, on the server
+
+Saved recipes live under the signed-in account, not this device &mdash; a small sibling worker
+(`workers/favorites-api/`, its own `wrangler.toml`) with a `favorites` table on the same D1
+database `worker/` already uses for the shopping list, keyed by account id so nothing crosses
+between people. `src/lib/favorites.ts` is the client: one fetch per session, cached and reactive,
+so the heart on a recipe and the badge on the Saved tab agree instantly after a save or remove.
+
+The photo you took stays on this device &mdash; only the recipe itself (its own photo, if it has
+one) goes to the server, so a save never uploads what's actually in your fridge. Signed out, Saved
+still asks you to sign in, same as before; there's no local fallback left, since the feature only
+ever appears once you have an account.
+
 ## Built with
 
-**React 19** • **TypeScript** • **Vite** • **Tailwind CSS** (for the remaining ui primitives) • **OpenAI gpt-4o-mini** (vision + JSON mode)
+**React 19** • **TypeScript** • **Vite** • **Tailwind CSS** (for the remaining ui primitives) • **Cloudflare Workers + D1** (`worker/`) • **OpenAI gpt-4o-mini** (vision + JSON mode, behind the worker)
 
 ## Project structure
 
@@ -92,7 +132,7 @@ A genuinely new AI-suggested dish (no stock photo, no upload precedent) can also
 │   └── styles/flow.css          # the whole look
 ```
 
-> **Note on the API key.** `VITE_OPENAI_API_KEY` is compiled into the public bundle, so anyone can read it from the deployed site. Put a usage cap on the key, and plan to move the calls behind a small proxy (e.g. a Cloudflare Worker).
+> **No keys in the page.** Every call that needs a secret &mdash; OpenAI, Spoonacular, SearchAPI, YouTube &mdash; goes through the worker in `worker/`, which holds the keys and meters the AI calls per address (more when signed in; the generated "suggested look" image is signed-in only, since it costs real money). `GET /v1/ai` tells the app whether a model is configured; without one it runs in its built-in demo mode.
 
 ## 📖 Documentation
 

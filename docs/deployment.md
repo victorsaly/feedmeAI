@@ -24,14 +24,16 @@ The project is configured for automatic deployment using GitHub Actions:
    Repository → Settings → Pages → Source: GitHub Actions
    ```
 
-2. **Configure Environment Variables**:
+2. **Give the worker its keys** (the page itself needs none):
+   ```bash
+   cd worker
+   npx wrangler secret put OPENAI_API_KEY      # photo → ideas → recipe
+   npx wrangler secret put SPOONACULAR_KEY     # real recipes, photos, videos, search
+   npx wrangler secret put SEARCHAPI_KEY       # shopping search
+   npx wrangler secret put YOUTUBE_API_KEY     # optional: more cooking videos
+   npx wrangler deploy
    ```
-   Repository → Settings → Secrets and Variables → Actions → Repository secrets
-   ```
-   
-   Add the following secret:
-   - **Name**: `VITE_OPENAI_API_KEY`
-   - **Value**: Your OpenAI API key (get one at https://platform.openai.com/api-keys)
+   Without `OPENAI_API_KEY` the app still runs, in its built-in demo mode.
 
 3. **Push Your Code**:
    ```bash
@@ -104,11 +106,8 @@ To use a custom domain like `feedmeai.victorsaly.com`:
 
 2. **Common Issues**:
 
-   **Missing API Key Secret**:
-   ```
-   Error: VITE_OPENAI_API_KEY is not defined
-   ```
-   Solution: Add `VITE_OPENAI_API_KEY` to repository secrets
+   **The app says "Running without an AI behind it"**:
+   The worker has no `OPENAI_API_KEY`. Set it with `npx wrangler secret put OPENAI_API_KEY` in `worker/` and redeploy the worker.
 
    **Build Failures**:
    ```
@@ -148,9 +147,9 @@ To use a custom domain like `feedmeai.victorsaly.com`:
    - Open browser dev tools → Console
    - Look for API key or CORS errors
 
-2. **Verify Environment Variables**:
-   - Ensure `VITE_OPENAI_API_KEY` secret is set
-   - Check that the key has proper OpenAI permissions
+2. **Verify the worker**:
+   - `curl https://feedmeai-api.still-union-ef8a.workers.dev/v1/ai` should answer `{"ready":true}`
+   - Check the key has OpenAI permissions and a spending cap
 
 ## 🌐 Alternative Deployment Platforms
 
@@ -205,12 +204,10 @@ To use a custom domain like `feedmeai.victorsaly.com`:
 
 ### Environment Variables
 
-Create `.env` file for local development:
+The page needs no secrets. To point a local build at a different worker:
 ```bash
-VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_FEEDME_API=http://localhost:8787
 ```
-
-For production, set environment variables in your deployment platform.
 
 ### Build Scripts
 

@@ -208,6 +208,90 @@
 }
 .label-note { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: .78rem; }
 
+/* ---------- recipes: search and chips ---------- */
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-height: 48px;
+  padding: 0 .9rem;
+  margin: 0 0 .75rem;
+  border-radius: var(--r-btn);
+  background: var(--white);
+  color: var(--ink-3);
+  box-shadow: var(--shadow-list);
+}
+.search:focus-within { box-shadow: 0 0 0 2px var(--blue) inset, var(--shadow-list); color: var(--blue); }
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: .6rem 0;
+  background: none;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search input::placeholder { color: var(--ink-3); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search-clear {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--cold);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.cats {
+  display: flex;
+  gap: .5rem;
+  margin: 0 calc(-1 * max(1rem, env(safe-area-inset-right))) .5rem calc(-1 * max(1rem, env(safe-area-inset-left)));
+  padding: .15rem max(1rem, env(safe-area-inset-right)) .6rem max(1rem, env(safe-area-inset-left));
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex: none;
+  appearance: none;
+  border: 0;
+  margin: 0;
+  min-height: 38px;
+  padding: .45rem .95rem;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-magnet);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform .12s var(--ease-out), color .15s ease, box-shadow .15s ease;
+}
+.cat:active { transform: scale(var(--press)); }
+.cat.is-active { color: var(--blue); box-shadow: 0 0 0 1.5px var(--blue) inset, var(--shadow-magnet); }
+@media (hover: hover) and (pointer: fine) {
+  .cat:not(.is-active):hover { color: var(--ink); }
+}
+
+/* ---------- history ---------- */
+
+.history { margin-top: .5rem; }
+.history-blank { display: grid; place-items: center; background: var(--cold); color: var(--ink-3); }
+
 /* ---------- meal picker ---------- */
 
 .meals {
@@ -355,6 +439,34 @@
   color: var(--ink-3);
   text-wrap: pretty;
 }
+
+/* ---------- how it works: the pitch in one picture ---------- */
+
+.how {
+  margin: 1.75rem 0 0;
+  padding: .5rem .5rem 0;
+  border-radius: var(--r-list);
+  background: var(--white);
+  box-shadow: var(--shadow-list);
+  overflow: hidden;
+}
+.how-art { display: block; width: 100%; height: auto; }
+
+/* One entrance, not a loop: the question wobbles once, the sparkles twinkle
+   in, the arrow fades in, the bar fills — a single ~1.4s cascade the first
+   moment this screen appears, then still. It's the app's home screen, seen
+   every session; it doesn't get to keep moving the whole time you're on it. */
+.how-q { transform-origin: 138px 46px; animation: how-tip .8s var(--ease-in-out) both; }
+.how-dots circle { opacity: 0; animation: how-twinkle .4s var(--ease-out) both; }
+.how-dots circle:nth-child(1) { animation-delay: .15s; }
+.how-dots circle:nth-child(2) { animation-delay: .32s; }
+.how-dots circle:nth-child(3) { animation-delay: .48s; }
+.how-dots circle:nth-child(4) { animation-delay: .62s; }
+.how-arrow { opacity: 0; animation: fade .35s var(--ease-out) .55s both; }
+.how-bar { transform-origin: 199px 382px; transform: scaleX(0); animation: how-fill .5s var(--ease-out) .9s both; }
+@keyframes how-tip { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
+@keyframes how-twinkle { to { opacity: 1; } }
+@keyframes how-fill { to { transform: scaleX(1); } }
 
 /* ---------- what you've got: magnets on the door ---------- */
 
@@ -617,6 +729,29 @@
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
+.sheet-shot-swap {
+  position: absolute;
+  right: .6rem;
+  bottom: .6rem;
+  appearance: none;
+  border: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .92);
+  color: var(--ink);
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  cursor: pointer;
+  box-shadow: var(--shadow-magnet);
+  transition: transform .12s var(--ease-out);
+}
+.sheet-shot-swap:active { transform: scale(var(--press)); }
 .sheet-desc { margin: 0 0 .5rem; line-height: 1.55; text-wrap: pretty; }
 .sheet-body h3 {
   margin: 1.5rem 0 .5rem .25rem;
@@ -741,6 +876,57 @@
 .list-shopping-item img { width: 2.2rem; height: 2.2rem; object-fit: contain; border-radius: 6px; background: var(--cold); grid-row: 1 / 3; }
 .list-shopping-title { font-size: .85rem; font-weight: 600; line-height: 1.25; }
 .list-shopping-meta { font-size: .72rem; color: var(--ink-3); }
+.list-shopping-meta b { color: var(--blue); font-weight: 700; }
+.list-shops { display: flex; flex-wrap: wrap; gap: .4rem; padding-top: .25rem; }
+.list-shop {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 .7rem;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: var(--shadow-magnet);
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.list-shop:active { transform: scale(var(--press)); }
+
+/* the list compared across shops */
+.compare-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 0 0 1rem; }
+.compare { margin-bottom: 1.5rem; }
+.compare .label { margin-top: 0; align-items: center; }
+.compare-shop {
+  border-radius: var(--r-list);
+  background: var(--white);
+  box-shadow: var(--shadow-list);
+  margin-bottom: .75rem;
+  overflow: hidden;
+}
+.compare-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .8rem .9rem .6rem;
+}
+.compare-head b { display: block; font-size: 1.05rem; letter-spacing: -.01em; }
+.compare-cover { font-size: .78rem; color: var(--ink-3); }
+.compare-lines { list-style: none; margin: 0; padding: 0 .9rem .35rem; }
+.compare-lines li { border-top: 1px solid var(--hairline); }
+.compare-lines a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "ing price" "item price";
+  column-gap: .75rem;
+  padding: .55rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+.compare-ing { grid-area: ing; font-weight: 600; font-size: .9rem; text-transform: capitalize; }
+.compare-item { grid-area: item; font-size: .76rem; color: var(--ink-3); line-height: 1.3; }
+.compare-price { grid-area: price; align-self: center; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* four stat blocks, iOS health-app style */
 .sheet-nutri {
@@ -756,29 +942,53 @@
 .sheet-nutri b { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 .sheet-nutri span { font-size: .68rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
 
-/* a generated look at a novel idea — clearly labelled, kept small */
-.sheet-preview {
-  margin: 1.25rem 0 0;
+/* someone making it — a still until tapped, then the player in its place */
+.sheet-video {
+  margin: .25rem 0 .5rem;
   border-radius: var(--r-list);
   overflow: hidden;
   box-shadow: var(--shadow-list);
+  background: #0f1620;
+}
+.sheet-video-play,
+.sheet-video iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+.sheet-video-play {
   position: relative;
-}
-.sheet-preview img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
-.sheet-preview figcaption {
-  position: absolute;
-  left: .6rem;
-  bottom: .6rem;
-  padding: .25rem .6rem;
-  border-radius: 999px;
-  background: rgba(15, 22, 32, .55);
+  padding: 0;
+  cursor: pointer;
+  background: none;
   color: #fff;
-  font-size: .68rem;
-  font-weight: 600;
-  letter-spacing: .02em;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
 }
+.sheet-video-play img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sheet-video-play svg {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 56px;
+  height: 56px;
+  padding: 14px;
+  border-radius: 999px;
+  background: rgba(15, 22, 32, .7);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .3);
+  transition: transform .15s ease;
+}
+.sheet-video-play:active svg { transform: scale(.94); }
+.sheet-video figcaption {
+  padding: .55rem .8rem .65rem;
+  color: rgba(255, 255, 255, .85);
+  font-size: .78rem;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.sheet-video figcaption span:last-child { flex: none; font-variant-numeric: tabular-nums; opacity: .7; }
+.sheet-credit a { color: var(--blue-deep); font-weight: 600; }
 .sheet-steps { list-style: decimal; padding: .35rem 1rem .35rem 2.4rem; display: grid; line-height: 1.5; }
 .sheet-steps li { padding: .5rem .25rem; }
 .sheet-steps li + li { border-top: 1px solid var(--hairline); }
@@ -884,6 +1094,9 @@
   .fridge.is-looking::before { animation: breathe 3.2s var(--ease-in-out) infinite; }
   .scan::after { animation: none; opacity: 0; }
   .sk { animation-duration: 3s; }
+  .how-q { animation: none; }
+  .how-dots circle, .how-arrow { animation: none; opacity: 1; }
+  .how-bar { animation: none; transform: none; }
   :root { --press: 1; }
   .haul-photo:active, .magnet-remove:active, .magnet-plus:active { transform: none; }
 }

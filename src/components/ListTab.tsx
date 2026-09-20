@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Plus, Trash, MagnifyingGlass, X } from '@phosphor-icons/react'
+import { Plus, Trash, MagnifyingGlass, X, Storefront, ArrowSquareOut } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { signIn, useSessionToken } from '@/lib/account'
 import { addTodo, listTodos, removeTodo, setTodoChecked, type Todo } from '@/lib/todos'
-import { COUNTRIES, loadCountry, saveCountry, searchShopping, type ShoppingResult } from '@/lib/shopping'
+import {
+  COUNTRIES, COMPARE_CAP, compareShops, loadCountry, saveCountry, searchShopping,
+  type Comparison, type ShoppingSearch,
+} from '@/lib/shopping'
+
+/** A search in flight (`null` result) or finished, for one list item. */
+type Search = { id: string; result: ShoppingSearch | null }
 
 /**
  * The shopping list: what "Add to list" on a recipe sends items to, plus
@@ -17,7 +23,10 @@ export function ListTab() {
   const [loading, setLoading] = useState(false)
   const [draft, setDraft] = useState('')
   const [country, setCountry] = useState(() => loadCountry() ?? 'gb')
-  const [shopping, setShopping] = useState<{ id: string; results: ShoppingResult[] } | null>(null)
+  const [shopping, setShopping] = useState<Search | null>(null)
+  // 'idle' | 'loading' | the comparison; the list it was made from is
+  // remembered so editing the list can mark it stale rather than wrong.
+  const [compare, setCompare] = useState<{ state: 'loading' } | { state: 'ready'; result: Comparison; of: string[] } | null>(null)
 
   useEffect(() => {
     if (!token) { setTodos([]); return }
@@ -31,6 +40,15 @@ export function ListTab() {
     setCountry(code)
     saveCountry(code)
     setShopping(null)
+    setCompare(null)
+  }
+
+  async function runCompare(ingredients: string[]) {
+    if (!token || ingredients.length === 0) return
+    setShopping(null)
+    setCompare({ state: 'loading' })
+    const result = await compareShops(token, ingredients, country)
+    setCompare({ state: 'ready', result, of: ingredients })
   }
 
   async function submitDraft(e: React.FormEvent) {
@@ -57,9 +75,9 @@ export function ListTab() {
   async function findIt(todo: Todo) {
     if (!token) return
     if (shopping?.id === todo.id) { setShopping(null); return }
-    setShopping({ id: todo.id, results: [] })
-    const results = await searchShopping(token, todo.ingredient, country)
-    setShopping((cur) => (cur?.id === todo.id ? { id: todo.id, results } : cur))
+    setShopping({ id: todo.id, result: null })
+    const result = await searchShopping(token, todo.ingredient, country)
+    setShopping((cur) => (cur?.id === todo.id ? { id: todo.id, result } : cur))
   }
 
   if (!token) {
@@ -116,6 +134,33 @@ export function ListTab() {
       ) : (
         <>
           {open.length > 0 && (
+            <div className="compare-bar">
+              <button
+                type="button"
+                className="btn btn-quiet"
+                onClick={() => runCompare(open.map((t) => t.ingredient))}
+                disabled={compare?.state === 'loading'}
+              >
+                <Storefront size={18} />
+                {compare?.state === 'loading'
+                  ? `Checking ${Math.min(open.length, COMPARE_CAP)} items…`
+                  : `Compare shops for ${open.length === 1 ? 'this item' : `these ${open.length}`}`}
+              </button>
+              {open.length > COMPARE_CAP && (
+                <span className="label-note">First {COMPARE_CAP} only, to keep it quick.</span>
+              )}
+            </div>
+          )}
+
+          {compare?.state === 'ready' && (
+            <CompareView
+              comparison={compare.result}
+              stale={compare.of.join('\n') !== open.map((t) => t.ingredient).join('\n')}
+              onClose={() => setCompare(null)}
+            />
+          )}
+
+          {open.length > 0 && (
             <ul className="list-items">
               {open.map((t) => (
                 <ListItem key={t.id} todo={t} shopping={shopping} onToggle={toggle} onRemove={remove} onFind={findIt} />
@@ -138,14 +183,66 @@ export function ListTab() {
   )
 }
 
+/**
+ * The list turned inside out: one card per shop, best-covered first, each
+ * line the shop's cheapest listing for one of your ingredients. A shop's
+ * own search page is a tap away for the whole list, and each line links to
+ * that shop's search for the specific product.
+ */
+function CompareView({ comparison, stale, onClose }: { comparison: Comparison; stale: boolean; onClose: () => void }) {
+  const { groups, unfound, searched } = comparison
+  const fmt = (n: number, c: string) => `${c}${n.toFixed(2)}`
+  return (
+    <section className="compare" aria-label="Shops compared">
+      <p className="label">
+        <span>Where to buy{stale && ' · list changed, compare again'}</span>
+        <button type="button" className="magnet-remove" onClick={onClose} aria-label="Close comparison"><X size={16} /></button>
+      </p>
+      {groups.length === 0 && <div className="ideas-empty"><p>No shop listings for any of these.</p></div>}
+      {groups.map((g) => (
+        <article key={g.label} className="compare-shop">
+          <header className="compare-head">
+            <div>
+              <b>{g.label}</b>
+              <span className="compare-cover">
+                {g.lines.length} of {searched}{g.total !== null && ` · from ${fmt(g.total, g.currency)}`}
+              </span>
+            </div>
+            {g.link && (
+              <a className="btn btn-small" href={g.link} target="_blank" rel="noopener noreferrer">
+                Open <ArrowSquareOut size={14} />
+              </a>
+            )}
+          </header>
+          <ul className="compare-lines">
+            {g.lines.map((l) => (
+              <li key={l.ingredient}>
+                <a href={l.item.link ?? undefined} target="_blank" rel="noopener noreferrer">
+                  <span className="compare-ing">{l.ingredient}</span>
+                  <span className="compare-item">{l.item.title}</span>
+                  <span className="compare-price">{l.item.price ?? '—'}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+      {unfound.length > 0 && (
+        <p className="label-note">Nothing found for: {unfound.join(', ')}.</p>
+      )}
+    </section>
+  )
+}
+
 function ListItem({ todo, shopping, onToggle, onRemove, onFind }: {
   todo: Todo
-  shopping: { id: string; results: ShoppingResult[] } | null
+  shopping: Search | null
   onToggle: (t: Todo) => void
   onRemove: (id: string) => void
   onFind: (t: Todo) => void
 }) {
   const searching = shopping?.id === todo.id
+  const result = searching ? shopping.result : null
   return (
     <li className={`list-item ${todo.checked ? 'is-checked' : ''}`}>
       <div className="list-item-row">
@@ -167,16 +264,35 @@ function ListItem({ todo, shopping, onToggle, onRemove, onFind }: {
       </div>
       {searching && (
         <div className="list-shopping">
-          {shopping.results.length === 0 ? (
+          {!result ? (
             <p className="label-note">Searching…</p>
           ) : (
-            shopping.results.map((r, i) => (
-              <a key={i} className="list-shopping-item" href={r.link ?? undefined} target="_blank" rel="noopener noreferrer">
-                {r.thumbnail && <img src={r.thumbnail} alt="" />}
-                <span className="list-shopping-title">{r.title}</span>
-                <span className="list-shopping-meta">{[r.source, r.price].filter(Boolean).join(' · ')}</span>
-              </a>
-            ))
+            <>
+              {result.items.length === 0 && (
+                <p className="label-note">
+                  {result.shops.length ? 'No supermarket listings for that — try the shops directly.' : 'Nothing found.'}
+                </p>
+              )}
+              {result.items.map((r, i) => (
+                <a key={i} className="list-shopping-item" href={r.link ?? undefined} target="_blank" rel="noopener noreferrer">
+                  {r.thumbnail && <img src={r.thumbnail} alt="" />}
+                  <span className="list-shopping-title">{r.title}</span>
+                  <span className="list-shopping-meta">
+                    {r.source && <b>{r.source}</b>}
+                    {r.price && <span> · {r.price}</span>}
+                  </span>
+                </a>
+              ))}
+              {result.shops.length > 0 && (
+                <div className="list-shops">
+                  {result.shops.map((s) => (
+                    <a key={s.key} className="list-shop" href={s.link} target="_blank" rel="noopener noreferrer">
+                      {s.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

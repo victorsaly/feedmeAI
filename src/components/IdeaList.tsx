@@ -1,10 +1,10 @@
 import { CaretRight, ArrowsClockwise } from '@phosphor-icons/react'
-import type { Idea } from '@/lib/kitchen'
+import { hasKey, type Idea, type Source } from '@/lib/kitchen'
 
 interface IdeaListProps {
   ideas: Idea[]
   state: 'idle' | 'loading' | 'ready' | 'error' | 'stale'
-  source?: 'ai' | 'local'
+  source?: Source
   onOpen: (idea: Idea) => void
   onRefresh: () => void
   /** no heading — the section around it already has one */
@@ -34,7 +34,10 @@ export function IdeaList({ ideas, state, source, onOpen, onRefresh, quiet, error
           </button>
         )}
         {state === 'ready' && source === 'local' && (
-          <span className="label-note">built-in recipes, no AI key set</span>
+          <span className="label-note">built-in recipes, no AI behind the app</span>
+        )}
+        {state === 'ready' && source === 'spoonacular' && (
+          <span className="label-note">{hasKey() ? "published recipes — the AI didn't answer" : 'published recipes, no AI behind the app'}</span>
         )}
       </header>}
 

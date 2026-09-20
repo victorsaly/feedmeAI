@@ -6,19 +6,24 @@ import { Logo } from '@/components/Logo'
 import { PhotoPicker } from '@/components/PhotoPicker'
 import { HaulList } from '@/components/HaulList'
 import { IdeaList } from '@/components/IdeaList'
-import { IdeaSheet } from '@/components/IdeaSheet'
+import { IdeaSheet, primeRecipe } from '@/components/IdeaSheet'
 import { SavedList } from '@/components/SavedList'
 import { ListTab } from '@/components/ListTab'
 import { SignIn } from '@/components/SignIn'
 import { CookScreen } from '@/components/CookScreen'
 import { MealPicker } from '@/components/MealPicker'
+import { RecipesTab } from '@/components/RecipesTab'
+import { HaulHistory } from '@/components/HaulHistory'
+import { HowItWorks } from '@/components/HowItWorks'
 import { TabBar, type Tab } from '@/components/TabBar'
-import { FavoritesStorage } from '@/lib/favorites-storage'
+import { ensureFavoritesLoaded, useFavorites } from '@/lib/favorites'
 import { completeSignIn, useSessionToken } from '@/lib/account'
 import { listTodos } from '@/lib/todos'
+import { findImage } from '@/lib/spoonacular'
+import { loadHauls, saveHaul, removeHaul, thumbnail, LARGE, type Haul } from '@/lib/history'
 import {
-  identify, suggest, ideaFromLocal, recipesForMeal, loadMeal, saveMeal, hasKey, explain,
-  type Idea, type Ingredient, type Recipe, type Meal,
+  identify, suggest, loadMeal, saveMeal, hasKey, probeAI, explain,
+  type Idea, type Ingredient, type Recipe, type Meal, type Source,
 } from '@/lib/kitchen'
 
 export type { Ingredient } from '@/lib/kitchen'
@@ -46,26 +51,37 @@ function App() {
   const [items, setItems] = useState<Ingredient[]>([])
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [ideasState, setIdeasState] = useState<IdeasState>('idle')
-  const [ideasSource, setIdeasSource] = useState<'ai' | 'local'>()
+  const [ideasSource, setIdeasSource] = useState<Source>()
   const [ideasError, setIdeasError] = useState<string>()
   const [openIdea, setOpenIdea] = useState<Idea | null>(null)
   const [cooking, setCooking] = useState<Recipe | null>(null)
   const [lastIdea, setLastIdea] = useState<Idea | null>(null) // the sheet to reopen after Cook → back
   const [cameFrom, setCameFrom] = useState<Tab>('fridge') // the tab Cook was opened from
-  const [savedCount, setSavedCount] = useState(0)
   const [listCount, setListCount] = useState(0)
   const [tab, setTab] = useState<Tab>('fridge')
   const [meal, setMeal] = useState<Meal>(() => loadMeal())
+  const [hauls, setHauls] = useState<Haul[]>(() => loadHauls())
+  const [haul, setHaul] = useState<Pick<Haul, 'id' | 'createdAt' | 'photo' | 'photoLarge'>>() // the history entry this screen is
+  const [opened, setOpened] = useState<Record<string, Recipe>>({}) // recipes written out for it
   const run = useRef(0) // a newer request makes an older result irrelevant
   const token = useSessionToken()
+  const favorites = useFavorites()
+  const savedCount = favorites?.length ?? 0
 
-  useEffect(() => { setSavedCount(FavoritesStorage.getFavoritesCount()) }, [stage, tab, openIdea])
+  // Saved is server-backed under the account, same as the shopping list
+  // below — load it once a token exists so the tab badge is accurate.
+  useEffect(() => { ensureFavoritesLoaded(token) }, [token])
 
   // The return trip from Google, if this load is one — comes back with
   // `?auth=` on whichever tab sign-in was offered from.
   useEffect(() => {
     completeSignIn().then((session) => { if (session) toast.success(`Signed in as ${session.name}`) })
   }, [])
+
+  // Ask the worker once whether a model is behind it, so the start screen
+  // can say so before the first photo rather than after.
+  const [, setAiKnown] = useState(false)
+  useEffect(() => { probeAI().then(() => setAiKnown(true)) }, [])
 
   useEffect(() => {
     if (!token) { setListCount(0); return }
@@ -74,16 +90,26 @@ function App() {
     return () => { live = false }
   }, [token, tab, openIdea])
 
+  // Whatever this screen shows is what history keeps — written on every
+  // change, so a closed tab loses nothing. Loading ideas aren't kept: an
+  // entry restored mid-draft would show an empty list with no way to redo.
+  useEffect(() => {
+    if (!haul || stage !== 'haul' || !items.length || ideasState === 'loading') return
+    setHauls(saveHaul({ ...haul, meal, items, ideas, source: ideasSource, recipes: opened }))
+  }, [haul, stage, items, ideas, ideasSource, ideasState, meal, opened])
+
   async function onPhoto(display: string, small: string) {
     setPhoto(display)
     setAnalyzing(true)
     setIdeas([])
     setIdeasState('idle')
+    setOpened({})
     const id = ++run.current
     try {
-      const { items } = await identify(small)
+      const [{ items }, thumb, large] = await Promise.all([identify(small, token), thumbnail(small), thumbnail(small, LARGE)])
       if (id !== run.current) return
       setItems(items)
+      setHaul({ id: `h-${Date.now()}`, createdAt: new Date().toISOString(), photo: thumb, photoLarge: large })
       setStage('haul')
       window.scrollTo({ top: 0 })
       if (items.length) draft(items, meal)
@@ -98,11 +124,21 @@ function App() {
     const id = ++run.current
     setIdeasState('loading')
     try {
-      const { ideas, source } = await suggest(from, forMeal)
+      const { ideas, source } = await suggest(from, forMeal, token)
       if (id !== run.current) return
       setIdeas(ideas)
       setIdeasSource(source)
       setIdeasState('ready')
+      // The model's ideas arrive without a picture; find one for each as
+      // they come, so the list doesn't wait on five more lookups.
+      if (token) {
+        for (const idea of ideas.filter((i) => !i.image)) {
+          findImage(token, idea.title).then((image) => {
+            if (!image || id !== run.current) return
+            setIdeas((cur) => cur.map((i) => (i.id === idea.id ? { ...i, image } : i)))
+          })
+        }
+      }
     } catch (err) {
       if (id !== run.current) return
       setIdeasError(explain(err, "Couldn't reach the kitchen. Check the connection and try again."))
@@ -133,11 +169,38 @@ function App() {
     setIdeas([])
     setIdeasState('idle')
     setAnalyzing(false)
+    setHaul(undefined)
+    setOpened({})
     window.scrollTo({ top: 0 })
   }
 
+  /** An earlier screen, back as it was — the kept photo (large for the
+   *  newest few, a thumbnail beyond) stands in for the original, and every
+   *  recipe opened then opens again without a fetch. */
+  function reopen(h: Haul) {
+    run.current++
+    for (const r of Object.values(h.recipes ?? {})) primeRecipe(r)
+    setHaul({ id: h.id, createdAt: h.createdAt, photo: h.photo, photoLarge: h.photoLarge })
+    setOpened(h.recipes ?? {})
+    setPhoto(h.photoLarge ?? h.photo)
+    setItems(h.items)
+    setIdeas(h.ideas)
+    setIdeasSource(h.source)
+    setIdeasState(h.ideas.length ? 'ready' : 'stale')
+    setMeal(h.meal)
+    setAnalyzing(false)
+    setStage('haul')
+    window.scrollTo({ top: 0 })
+  }
+
+  /** A recipe written out (or updated with a video or picture) while a
+   *  haul is on screen belongs to that haul. */
+  function onRecipe(r: Recipe) {
+    if (tab !== 'fridge' || !haul) return
+    setOpened((cur) => (cur[r.id] === r ? cur : { ...cur, [r.id]: r }))
+  }
+
   const leaveCook = () => { setStage(items.length ? 'haul' : 'start'); setTab(cameFrom) }
-  const mealRecipes = recipesForMeal(meal).map(ideaFromLocal)
 
   /* ----- cook: full screen, no bar ----- */
 
@@ -169,24 +232,7 @@ function App() {
       </header>
 
       <main className="page">
-        {tab === 'recipes' && (
-          <>
-            <section className="hero hero-tab">
-              <h1>Recipes</h1>
-              <p>Ready to cook right now &mdash; no photo needed.</p>
-            </section>
-            <MealPicker value={meal} onChange={changeMeal} />
-            <p className="label">{mealRecipes.length} built in</p>
-            <IdeaList
-              ideas={mealRecipes}
-              state="ready"
-              onOpen={setOpenIdea}
-              onRefresh={() => {}}
-              quiet
-              emptyMessage={`No built-in ${meal} recipes yet — try another meal, or take a photo on the Fridge tab.`}
-            />
-          </>
-        )}
+        {tab === 'recipes' && <RecipesTab meal={meal} onMeal={changeMeal} onOpen={setOpenIdea} />}
 
         {tab === 'saved' && (
           <>
@@ -209,10 +255,13 @@ function App() {
 
             {!hasKey() && !analyzing && (
               <p className="demo-note">
-                Running without an AI key: the photo step shows a sample list and the ideas come
-                from the built-in recipes.
+                Running without an AI behind it: the photo step shows a sample list and the ideas
+                come from the built-in recipes.
               </p>
             )}
+
+            {!analyzing && <HaulHistory hauls={hauls} onOpen={reopen} onRemove={(id) => setHauls(removeHaul(id))} />}
+            {!analyzing && <HowItWorks />}
           </div>
         )}
 
@@ -239,9 +288,11 @@ function App() {
 
       <IdeaSheet
         idea={openIdea}
+        lateImage={openIdea ? ideas.find((i) => i.id === openIdea.id)?.image : undefined}
         items={tab === 'fridge' ? items : []}
         photo={tab === 'fridge' ? photo : undefined}
         onClose={() => setOpenIdea(null)}
+        onRecipe={onRecipe}
         onCook={(r) => { setLastIdea(openIdea); setCameFrom(tab); setOpenIdea(null); setCooking(r); setStage('cook') }}
       />
 
