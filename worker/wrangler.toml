@@ -1,0 +1,16 @@
+name = "feedmeai-api"
+main = "src/index.js"
+compatibility_date = "2026-09-20"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "feedmeai"
+database_id = "b4326a73-299b-4fc6-a87b-3ff39bab2d87"
+
+[vars]
+ARCADE_API = "https://api.victorsaly.com"
+ALLOWED_ORIGINS = "https://feedmeai.victorsaly.com,http://localhost:5173,http://localhost:4173,http://localhost:3000"
+
+# Secrets (set once, not stored here):
+#   npx wrangler secret put SEARCHAPI_KEY
+#   npx wrangler secret put OPENAI_API_KEY   (optional: move the vision calls server-side too)

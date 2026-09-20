@@ -1,4 +1,4 @@
-import type { Recipe } from './openai-analyzer'
+import type { Recipe } from './kitchen'
 
 export class FavoritesStorage {
   private static readonly STORAGE_KEY = 'feed-me-favorites'

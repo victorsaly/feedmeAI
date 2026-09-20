@@ -9,7 +9,12 @@
     "servings": 2,
     "difficulty": "Easy",
     "category": "Italian",
-    "tags": ["quick", "vegetarian", "pasta", "garlic"],
+    "tags": [
+      "quick",
+      "vegetarian",
+      "pasta",
+      "garlic"
+    ],
     "ingredients": [
       "8 oz spaghetti or linguine",
       "6 cloves garlic, thinly sliced",
@@ -85,11 +90,16 @@
       "Serve immediately for the best texture"
     ],
     "nutrition": {
-      "calories": 420,
+      "calories": 520,
       "protein": "14g",
-      "carbs": "58g",
-      "fat": "16g"
-    }
+      "carbs": "68g",
+      "fat": "20g"
+    },
+    "heroImage": "/food/pasta-aglio-olio.jpg",
+    "meal": [
+      "lunch",
+      "dinner"
+    ]
   },
   {
     "id": "chicken-stir-fry",
@@ -101,7 +111,12 @@
     "servings": 3,
     "difficulty": "Easy",
     "category": "Asian",
-    "tags": ["quick", "healthy", "protein", "vegetables"],
+    "tags": [
+      "quick",
+      "healthy",
+      "protein",
+      "vegetables"
+    ],
     "ingredients": [
       "1 lb chicken breast, cut into bite-sized pieces",
       "2 tbsp vegetable oil",
@@ -189,11 +204,16 @@
       "Don't overcrowd the pan or vegetables will steam instead of stir-fry"
     ],
     "nutrition": {
-      "calories": 285,
-      "protein": "32g",
-      "carbs": "12g",
-      "fat": "12g"
-    }
+      "calories": 430,
+      "protein": "28g",
+      "carbs": "45g",
+      "fat": "14g"
+    },
+    "heroImage": "/food/chicken-stir-fry.jpg",
+    "meal": [
+      "lunch",
+      "dinner"
+    ]
   },
   {
     "id": "caprese-grilled-cheese",
@@ -205,7 +225,12 @@
     "servings": 2,
     "difficulty": "Easy",
     "category": "American",
-    "tags": ["quick", "comfort food", "cheese", "vegetarian"],
+    "tags": [
+      "quick",
+      "comfort food",
+      "cheese",
+      "vegetarian"
+    ],
     "ingredients": [
       "4 slices artisan bread",
       "8 oz fresh mozzarella, sliced",
@@ -288,11 +313,15 @@
       "Cook on medium heat to ensure cheese melts before bread burns"
     ],
     "nutrition": {
-      "calories": 465,
-      "protein": "22g",
-      "carbs": "35g",
+      "calories": 480,
+      "protein": "18g",
+      "carbs": "38g",
       "fat": "28g"
-    }
+    },
+    "heroImage": "/food/caprese-grilled-cheese.jpg",
+    "meal": [
+      "lunch"
+    ]
   },
   {
     "id": "shrimp-scampi",
@@ -304,7 +333,12 @@
     "servings": 4,
     "difficulty": "Medium",
     "category": "Italian",
-    "tags": ["seafood", "garlic", "pasta", "butter"],
+    "tags": [
+      "seafood",
+      "garlic",
+      "pasta",
+      "butter"
+    ],
     "ingredients": [
       "1 lb large shrimp, peeled and deveined",
       "12 oz linguine pasta",
@@ -397,11 +431,15 @@
       "Pasta water helps bind the sauce together"
     ],
     "nutrition": {
-      "calories": 445,
-      "protein": "28g",
-      "carbs": "52g",
-      "fat": "14g"
-    }
+      "calories": 520,
+      "protein": "26g",
+      "carbs": "55g",
+      "fat": "20g"
+    },
+    "heroImage": "/food/shrimp-scampi.jpg",
+    "meal": [
+      "dinner"
+    ]
   },
   {
     "id": "mediterranean-quesadilla",
@@ -413,7 +451,12 @@
     "servings": 2,
     "difficulty": "Easy",
     "category": "Fusion",
-    "tags": ["vegetarian", "mediterranean", "quick", "cheese"],
+    "tags": [
+      "vegetarian",
+      "mediterranean",
+      "quick",
+      "cheese"
+    ],
     "ingredients": [
       "4 large flour tortillas",
       "1 cup feta cheese, crumbled",
@@ -491,11 +534,16 @@
       "Let cool slightly before cutting to prevent filling from falling out"
     ],
     "nutrition": {
-      "calories": 385,
-      "protein": "16g",
-      "carbs": "38g",
+      "calories": 410,
+      "protein": "15g",
+      "carbs": "42g",
       "fat": "20g"
-    }
+    },
+    "heroImage": "/food/mediterranean-quesadilla.jpg",
+    "meal": [
+      "lunch",
+      "dinner"
+    ]
   },
   {
     "id": "teriyaki-salmon",
@@ -507,7 +555,12 @@
     "servings": 4,
     "difficulty": "Medium",
     "category": "Asian",
-    "tags": ["seafood", "healthy", "protein", "glaze"],
+    "tags": [
+      "seafood",
+      "healthy",
+      "protein",
+      "glaze"
+    ],
     "ingredients": [
       "4 salmon fillets (6 oz each)",
       "1/4 cup soy sauce",
@@ -521,7 +574,7 @@
       "1 tbsp sesame seeds"
     ],
     "instructions": [
-      "Preheat oven to 400°F (200°C).",
+      "Preheat oven to 400\u00b0F (200\u00b0C).",
       "In a small saucepan, whisk together soy sauce, honey, rice vinegar, garlic, and ginger.",
       "Bring to a simmer over medium heat.",
       "Mix cornstarch and water, add to the sauce and cook until thickened, about 2 minutes.",
@@ -533,8 +586,8 @@
     ],
     "steps": [
       {
-        "instruction": "Preheat oven to 400°F (200°C).",
-        "imagePrompt": "Oven being preheated to 400°F, showing temperature display",
+        "instruction": "Preheat oven to 400\u00b0F (200\u00b0C).",
+        "imagePrompt": "Oven being preheated to 400\u00b0F, showing temperature display",
         "estimatedTime": "10 minutes",
         "tip": "Proper preheating ensures even cooking of the salmon"
       },
@@ -593,10 +646,14 @@
       "Serve with steamed rice and vegetables"
     ],
     "nutrition": {
-      "calories": 320,
-      "protein": "35g",
-      "carbs": "15g",
-      "fat": "14g"
-    }
+      "calories": 480,
+      "protein": "32g",
+      "carbs": "40g",
+      "fat": "18g"
+    },
+    "heroImage": "/food/teriyaki-salmon.jpg",
+    "meal": [
+      "dinner"
+    ]
   }
 ]
