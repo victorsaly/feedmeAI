@@ -86,6 +86,9 @@ export interface Ingredient {
   name: string
   /** 0–1 from the vision model; undefined when the user typed it */
   confidence?: number
+  /** a rough visual guess — "a small piece", "plenty" — never a measurement;
+   *  undefined when the user typed the item in themselves */
+  amount?: string
 }
 
 export interface Idea {
@@ -166,7 +169,7 @@ export async function identify(imageDataUrl: string, token?: string | null): Pro
     await wait(900)
     return { items: DEMO_ITEMS, source: 'local' }
   }
-  let out: { ingredients: { name: string; confidence: number }[] }
+  let out: { ingredients: { name: string; confidence: number; amount?: string }[] }
   try {
     out = await ask('identify', { image: imageDataUrl }, token)
   } catch (err) {
@@ -175,7 +178,7 @@ export async function identify(imageDataUrl: string, token?: string | null): Pro
   }
   const items = (out.ingredients ?? [])
     .filter((i) => i && typeof i.name === 'string' && i.name.trim())
-    .map((i) => ({ name: i.name.trim().toLowerCase(), confidence: clamp(i.confidence) }))
+    .map((i) => ({ name: i.name.trim().toLowerCase(), confidence: clamp(i.confidence), amount: cleanAmount(i.amount) }))
   return { items: dedupe(items), source: 'ai' }
 }
 
@@ -194,7 +197,7 @@ export async function suggest(items: Ingredient[], meal: Meal = 'dinner', token?
   let source: Source
   try {
     if (hasKey()) {
-      drafted = await aiIdeas(names, meal, token)
+      drafted = await aiIdeas(items, meal, token)
       source = 'ai'
     } else {
       await wait(700)
@@ -222,8 +225,10 @@ export async function suggest(items: Ingredient[], meal: Meal = 'dinner', token?
   return { ideas: merged, source: source === 'local' ? 'spoonacular' : 'ai' }
 }
 
-async function aiIdeas(names: string[], meal: Meal, token?: string | null): Promise<Idea[]> {
-  const out = await ask<{ ideas: Omit<Idea, 'id' | 'source'>[] }>('suggest', { names, meal }, token)
+async function aiIdeas(items: Ingredient[], meal: Meal, token?: string | null): Promise<Idea[]> {
+  const names = items.map((i) => i.name)
+  const payload = items.map((i) => ({ name: i.name, amount: i.amount }))
+  const out = await ask<{ ideas: Omit<Idea, 'id' | 'source'>[] }>('suggest', { items: payload, meal }, token)
   return (out.ideas ?? []).slice(0, 6).map((i, n) => ({
     id: `ai-${Date.now()}-${n}`,
     title: str(i.title),
@@ -264,7 +269,7 @@ export async function expand(idea: Idea, items: Ingredient[], token?: string | n
     out = await ask('expand', {
       title: idea.title,
       blurb: idea.blurb,
-      names: items.map((i) => i.name),
+      items: items.map((i) => ({ name: i.name, amount: i.amount })),
       uses: idea.uses,
       missing: idea.missing,
     }, token)
@@ -430,13 +435,13 @@ export function ideaFromLocal(r: LocalRecipe): Idea {
 /* ---------- helpers ---------- */
 
 const DEMO_ITEMS: Ingredient[] = [
-  { name: 'tomatoes', confidence: 0.92 },
-  { name: 'red onion', confidence: 0.88 },
-  { name: 'garlic', confidence: 0.85 },
-  { name: 'bell pepper', confidence: 0.79 },
-  { name: 'eggs', confidence: 0.76 },
-  { name: 'parmesan', confidence: 0.64 },
-  { name: 'spaghetti', confidence: 0.58 },
+  { name: 'tomatoes', confidence: 0.92, amount: 'a couple' },
+  { name: 'red onion', confidence: 0.88, amount: 'one' },
+  { name: 'garlic', confidence: 0.85, amount: 'a few cloves' },
+  { name: 'bell pepper', confidence: 0.79, amount: 'one' },
+  { name: 'eggs', confidence: 0.76, amount: 'half a dozen' },
+  { name: 'parmesan', confidence: 0.64, amount: 'a small piece' },
+  { name: 'spaghetti', confidence: 0.58, amount: 'one packet' },
 ]
 
 /** "1/2 cup Parmesan cheese, grated" → "parmesan cheese" */
@@ -466,6 +471,12 @@ function interleave<T>(a: T[], b: T[]): T[] {
 
 const sameTitle = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
 const clamp = (n: unknown) => (typeof n === 'number' ? Math.min(1, Math.max(0, n)) : undefined)
+/** A short, rough phrase ("a small piece") — never a fabricated measurement. */
+function cleanAmount(a: unknown): string | undefined {
+  if (typeof a !== 'string') return undefined
+  const t = a.trim()
+  return t ? t.slice(0, 40) : undefined
+}
 const str = (s: unknown) => (typeof s === 'string' ? s.trim() : '')
 const arr = (a: unknown) => (Array.isArray(a) ? a.filter((x): x is string => typeof x === 'string') : [])
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))

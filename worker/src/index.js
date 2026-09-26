@@ -225,6 +225,19 @@ async function chatJSON(env, system, user, maxTokens) {
 
 const str = (s, max = 200) => (typeof s === "string" ? s.trim().slice(0, max) : "");
 const strs = (a, max = 40) => (Array.isArray(a) ? a.filter((x) => typeof x === "string").map((x) => x.trim().slice(0, 80)).filter(Boolean).slice(0, max) : []);
+/** { name, amount? } pairs — amount is a rough phrase from the vision model
+ *  or the person's own edit, never a real measurement. */
+const ingredientItems = (a, max = 40) =>
+  Array.isArray(a)
+    ? a
+        .filter((x) => x && typeof x.name === "string" && x.name.trim())
+        .map((x) => ({
+          name: x.name.trim().slice(0, 80),
+          amount: typeof x.amount === "string" && x.amount.trim() ? x.amount.trim().slice(0, 40) : undefined,
+        }))
+        .slice(0, max)
+    : [];
+const describeItems = (items) => items.map((i) => (i.amount ? `${i.name} (${i.amount})` : i.name)).join(", ");
 
 async function ai(request, env, url) {
   if (request.method === "GET" && url.pathname === "/v1/ai") return json({ ready: Boolean(env.OPENAI_API_KEY) });
@@ -249,7 +262,10 @@ async function ai(request, env, url) {
       "You list the food ingredients visible in a photo of a fridge, cupboard, or worktop. " +
         'Be specific ("red bell pepper", "cheddar"), skip kitchenware and packaging you cannot read, ' +
         "merge duplicates, and give each a confidence from 0.5 to 1. Lowercase names. " +
-        'Reply with JSON: {"ingredients":[{"name":"...","confidence":0.9}]}',
+        'Also judge roughly how much of each is visible, in 2-4 words ("a small piece", "half a bag", ' +
+        '"plenty", "one"). This is a rough guess from a photo, not a measurement — keep it vague, never ' +
+        "invent a precise weight or count you can't actually see. " +
+        'Reply with JSON: {"ingredients":[{"name":"...","confidence":0.9,"amount":"a small piece"}]}',
       [
         { type: "text", text: "What food is in this photo?" },
         { type: "image_url", image_url: { url: image, detail: "low" } },
@@ -261,18 +277,22 @@ async function ai(request, env, url) {
   }
 
   if (pathname === "/v1/ai/suggest") {
-    const names = strs(body.names);
+    const items = ingredientItems(body.items);
     const meal = MEAL_PHRASE[body.meal] ? body.meal : "dinner";
-    if (!names.length) return json({ error: "ingredients are required" }, { status: 400 });
+    if (!items.length) return json({ error: "ingredients are required" }, { status: 400 });
     const { data, error } = await chatJSON(
       env,
       `You are a practical home cook. Given what someone has in, propose 5 ${MEAL_PHRASE[meal]} they could make. ` +
         "Prefer dishes that use several of their items and need at most 2–3 extras beyond pantry staples " +
         "(salt, pepper, oil, butter, sugar, flour, vinegar, soy sauce, stock, dried herbs and spices). " +
-        'Mix quick and slower, plain and interesting. "uses" must repeat their item names exactly. ' +
+        "The amount in parentheses after an item, when given, is a rough guess of how much is actually " +
+        "there — take it seriously: a small piece of chicken suits one modest serving, not a family roast. " +
+        'If an item is scarce, either size the whole dish to it or name it in "missing" as needing more, ' +
+        'never assume there is more of something than described. ' +
+        'Mix quick and slower, plain and interesting. "uses" must repeat their item names exactly, without the amount. ' +
         'Reply with JSON: {"ideas":[{"title":"...","blurb":"one sentence, why it suits what they have",' +
         '"minutes":25,"uses":["..."],"missing":["..."]}]}',
-      [{ type: "text", text: `They have: ${names.join(", ")}.` }],
+      [{ type: "text", text: `They have: ${describeItems(items)}.` }],
       900,
     );
     if (error) return error;
@@ -282,7 +302,7 @@ async function ai(request, env, url) {
   if (pathname === "/v1/ai/expand") {
     const title = str(body.title);
     const blurb = str(body.blurb, 300);
-    const names = strs(body.names);
+    const items = ingredientItems(body.items);
     const uses = strs(body.uses);
     const missing = strs(body.missing);
     if (!title) return json({ error: "a title is required" }, { status: 400 });
@@ -290,6 +310,8 @@ async function ai(request, env, url) {
       env,
       "Write a clear, reliable home recipe. Metric and imperial quantities where useful. " +
         "Short numbered steps, each one action, with the timing or cue for doneness inside the step. " +
+        "Where an ingredient's amount was described as scarce, keep this recipe's own quantity for it " +
+        "realistic against that — don't call for far more of it than what's actually there. " +
         "Also estimate the nutrition per serving as best you reasonably can from the ingredients — " +
         "say so is an estimate, not a lab figure. " +
         'Reply with JSON: {"description":"two sentences","minutes":25,"difficulty":"Easy|Medium|Hard",' +
@@ -300,7 +322,7 @@ async function ai(request, env, url) {
           type: "text",
           text:
             `Recipe: ${title}. ${blurb}\n` +
-            `They have: ${names.join(", ") || "not said"}.\n` +
+            `They have: ${items.length ? describeItems(items) : "not said"}.\n` +
             `Build it around: ${uses.join(", ") || title}. Extras allowed: ${missing.join(", ") || "pantry staples only"}.`,
         },
       ],

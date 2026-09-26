@@ -533,6 +533,28 @@
 }
 .magnet.is-unsure .magnet-dot { background: var(--amber); }
 .magnet-name { text-transform: capitalize; }
+.magnet-amount {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  min-height: 24px;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  background: var(--cold);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .12s var(--ease-out), background-color .15s ease, color .15s ease;
+}
+.magnet-amount:active { transform: scale(.94); }
+.magnet-amount-unset { color: var(--blue); background: var(--blue-tint); }
+@media (hover: hover) and (pointer: fine) {
+  .magnet-amount:hover { background: var(--hairline); color: var(--ink); }
+  .magnet-amount-unset:hover { background: var(--blue-tint); color: var(--blue-deep); }
+}
 .magnet-unsure { font-size: .72rem; font-weight: 600; color: var(--amber); }
 .magnet-remove {
   width: 32px;
