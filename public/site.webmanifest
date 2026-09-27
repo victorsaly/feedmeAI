@@ -1,7 +1,8 @@
 {
-  "name": "FeedmeAI - Smart Recipe Suggestions",
+  "id": "/",
+  "name": "FeedmeAI — what's in the fridge?",
   "short_name": "FeedmeAI",
-  "description": "Transform your available ingredients into delicious meals with AI-powered recipe suggestions",
+  "description": "One photo. You get what's in it, and what to cook from it tonight.",
   "theme_color": "#f2f6f9",
   "background_color": "#f2f6f9",
   "display": "standalone",
@@ -9,28 +10,10 @@
   "scope": "/",
   "start_url": "/",
   "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "maskable any"
-    }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ],
   "categories": ["food", "lifestyle", "utilities"]
 }
