@@ -9,6 +9,7 @@ import { ensureFavoritesLoaded, saveFavorite, removeFavorite, useFavorites } fro
 import { addTodo } from '@/lib/todos'
 import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Recipe } from '@/lib/kitchen'
 import { findVideo } from '@/lib/spoonacular'
+import { isSample } from '@/lib/sample'
 
 interface IdeaSheetProps {
   idea: Idea | null
@@ -86,7 +87,7 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
   // A generated look at a genuinely new AI idea — best-effort, after the
   // recipe itself has loaded, and only when there's no photo of it already.
   useEffect(() => {
-    if (!idea || !recipe || recipe.previewImage || recipe.image || lateImage || idea.source !== 'ai' || !hasKey() || !token) return
+    if (!idea || isSample(idea.id) || !recipe || recipe.previewImage || recipe.image || lateImage || idea.source !== 'ai' || !hasKey() || !token) return
     let live = true
     generateDishImage(idea, token).then((url) => {
       if (!live || !url) return

@@ -393,6 +393,8 @@
 /* the light comes on once when the card appears; while looking, it breathes */
 .fridge::before { animation: light-on .4s var(--ease-out) both; }
 .fridge.is-looking::before { animation: light-on .4s var(--ease-out) both, breathe 1.6s var(--ease-in-out) .4s infinite; }
+/* the third way in: quieter than the two photo buttons, still a full tap target */
+.picker-sample { align-self: center; justify-self: center; min-height: 44px; color: var(--blue); }
 .picker-hint {
   margin: .5rem 0 0;
   text-align: center;
@@ -1135,7 +1137,7 @@
   .home, .has-tabs .home { min-height: 0; }
   .tabs { max-width: 38rem; margin: 0 auto; left: 50%; right: auto; width: 100%; transform: translateX(-50%); border-radius: 18px 18px 0 0; border: 1px solid rgba(15, 22, 32, .06); border-bottom: 0; }
   .fridge { grid-template-columns: 1fr 1fr; padding: 3rem 1.5rem 1.25rem; }
-  .fridge .picker-hint, .fridge .analyzing { grid-column: 1 / -1; }
+  .fridge .picker-hint, .fridge .picker-sample, .fridge .analyzing { grid-column: 1 / -1; }
   .sheet-dialog {
     width: min(38rem, calc(100% - 2rem));
     max-width: none;

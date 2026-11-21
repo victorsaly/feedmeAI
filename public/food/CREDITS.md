@@ -10,4 +10,5 @@ each verified against the recipe it illustrates before use.
 | caprese-grilled-cheese.jpg | Caprese Sandwich | HarshLight | CC BY 2.0 | [Flickr](https://www.flickr.com/photos/79172203@N00/8711786230) |
 | shrimp-scampi.jpg | Shrimp Scampi Linguine | Prayitno | CC BY 2.0 | [Flickr](https://www.flickr.com/photos/34128007@N04/18893300233) |
 | mediterranean-quesadilla.jpg | Mmm... quesadillas | jeffreyw | CC BY 2.0 | [Flickr](https://www.flickr.com/photos/7927684@N03/9403315890) |
+| sample-fridge.jpg | The sample photo (vegetables in a bowl) | Unsplash, photo 1540420773420-3366772f4999 | Unsplash License | [Unsplash](https://images.unsplash.com/photo-1540420773420-3366772f4999) |
 | teriyaki-salmon.jpg | Brown Sugar and Lemon Glazed Salmon | vmiramontes | CC BY 2.0 | [Flickr](https://www.flickr.com/photos/33549343@N04/4566209370) |

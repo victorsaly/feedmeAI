@@ -6,6 +6,8 @@ import { optimizeForOpenAI } from '@/lib/image-optimizer'
 interface PhotoPickerProps {
   /** called with the full-size data URL (to show) and the 768px one (to send) */
   onPhoto: (display: string, forAnalysis: string) => void
+  /** open the recorded sample run instead: no photo, no network */
+  onSample?: () => void
   /** while the photo is being read, the fridge light breathes and shows it */
   looking?: string
 }
@@ -13,9 +15,10 @@ interface PhotoPickerProps {
 /*
  * The first screen. On a phone the camera is the whole point, so it is the
  * one big button; the library is the second. On a desktop the same area
- * takes a drop. Nothing here talks to the network.
+ * takes a drop. Nothing here talks to the network. The third way in is the
+ * recorded sample, for someone who wants to see a result before giving a photo.
  */
-export function PhotoPicker({ onPhoto, looking }: PhotoPickerProps) {
+export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
   const cameraRef = useRef<HTMLInputElement>(null)
   const libraryRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -61,6 +64,11 @@ export function PhotoPicker({ onPhoto, looking }: PhotoPickerProps) {
             <Images size={22} />
             Choose a photo
           </button>
+          {onSample && (
+            <button type="button" className="btn btn-ghost picker-sample" onClick={onSample}>
+              Try a sample photo
+            </button>
+          )}
           <p className="picker-hint">
             Open the door, or lay it out on the worktop. Good light, labels facing you.
             <span className="desktop-only"> Or drop a photo here.</span>

@@ -1,0 +1,265 @@
+{
+  "photo": "/food/sample-fridge.jpg",
+  "meal": "dinner",
+  "items": [
+    {
+      "name": "red cabbage",
+      "confidence": 0.9,
+      "amount": "plenty"
+    },
+    {
+      "name": "carrots",
+      "confidence": 0.9,
+      "amount": "plenty"
+    },
+    {
+      "name": "tomato",
+      "confidence": 0.9,
+      "amount": "several slices"
+    },
+    {
+      "name": "avocado",
+      "confidence": 0.9,
+      "amount": "one"
+    },
+    {
+      "name": "cucumber",
+      "confidence": 0.9,
+      "amount": "several slices"
+    },
+    {
+      "name": "radish",
+      "confidence": 0.9,
+      "amount": "several slices"
+    },
+    {
+      "name": "green bell pepper",
+      "confidence": 0.8,
+      "amount": "a small amount"
+    },
+    {
+      "name": "broccoli",
+      "confidence": 0.8,
+      "amount": "a small piece"
+    },
+    {
+      "name": "spinach",
+      "confidence": 0.9,
+      "amount": "plenty"
+    },
+    {
+      "name": "fresh herbs",
+      "confidence": 0.7,
+      "amount": "a small amount"
+    }
+  ],
+  "ideas": [
+    {
+      "title": "Cabbage and Carrot Slaw with Avocado",
+      "blurb": "This refreshing slaw uses up the red cabbage and carrots, topped with creamy avocado.",
+      "minutes": 15,
+      "uses": [
+        "red cabbage",
+        "carrots",
+        "avocado"
+      ],
+      "missing": [
+        "lime or lemon juice"
+      ],
+      "recorded": false,
+      "recipe": {
+        "description": "A crunchy slaw of shredded red cabbage and grated carrot, sharpened with lime and topped with sliced avocado. No cooking, and ready in the time it takes to shred the cabbage.",
+        "minutes": 15,
+        "difficulty": "Easy",
+        "ingredients": [
+          "1/4 red cabbage, finely shredded",
+          "2 carrots, grated",
+          "1 avocado, sliced",
+          "Juice of 1 lime or lemon",
+          "1 tablespoon olive oil",
+          "Salt and pepper to taste"
+        ],
+        "steps": [
+          "Finely shred the red cabbage and put it in a large bowl.",
+          "Grate the carrots and add them to the cabbage.",
+          "Whisk the lime or lemon juice with the olive oil, salt and pepper.",
+          "Pour the dressing over the cabbage and carrots and toss well. Leave for 5 minutes to soften.",
+          "Halve, stone and slice the avocado. Lay it on top just before serving."
+        ],
+        "nutrition": {
+          "calories": 310,
+          "protein": "5g",
+          "carbs": "24g",
+          "fat": "23g"
+        }
+      }
+    },
+    {
+      "title": "Vegetable Stir-Fry",
+      "blurb": "A quick stir-fry that highlights your fresh veggies like broccoli, bell pepper, and spinach.",
+      "minutes": 20,
+      "uses": [
+        "broccoli",
+        "green bell pepper",
+        "spinach"
+      ],
+      "missing": [
+        "soy sauce",
+        "ginger"
+      ],
+      "recorded": true,
+      "recipe": {
+        "description": "This Vegetable Stir-Fry showcases fresh broccoli, green bell pepper, and spinach for a quick and healthy meal. It's a vibrant dish packed with nutrients and flavors, perfect for a busy weeknight dinner.",
+        "minutes": 25,
+        "difficulty": "Easy",
+        "ingredients": [
+          "150g broccoli",
+          "50g green bell pepper",
+          "200g spinach",
+          "2 tablespoons soy sauce",
+          "1 teaspoon grated ginger",
+          "1 tablespoon vegetable oil",
+          "Salt and pepper to taste"
+        ],
+        "steps": [
+          "Wash and chop the broccoli into small florets.",
+          "Slice the green bell pepper into thin strips.",
+          "Heat the vegetable oil in a large pan or wok over medium-high heat (about 2 minutes).",
+          "Add the broccoli florets and green bell pepper strips to the pan and stir-fry for 3-4 minutes until they start to soften.",
+          "Add the grated ginger and stir for another minute until fragrant.",
+          "Add the spinach and soy sauce, and stir-fry for an additional 2-3 minutes until the spinach wilts.",
+          "Season with salt and pepper to taste before serving."
+        ],
+        "nutrition": {
+          "calories": 420,
+          "protein": "18g",
+          "carbs": "52g",
+          "fat": "14g"
+        }
+      }
+    },
+    {
+      "title": "Stuffed Cucumber Boats",
+      "blurb": "Cucumber boats filled with a mix of tomato, radish, and herbs make a light and crunchy dinner.",
+      "minutes": 25,
+      "uses": [
+        "cucumber",
+        "tomato",
+        "radish",
+        "fresh herbs"
+      ],
+      "missing": [
+        "cream cheese or hummus"
+      ],
+      "recorded": false,
+      "recipe": {
+        "description": "Cucumber halves hollowed out and filled with a creamy mix of diced tomato, radish and herbs. Light, crunchy and needs no cooking.",
+        "minutes": 25,
+        "difficulty": "Easy",
+        "ingredients": [
+          "1 cucumber, halved lengthways",
+          "1 tomato, finely diced",
+          "4 radishes, finely diced",
+          "A small handful of fresh herbs, chopped",
+          "100g cream cheese or hummus",
+          "Salt and pepper to taste"
+        ],
+        "steps": [
+          "Halve the cucumber lengthways and scoop out the seeds with a teaspoon to make two boats.",
+          "Pat the inside of each boat dry with kitchen paper and season lightly with salt.",
+          "Finely dice the tomato and radishes, and chop the herbs.",
+          "Mix the tomato, radish and most of the herbs into the cream cheese or hummus. Season with salt and pepper.",
+          "Spoon the filling into the cucumber boats.",
+          "Scatter over the remaining herbs, cut each boat into three pieces and serve."
+        ],
+        "nutrition": {
+          "calories": 210,
+          "protein": "7g",
+          "carbs": "12g",
+          "fat": "15g"
+        }
+      }
+    },
+    {
+      "title": "Roasted Vegetable Medley",
+      "blurb": "A hearty medley of roasted carrots, broccoli, and bell pepper, perfect for a comforting dinner.",
+      "minutes": 30,
+      "uses": [
+        "carrots",
+        "broccoli",
+        "green bell pepper"
+      ],
+      "missing": [
+        "olive oil"
+      ],
+      "recorded": false,
+      "recipe": {
+        "description": "Carrots, broccoli and green pepper roasted until the edges catch and the carrots turn sweet. One tray, and the oven does the work.",
+        "minutes": 30,
+        "difficulty": "Easy",
+        "ingredients": [
+          "3 carrots, cut into batons",
+          "1 small piece of broccoli, cut into florets",
+          "1/2 green bell pepper, cut into chunks",
+          "2 tablespoons olive oil",
+          "Salt and pepper to taste"
+        ],
+        "steps": [
+          "Heat the oven to 200°C (180°C fan).",
+          "Cut the carrots into batons, the broccoli into florets and the pepper into chunks.",
+          "Toss the carrots with half the olive oil, salt and pepper on a large baking tray. Roast for 10 minutes.",
+          "Add the broccoli and pepper with the rest of the oil and toss everything together.",
+          "Roast for another 12-15 minutes, until the carrots are tender and the broccoli is browned at the edges.",
+          "Taste, season again if needed, and serve hot."
+        ],
+        "nutrition": {
+          "calories": 240,
+          "protein": "5g",
+          "carbs": "22g",
+          "fat": "15g"
+        }
+      }
+    },
+    {
+      "title": "Spinach and Tomato Salad",
+      "blurb": "A simple salad that combines fresh spinach with tomato, cucumber, and a light dressing.",
+      "minutes": 10,
+      "uses": [
+        "spinach",
+        "tomato",
+        "cucumber"
+      ],
+      "missing": [
+        "feta cheese"
+      ],
+      "recorded": false,
+      "recipe": {
+        "description": "Fresh spinach with tomato, cucumber and crumbled feta in a simple oil and vinegar dressing. On the table in ten minutes.",
+        "minutes": 10,
+        "difficulty": "Easy",
+        "ingredients": [
+          "100g spinach",
+          "1 tomato, cut into wedges",
+          "1/2 cucumber, sliced",
+          "60g feta cheese, crumbled",
+          "1 tablespoon olive oil",
+          "1 teaspoon vinegar or lemon juice",
+          "Salt and pepper to taste"
+        ],
+        "steps": [
+          "Wash the spinach, dry it well and put it in a large bowl.",
+          "Cut the tomato into wedges and slice the cucumber. Add both to the bowl.",
+          "Whisk the olive oil with the vinegar or lemon juice, salt and pepper.",
+          "Pour the dressing over the salad and toss gently.",
+          "Crumble the feta over the top and serve straight away."
+        ],
+        "nutrition": {
+          "calories": 260,
+          "protein": "10g",
+          "carbs": "9g",
+          "fat": "21g"
+        }
+      }
+    }
+  ]
+}

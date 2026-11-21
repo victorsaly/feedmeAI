@@ -15,6 +15,8 @@ import { MealPicker } from '@/components/MealPicker'
 import { RecipesTab } from '@/components/RecipesTab'
 import { HaulHistory } from '@/components/HaulHistory'
 import { HowItWorks } from '@/components/HowItWorks'
+import { SampleCard } from '@/components/SampleCard'
+import { SAMPLE, isSample } from '@/lib/sample'
 import { TabBar, type Tab } from '@/components/TabBar'
 import { ensureFavoritesLoaded, useFavorites } from '@/lib/favorites'
 import { completeSignIn, useSessionToken } from '@/lib/account'
@@ -94,7 +96,7 @@ function App() {
   // change, so a closed tab loses nothing. Loading ideas aren't kept: an
   // entry restored mid-draft would show an empty list with no way to redo.
   useEffect(() => {
-    if (!haul || stage !== 'haul' || !items.length || ideasState === 'loading') return
+    if (!haul || isSample(haul.id) || stage !== 'haul' || !items.length || ideasState === 'loading') return
     setHauls(saveHaul({ ...haul, meal, items, ideas, source: ideasSource, recipes: opened }))
   }, [haul, stage, items, ideas, ideasSource, ideasState, meal, opened])
 
@@ -251,7 +253,7 @@ function App() {
               <p>One photo. You get what's in it, and what to cook from it tonight.</p>
             </section>
 
-            <PhotoPicker onPhoto={onPhoto} looking={analyzing ? photo : undefined} />
+            <PhotoPicker onPhoto={onPhoto} onSample={() => reopen(SAMPLE)} looking={analyzing ? photo : undefined} />
 
             {!hasKey() && !analyzing && (
               <p className="demo-note">
@@ -260,6 +262,7 @@ function App() {
               </p>
             )}
 
+            {!analyzing && hauls.length === 0 && <SampleCard onOpen={() => reopen(SAMPLE)} />}
             {!analyzing && <HaulHistory hauls={hauls} onOpen={reopen} onRemove={(id) => setHauls(removeHaul(id))} />}
             {!analyzing && <HowItWorks />}
           </div>
@@ -268,6 +271,12 @@ function App() {
         {tab === 'fridge' && stage === 'haul' && (
           <>
             <HaulList photo={photo} items={items} onChange={editItems} onRetake={startOver} />
+            {isSample(haul?.id) && (
+              <p className="demo-note">
+                A sample: one real photo and what the app made of it, recorded. Nothing here calls the AI
+                until you change the list. Take your own photo to try it on your fridge.
+              </p>
+            )}
             <MealPicker value={meal} onChange={changeMeal} />
             <IdeaList
               ideas={ideas}
@@ -290,7 +299,7 @@ function App() {
         idea={openIdea}
         lateImage={openIdea ? ideas.find((i) => i.id === openIdea.id)?.image : undefined}
         items={tab === 'fridge' ? items : []}
-        photo={tab === 'fridge' ? photo : undefined}
+        photo={tab === 'fridge' && !isSample(haul?.id) ? photo : undefined}
         onClose={() => setOpenIdea(null)}
         onRecipe={onRecipe}
         onCook={(r) => { setLastIdea(openIdea); setCameFrom(tab); setOpenIdea(null); setCooking(r); setStage('cook') }}
