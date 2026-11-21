@@ -78,16 +78,16 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
             <span>Your list and saved recipes follow this account.</span>
           </div>
         </div>
-      ) : (
+      ) : canSignIn ? (
         <>
           <p className="account-why">
             You don’t need an account to photograph, cook or keep a list on this {DEVICE}. Signing in carries your
             list and saved recipes to your other devices, and unlocks shop prices.
           </p>
-          {canSignIn
-            ? <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
-            : <p className="account-why"><b>Signing in is not in the iPhone app yet.</b> Everything on this phone works without it.</p>}
+          <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
         </>
+      ) : (
+        <p className="account-why">Your list, saved recipes and recent photos are kept on this {DEVICE}. Nothing here needs an account.</p>
       )}
 
       {plan && (
@@ -99,7 +99,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
         </dl>
       )}
 
-      <label className="account-row" htmlFor="account-country">
+      {(token || canSignIn) && <label className="account-row" htmlFor="account-country">
         <span>
           <b>Shop prices for</b>
           <span>Only the United Kingdom has been tested so far.</span>
@@ -112,7 +112,13 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
         >
           {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}{c.code !== 'gb' ? ' (untested)' : ''}</option>)}
         </select>
-      </label>
+      </label>}
+
+      <nav className="account-links" aria-label="About">
+        <a href="https://feedmeai.victorsaly.com/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a>
+        <a href="https://feedmeai.victorsaly.com/support/" target="_blank" rel="noopener noreferrer">Support</a>
+        <a href="https://feedmeai.victorsaly.com/credits/" target="_blank" rel="noopener noreferrer">Photo credits</a>
+      </nav>
 
       {token && (
         <button type="button" className="btn btn-quiet account-out" onClick={() => { keepLocally(); signOut(); onClose() }}>

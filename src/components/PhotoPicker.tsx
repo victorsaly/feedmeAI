@@ -24,13 +24,16 @@ export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
   const cameraRef = useRef<HTMLInputElement>(null)
   const libraryRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
+  // the photo waiting for a yes, the first time: it leaves the device for an AI service
+  const [held, setHeld] = useState<File>()
 
-  async function take(file: File | undefined) {
+  async function take(file: File | undefined, agreed = hasAgreed()) {
     if (!file) return
     if (!file.type.startsWith('image/')) {
       toast.error('That is not a photo. Try a JPEG, PNG or HEIC.')
       return
     }
+    if (!agreed) { setHeld(file); return }
     try {
       const [display, small] = await Promise.all([readAsDataURL(file), optimizeForOpenAI(file)])
       onPhoto(display, small)
@@ -46,7 +49,21 @@ export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
       onDragLeave={() => setOver(false)}
       onDrop={(e) => { e.preventDefault(); setOver(false); take(e.dataTransfer.files[0]) }}
     >
-      {looking ? (
+      {held ? (
+        <div className="consent" role="group" aria-labelledby="consent-title">
+          <h2 id="consent-title">Before your first photo</h2>
+          <p>
+            To read it, your photo is sent to OpenAI, an AI service. We don’t store the photo, and it isn’t tied
+            to your name. <a href="https://feedmeai.victorsaly.com/privacy/" target="_blank" rel="noopener noreferrer">How your data is handled</a>
+          </p>
+          <div className="consent-actions">
+            <button type="button" className="btn btn-quiet" onClick={() => setHeld(undefined)}>Not now</button>
+            <button type="button" className="btn btn-primary" onClick={() => { agree(); const file = held; setHeld(undefined); take(file, true) }}>
+              Send my photo
+            </button>
+          </div>
+        </div>
+      ) : looking ? (
         <div className="analyzing" role="status">
           <span className="scan" aria-hidden="true">
             <img src={looking} alt="" />
@@ -84,6 +101,16 @@ export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
         onChange={(e) => { take(e.target.files?.[0]); e.target.value = '' }} />
     </div>
   )
+}
+
+const AGREED = 'feedme-ai-consent'
+/** Asked once per device: sending a photo to a third-party AI is the
+ *  person's call, and the App Store requires that it is asked. */
+function hasAgreed(): boolean {
+  try { return localStorage.getItem(AGREED) === 'yes' } catch { return false }
+}
+function agree() {
+  try { localStorage.setItem(AGREED, 'yes') } catch { /* asked again next time */ }
 }
 
 function readAsDataURL(file: File): Promise<string> {

@@ -206,10 +206,12 @@ test('signed in, deleting my data empties the list and saved recipes and signs o
 })
 
 test("when today's free photos are used up, the first screen says so and still offers dinner", async ({ page }) => {
+  let sent = 0
   await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
     const url = new URL(route.request().url())
     if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true, plans: true } })
     if (url.pathname === '/v1/ai/identify') {
+      sent++
       return route.fulfill({ status: 429, json: { error: "You've used today's 3 free photos. They come back tomorrow.", limit: 'photos', tier: 'free', used: 3, allowed: 3, per: 'day', resets: '2026-11-22T00:00:00.000Z' } })
     }
     if (url.pathname === '/v1/plan') return route.fulfill({ json: { tier: 'free', photos: { used: 3, allowed: 3, per: 'day', resets: '' }, compares: { used: 0, allowed: 2, per: 'week', resets: '' }, pictures: { used: 0, allowed: 0, per: 'month', resets: '' } } })
@@ -217,6 +219,11 @@ test("when today's free photos are used up, the first screen says so and still o
   })
   await page.goto('/app/')
   await page.locator('input[type="file"]').last().setInputFiles('public/food/sample-fridge.jpg')
+
+  // the first photo ever: nothing is sent until the person says so
+  await expect(page.getByRole('heading', { name: 'Before your first photo' })).toBeVisible()
+  expect(sent, 'no photo leaves before consent').toBe(0)
+  await page.getByRole('button', { name: 'Send my photo' }).click()
 
   const note = page.getByRole('status').filter({ hasText: "You've used today's 3 free photos." })
   await expect(note).toBeVisible()

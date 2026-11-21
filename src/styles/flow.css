@@ -1536,6 +1536,13 @@
 .account-plan dt { font-weight: 600; }
 .account-plan dd { margin: 0; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
 
+.consent { grid-column: 1 / -1; display: grid; gap: .7rem; padding: 0 .25rem .25rem; }
+.consent h2 { margin: 0; font-family: var(--display); font-size: 1.3rem; font-weight: 700; letter-spacing: -.02em; }
+.consent p { margin: 0; line-height: 1.5; color: var(--ink-2); }
+.consent a { color: var(--blue-deep); font-weight: 600; }
+.consent-actions { display: grid; grid-template-columns: auto 1fr; gap: .6rem; margin-top: .25rem; }
+.consent-actions .btn { min-height: 50px; }
+
 /* ---------- three tabs ---------- */
 .tabs { grid-template-columns: repeat(3, 1fr); }
 .meals.seg-two { grid-template-columns: 1fr 1fr; margin: 0 0 1rem; }
@@ -1679,6 +1686,8 @@
   font-size: 16px;
 }
 .account-out { justify-self: start; }
+.account-links { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
+.account-links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; color: var(--blue-deep); }
 
 @media (min-width: 768px) {
   .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }

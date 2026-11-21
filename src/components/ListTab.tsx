@@ -45,7 +45,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
   const prices = new Map(fresh && best ? best.lines.map((l) => [l.ingredient, l.item.price]) : [])
 
   async function runCompare() {
-    if (!token) { if (canSignIn) signIn(); else onAccount(); return }
+    if (!token) { signIn(); return }
     const of = names.slice(0, COMPARE_CAP)
     setCompare({ state: 'loading' })
     setLimit(undefined)
@@ -141,7 +141,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
         </div>
       )}
 
-      {open.length > 0 && (
+      {open.length > 0 && (token || canSignIn) && (
         <section aria-label="Shop prices" className="shops">
           {fresh && best ? (
             <div className="shops-best">
@@ -195,7 +195,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
                 <Storefront size={18} />
                 {compare?.state === 'loading'
                   ? `Checking ${Math.min(open.length, COMPARE_CAP)} ${open.length === 1 ? 'item' : 'items'}…`
-                  : !token ? (canSignIn ? 'Sign in to compare shop prices' : 'Shop prices need an account')
+                  : !token ? 'Sign in to compare shop prices'
                   : compare ? 'List changed. Compare again' : 'Find the cheapest shop'}
               </button>
               <button type="button" className="shops-country" onClick={onAccount}>Prices for {countryName}{country !== 'gb' && ' (untested)'}</button>
