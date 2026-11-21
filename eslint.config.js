@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'brag-output', 'worker', 'workers', 'public', 'scripts/sw.js', '.wrangler'] },
+  { ignores: ['dist', 'brag-output', 'worker', 'workers', 'public', 'scripts/sw.js', '.wrangler', 'ios', 'e2e/.results'] },
   {
     files: ['src/**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -17,8 +17,9 @@ export default tseslint.config(
     },
   },
   {
-    files: ['*.{js,ts}', 'scripts/**/*.{js,mjs}'],
-    extends: [js.configs.recommended],
-    languageOptions: { ecmaVersion: 2022, globals: globals.node },
+    files: ['*.{js,ts}', 'scripts/**/*.{js,mjs}', 'e2e/**/*.ts'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    // scripts that draw pages in a browser hand it functions that use `document`
+    languageOptions: { ecmaVersion: 2022, globals: { ...globals.node, document: 'readonly' } },
   },
 )

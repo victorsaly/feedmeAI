@@ -12,6 +12,7 @@
  */
 
 import { useSyncExternalStore } from 'react'
+import { isNative } from '@/lib/native'
 
 const AUTH = 'https://api.victorsaly.com'
 const TOKEN_KEY = 'feedme-session'
@@ -60,8 +61,14 @@ export const writeToken = (token: string | null) => {
   }
 }
 
+/** Signing in is a trip to Google and back to this page's address. The
+ *  iPhone app has no address to come back to until Sign in with Apple and a
+ *  return link are added (see docs/product-plan.md, step 8). */
+export const canSignIn = !isNative
+
 /** Send the browser to Google. It returns here with `?auth=`. */
 export const signIn = () => {
+  if (!canSignIn) return
   const back = `${window.location.origin}${window.location.pathname}`
   window.location.href = `${AUTH}/v1/auth/start?redirect=${encodeURIComponent(back)}`
 }

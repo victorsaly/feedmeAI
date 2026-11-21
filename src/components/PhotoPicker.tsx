@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Camera, Images } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { optimizeForOpenAI } from '@/lib/image-optimizer'
+import { isNative, nativePhoto } from '@/lib/native'
 
 interface PhotoPickerProps {
   /** called with the full-size data URL (to show) and the 768px one (to send) */
@@ -15,7 +16,8 @@ interface PhotoPickerProps {
 /*
  * The first screen. On a phone the camera is the whole point, so it is the
  * one big button; the library is the second. On a desktop the same area
- * takes a drop. Nothing here talks to the network. The third way in is the
+ * takes a drop. In the iPhone app both buttons go to the system's own camera
+ * and photo library instead. Nothing here talks to the network. The third way in is the
  * recorded sample, for someone who wants to see a result before giving a photo.
  */
 export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
@@ -56,11 +58,11 @@ export function PhotoPicker({ onPhoto, onSample, looking }: PhotoPickerProps) {
         </div>
       ) : (
         <>
-          <button type="button" className="btn btn-primary btn-xl" onClick={() => cameraRef.current?.click()}>
+          <button type="button" className="btn btn-primary btn-xl" onClick={() => (isNative ? nativePhoto('camera').then((f) => take(f ?? undefined)) : cameraRef.current?.click())}>
             <Camera size={22} weight="bold" />
             Photograph it
           </button>
-          <button type="button" className="btn btn-quiet btn-xl" onClick={() => libraryRef.current?.click()}>
+          <button type="button" className="btn btn-quiet btn-xl" onClick={() => (isNative ? nativePhoto('library').then((f) => take(f ?? undefined)) : libraryRef.current?.click())}>
             <Images size={22} />
             Choose a photo
           </button>

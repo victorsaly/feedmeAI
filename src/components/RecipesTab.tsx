@@ -7,7 +7,7 @@ import { IdeaList } from '@/components/IdeaList'
 import { IdeaGrid } from '@/components/IdeaGrid'
 import { SavedList } from '@/components/SavedList'
 import { useFavorites } from '@/lib/favorites'
-import { signIn, useSessionToken } from '@/lib/account'
+import { canSignIn, signIn, useSessionToken } from '@/lib/account'
 import { searchRecipes } from '@/lib/spoonacular'
 import { CATEGORIES, localSearch, recipesForMeal, ideaFromLocal, type Category, type Idea, type Meal } from '@/lib/kitchen'
 
@@ -179,7 +179,7 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
         <IdeaList ideas={[]} state={state} onOpen={onOpen} onRefresh={() => {}} quiet />
       )}
 
-      {!browsing && !token && state === 'ready' && (
+      {!browsing && !token && canSignIn && state === 'ready' && (
         <div className="ideas-empty" style={{ marginTop: '1rem' }}>
           <p>Sign in to search thousands more, with photos and videos.</p>
           <button type="button" className="btn btn-primary" onClick={signIn}>Sign in</button>

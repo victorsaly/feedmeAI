@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isNative, keepAwake } from '@/lib/native'
 
 /** Keep the screen on while this is mounted. The browser drops the lock when
  *  the page is hidden, so it is asked for again each time it comes back.
@@ -6,6 +7,12 @@ import { useEffect, useState } from 'react'
 export function useWakeLock(): boolean {
   const [held, setHeld] = useState(false)
   useEffect(() => {
+    if (isNative) {
+      // the app asks the phone directly; a web view has no wake lock of its own
+      let live = true
+      keepAwake(true).then((on) => { if (live) setHeld(on) })
+      return () => { live = false; keepAwake(false) }
+    }
     if (!('wakeLock' in navigator)) return
     let lock: WakeLockSentinel | null = null
     let live = true

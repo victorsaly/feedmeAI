@@ -3,7 +3,7 @@ import { UserCircle } from '@phosphor-icons/react'
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
+import { canSignIn, signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
 import { keepLocally } from '@/lib/list'
 import { COUNTRIES, loadCountry, saveCountry } from '@/lib/shopping'
 import { DEVICE } from '@/lib/device'
@@ -60,7 +60,9 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
             You don’t need an account to photograph, cook or keep a list on this {DEVICE}. Signing in carries your
             list and saved recipes to your other devices, and unlocks shop prices.
           </p>
-          <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
+          {canSignIn
+            ? <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
+            : <p className="account-why"><b>Signing in is not in the iPhone app yet.</b> Everything on this phone works without it.</p>}
         </>
       )}
 

@@ -65,6 +65,19 @@ npm run test:e2e   # the sample path end to end, on the built app, with the netw
 
 The end-to-end test needs a browser once: `npx playwright install chromium`.
 
+### iPhone app
+
+The iPhone app is this same web app inside a native shell ([Capacitor](https://capacitorjs.com)); the Xcode project is in `ios/`. It needs Xcode.
+
+```bash
+npm run ios          # build the web app, copy it into the project, open Xcode
+npm run ios:sync     # the same, without opening Xcode
+npm run icons        # redraw every icon and the share image from the logo
+npm run ios:assets   # regenerate the app icon and splash from assets/
+```
+
+In the app, the two photo buttons use the system camera and photo library, and cooking keeps the screen awake. Signing in is not available in the app yet.
+
 ### Backend
 
 ```bash
@@ -98,12 +111,15 @@ src/
     todos.ts           the account's copy of the list, via feedmeai-api
     shopping.ts        where-to-buy search and shop comparison
     account.ts         sign-in session
+    native.ts          the few places the iPhone app differs: camera, screen awake
   data/                built-in recipes and search categories
   styles/flow.css      the app's look (described in DESIGN.md)
 e2e/                   the end-to-end test
 worker/                feedmeai-api (AI, recipes, shopping, todos)
 workers/favorites-api/ saved recipes
 public/                icons, manifest, og image, recipe photos (credits in public/food/CREDITS.md)
+ios/                   the iPhone app's Xcode project (Capacitor)
+assets/                the sources the app icon and splash are generated from
 ```
 
 ## License

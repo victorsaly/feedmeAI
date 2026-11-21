@@ -383,5 +383,5 @@ Skeleton bars shimmer across pale cool grey in the shape of the row they stand i
 - **Don't** tilt magnets that are being edited, and don't tilt anything that is not a magnet.
 - **Don't** invent a fourth shadow, or put a shadow on the primary button.
 - **Don't** show a list of dinners as text-only rows under a title.
-- **Don't** take the old cobalt from the PNG app icons or the share image; they predate Denim and are not part of this system.
+- **Don't** hand-edit the PNG app icons or the share image. They are drawn from the logo in Denim by `scripts/make-icons.mjs`; change that and run `npm run icons`. Only `public/favicon.ico` is still the old cobalt.
 - **Don't** take tokens from the Tailwind and shadcn theme files (`src/styles/theme.css`, `src/index.css`). They are leftovers that only reach the dialog and drawer shells, the toast and the error fallback. The system is `src/styles/flow.css`.

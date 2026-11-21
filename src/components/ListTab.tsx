@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash, Check, Storefront, ArrowSquareOut, Export, CaretDown } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { signIn, useSessionToken } from '@/lib/account'
+import { canSignIn, signIn, useSessionToken } from '@/lib/account'
 import { addItem, checkItem, removeItem, syncList, useList, type Item } from '@/lib/list'
 import { nameOf } from '@/lib/pantry'
 import { DEVICE } from '@/lib/device'
@@ -42,7 +42,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
   const prices = new Map(fresh && best ? best.lines.map((l) => [l.ingredient, l.item.price]) : [])
 
   async function runCompare() {
-    if (!token) { signIn(); return }
+    if (!token) { if (canSignIn) signIn(); else onAccount(); return }
     const of = names.slice(0, COMPARE_CAP)
     setCompare({ state: 'loading' })
     setCompare({ state: 'ready', result: await compareShops(token, of, country), of, at: new Date() })
@@ -182,7 +182,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
                 <Storefront size={18} />
                 {compare?.state === 'loading'
                   ? `Checking ${Math.min(open.length, COMPARE_CAP)} ${open.length === 1 ? 'item' : 'items'}…`
-                  : !token ? 'Sign in to compare shop prices'
+                  : !token ? (canSignIn ? 'Sign in to compare shop prices' : 'Shop prices need an account')
                   : compare ? 'List changed. Compare again' : 'Find the cheapest shop'}
               </button>
               <button type="button" className="shops-country" onClick={onAccount}>Prices for {countryName}{country !== 'gb' && ' (untested)'}</button>
