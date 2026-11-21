@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
 import { keepLocally } from '@/lib/list'
 import { COUNTRIES, loadCountry, saveCountry } from '@/lib/shopping'
+import { DEVICE } from '@/lib/device'
 
 /** The header's way in: a person icon, with your name beside it once signed in. */
 export function AccountButton({ onOpen }: { onOpen: () => void }) {
@@ -56,7 +57,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
       ) : (
         <>
           <p className="account-why">
-            You don’t need an account to photograph, cook or keep a list on this phone. Signing in carries your
+            You don’t need an account to photograph, cook or keep a list on this {DEVICE}. Signing in carries your
             list and saved recipes to your other devices, and unlocks shop prices.
           </p>
           <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
@@ -66,7 +67,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
       <label className="account-row" htmlFor="account-country">
         <span>
           <b>Shop prices for</b>
-          <span>Which country’s supermarkets to search.</span>
+          <span>Only the United Kingdom has been tested so far.</span>
         </span>
         <select
           id="account-country"
@@ -74,7 +75,7 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
           value={country}
           onChange={(e) => { setCountry(e.target.value); saveCountry(e.target.value) }}
         >
-          {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+          {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}{c.code !== 'gb' ? ' (untested)' : ''}</option>)}
         </select>
       </label>
 

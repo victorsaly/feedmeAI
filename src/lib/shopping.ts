@@ -36,7 +36,9 @@ export function guessCountry(): string | undefined {
 
 export function loadCountry(): string | undefined {
   try {
-    return localStorage.getItem(COUNTRY_KEY) ?? guessCountry()
+    // Only the UK's shops have been tested, so it is the default; the
+    // browser's locale is not a reason to promise prices somewhere else.
+    return localStorage.getItem(COUNTRY_KEY) ?? 'gb'
   } catch {
     return guessCountry()
   }

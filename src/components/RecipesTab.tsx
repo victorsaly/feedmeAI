@@ -77,18 +77,17 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
 
   return (
     <>
-      <section className="hero hero-tab">
+      <section className="hero hero-tab recipes-head">
         <h1>Recipes</h1>
+        <div className="switch" role="radiogroup" aria-label="Which recipes">
+          <button type="button" role="radio" aria-checked={view === 'all'} className={view === 'all' ? 'is-active' : ''} onClick={() => setView('all')}>All</button>
+          <button type="button" role="radio" aria-checked={view === 'saved'} className={view === 'saved' ? 'is-active' : ''} onClick={() => setView('saved')}>
+            Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
+          </button>
+        </div>
       </section>
 
-      <div className="meals seg-two" role="radiogroup" aria-label="Which recipes">
-        <button type="button" role="radio" aria-checked={view === 'all'} className={`meal-chip ${view === 'all' ? 'is-active' : ''}`} onClick={() => setView('all')}>All</button>
-        <button type="button" role="radio" aria-checked={view === 'saved'} className={`meal-chip ${view === 'saved' ? 'is-active' : ''}`} onClick={() => setView('saved')}>
-          Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
-        </button>
-      </div>
-
-      {view === 'saved' ? <SavedList onOpen={onOpen} /> : <>
+      {view === 'saved' ? <SavedList onOpen={onOpen} onBrowse={() => setView('all')} /> : <>
 
       <label className="search">
         <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />

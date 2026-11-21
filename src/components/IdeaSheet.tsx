@@ -233,11 +233,13 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
                         </li>
                       ))}
                     </ul>
-                    <button type="button" className="btn btn-quiet sheet-buy-all" onClick={() => addAll(toBuy)} disabled={allAdded}>
-                      {allAdded
-                        ? <><Check size={18} weight="bold" /> On your list</>
-                        : <><ListPlus size={18} weight="bold" /> {toBuy.length === 1 ? 'Add it to the list' : toBuy.length === 2 ? 'Add both to the list' : `Add all ${toBuy.length} to the list`}</>}
-                    </button>
+                    {allAdded ? (
+                      <p className="sheet-buy-done" role="status"><Check size={18} weight="bold" aria-hidden="true" /> On your list</p>
+                    ) : (
+                      <button type="button" className="btn btn-quiet sheet-buy-all" onClick={() => addAll(toBuy)}>
+                        <ListPlus size={18} weight="bold" /> {toBuy.length === 1 ? 'Add it to the list' : toBuy.length === 2 ? 'Add both to the list' : `Add all ${toBuy.length} to the list`}
+                      </button>
+                    )}
                   </div>
                 </>
               )}

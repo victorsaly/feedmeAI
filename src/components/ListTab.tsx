@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { signIn, useSessionToken } from '@/lib/account'
 import { addItem, checkItem, removeItem, syncList, useList, type Item } from '@/lib/list'
 import { nameOf } from '@/lib/pantry'
+import { DEVICE } from '@/lib/device'
 import { COMPARE_CAP, COUNTRIES, compareShops, loadCountry, type Comparison } from '@/lib/shopping'
 
 /** "2 tablespoons soy sauce" → what to look for on the shelf: "Soy sauce" */
@@ -25,7 +26,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
   const token = useSessionToken()
   const items = useList()
   const [draft, setDraft] = useState('')
-  const [compare, setCompare] = useState<{ state: 'loading' } | { state: 'ready'; result: Comparison; of: string[] } | null>(null)
+  const [compare, setCompare] = useState<{ state: 'loading' } | { state: 'ready'; result: Comparison; of: string[]; at: Date } | null>(null)
   const [allShops, setAllShops] = useState(false)
   const country = loadCountry() ?? 'gb'
   const countryName = COUNTRIES.find((c) => c.code === country)?.label ?? country.toUpperCase()
@@ -44,7 +45,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
     if (!token) { signIn(); return }
     const of = names.slice(0, COMPARE_CAP)
     setCompare({ state: 'loading' })
-    setCompare({ state: 'ready', result: await compareShops(token, of, country), of })
+    setCompare({ state: 'ready', result: await compareShops(token, of, country), of, at: new Date() })
   }
 
   function submit(e: React.FormEvent) {
@@ -75,7 +76,6 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
   const row = (t: Item) => {
     const name = shelfName(t.ingredient)
     const full = t.ingredient.toLowerCase() !== name.toLowerCase() ? t.ingredient : null
-    const detail = [full, t.recipeName && (full ? t.recipeName : `for ${t.recipeName}`)].filter(Boolean).join(' · ')
     const price = prices.get(name)
     return (
       <li key={t.id} className={`list-item ${t.checked ? 'is-checked' : ''}`}>
@@ -83,7 +83,8 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
           <span className="list-box" aria-hidden="true">{t.checked && <Check size={16} weight="bold" />}</span>
           <span className="list-item-main">
             <span className="list-item-name">{name}</span>
-            {detail && <span className="list-item-recipe">{detail}</span>}
+            {full && <span className="list-item-recipe">{full}</span>}
+            {t.recipeName && <span className="list-item-recipe">for {t.recipeName}</span>}
           </span>
           {price && <span className="list-price">{price}</span>}
         </button>
@@ -99,7 +100,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
       <section className="hero hero-tab list-head">
         <div>
           <h1>List</h1>
-          <p>{token ? 'On this phone and your account.' : 'Kept on this phone. Works with no signal.'}</p>
+          <p>{token ? `On this ${DEVICE} and your account.` : `Kept on this ${DEVICE}. Works with no signal.`}</p>
         </div>
         {open.length > 0 && (
           <button type="button" className="btn btn-quiet" onClick={share}>
@@ -134,11 +135,15 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
           {fresh && best ? (
             <div className="shops-best">
               <div className="shops-lead">
-                <span className="shops-note">
-                  {best.lines.length === compare.result.searched ? `Cheapest for ${best.lines.length === 1 ? 'it' : best.lines.length === 2 ? 'both' : `all ${best.lines.length}`}` : `Has ${best.lines.length} of ${compare.result.searched}`}
-                </span>
-                <b>{best.label}</b>
-                {best.total !== null && <span className="shops-total">{money(best.total, best.currency)}</span>}
+                <b>
+                  {best.lines.length === compare.result.searched ? `${best.label} is cheapest` : `${best.label} has ${best.lines.length} of ${compare.result.searched}`}
+                </b>
+                {best.total !== null && (
+                  <span className="shops-total">
+                    {money(best.total, best.currency)}
+                    <small>{best.lines.length === 1 ? 'for it' : best.lines.length === 2 ? 'for both' : `for ${best.lines.length}`}</small>
+                  </span>
+                )}
                 {best.link && (
                   <a className="btn btn-small" href={best.link} target="_blank" rel="noopener noreferrer">
                     Open <ArrowSquareOut size={14} />
@@ -148,15 +153,15 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
               {compare.result.groups.length > 1 && (
                 <>
                   <button type="button" className="shops-more" onClick={() => setAllShops((v) => !v)} aria-expanded={allShops}>
-                    <span>{compare.result.groups.slice(1, 3).map((g) => `${g.label}${g.total !== null ? ` ${money(g.total, g.currency)}` : ''}`).join(' · ')}</span>
+                    <span>{allShops ? 'Every shop with a listing' : compare.result.groups.slice(1).filter((g) => g.lines.length === compare.result.searched).slice(0, 2).map((g) => `${g.label}${g.total !== null ? ` ${money(g.total, g.currency)}` : ''}`).join(' · ') || 'Other shops'}</span>
                     <span className="shops-toggle">{allShops ? 'Hide' : 'All shops'} <CaretDown size={14} weight="bold" /></span>
                   </button>
                   {allShops && (
                     <ul className="shops-all">
                       {compare.result.groups.map((g) => (
                         <li key={g.label}>
-                          <span className="shops-all-name">{g.label}<small>{g.lines.length} of {compare.result.searched}</small></span>
-                          <span className="list-price">{g.total !== null ? money(g.total, g.currency) : '—'}</span>
+                          <span className="shops-all-name">{g.label}{g.lines.length < compare.result.searched && <small>only {g.lines.length} of {compare.result.searched}</small>}</span>
+                          <span className={`list-price ${g.lines.length < compare.result.searched ? 'is-partial' : ''}`}>{g.total !== null ? money(g.total, g.currency) : '—'}</span>
                           {g.link && <a className="btn btn-small" href={g.link} target="_blank" rel="noopener noreferrer" aria-label={`Open ${g.label}`}><ArrowSquareOut size={14} /></a>}
                         </li>
                       ))}
@@ -164,7 +169,10 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
                   )}
                 </>
               )}
-              {compare.result.unfound.length > 0 && <p className="shops-foot">Nothing found for {compare.result.unfound.join(', ')}.</p>}
+              <p className="shops-foot in">
+                Shop listings for {countryName}, checked at {compare.at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}. Prices can change before you get there.
+                {compare.result.unfound.length > 0 && ` Nothing found for ${compare.result.unfound.join(', ')}.`}
+              </p>
             </div>
           ) : fresh ? (
             <div className="ideas-empty"><p>No shop in {countryName} lists any of these.</p></div>
@@ -177,7 +185,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
                   : !token ? 'Sign in to compare shop prices'
                   : compare ? 'List changed. Compare again' : 'Find the cheapest shop'}
               </button>
-              <button type="button" className="shops-country" onClick={onAccount}>Prices for {countryName}</button>
+              <button type="button" className="shops-country" onClick={onAccount}>Prices for {countryName}{country !== 'gb' && ' (untested)'}</button>
             </div>
           )}
           {open.length > COMPARE_CAP && <p className="shops-foot">The first {COMPARE_CAP} items only, to keep it quick.</p>}
