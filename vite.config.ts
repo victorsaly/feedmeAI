@@ -24,6 +24,14 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     rollupOptions: {
+      // the product site is the home page; the app lives at /app/
+      input: {
+        site: resolve(__dirname, 'index.html'),
+        privacy: resolve(__dirname, 'privacy/index.html'),
+        support: resolve(__dirname, 'support/index.html'),
+        notfound: resolve(__dirname, '404.html'),
+        app: resolve(__dirname, 'app/index.html'),
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],

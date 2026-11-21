@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-21T21:13:29.862Z",
         "reason": "agent triage: a developer-only favicon generator page, not shipped UI; predates this session"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-21T22:27:28.602Z",
+        "reason": "agent triage: the two coloured bands (.facts, .close) carry a 20px gutter of their own in src/site/site.css; the detector reads the inner wrapper only"
       }
     ]
   }

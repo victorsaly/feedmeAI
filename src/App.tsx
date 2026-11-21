@@ -83,6 +83,17 @@ function App() {
     completeSignIn().then((session) => { if (session) toast.success(`Signed in as ${session.name}`) })
   }, [])
 
+  // The product site's "Try a sample photo" arrives as /app/?sample. Opened
+  // once, then taken out of the address so a reload starts at the beginning.
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('sample')) return
+    url.searchParams.delete('sample')
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+    reopen(SAMPLE)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, [])
+
   // Ask the worker once whether a model is behind it, so the start screen
   // can say so before the first photo rather than after.
   const [, setAiKnown] = useState(false)
@@ -236,7 +247,7 @@ function App() {
   return (
     <div className="app has-tabs">
       <header className="top">
-        <a className="brand" href="/" onClick={(e) => { e.preventDefault(); startOver(); setTab('fridge') }} aria-label="FeedMe AI home">
+        <a className="brand" href="/app/" onClick={(e) => { e.preventDefault(); startOver(); setTab('fridge') }} aria-label="FeedMe AI home">
           <Logo size={26} />
           <span>FeedMe<span className="brand-ai">AI</span></span>
         </a>

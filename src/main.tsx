@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
  */
 if ('serviceWorker' in navigator && import.meta.env.PROD && !isNative) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
+    navigator.serviceWorker.register('/app/sw.js').catch(() => {
       /* blocked, unsupported, or a private window: the app works online */
     })
   })

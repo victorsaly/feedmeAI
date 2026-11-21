@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
   appName: 'FeedMe AI',
   webDir: 'dist',
   backgroundColor: '#f2f6f9',
+  server: {
+    // dist/ holds the product site at its root and the app under /app/;
+    // the iPhone app is the app, so it starts there
+    appStartPath: '/app/index.html',
+  },
   ios: {
     // the page draws under the status bar and home indicator and pads itself
     // with the safe-area insets, as it does when installed from a browser

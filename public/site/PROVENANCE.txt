@@ -1,0 +1,1 @@
+public/site/screen-results.jpg, screen-recipe.jpg, screen-list.jpg: screenshots of the built app at 390x844 @2x on the bundled sample run; shop prices in screen-list.jpg are UK listings recorded in September 2026.

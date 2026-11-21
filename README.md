@@ -2,7 +2,7 @@
 
 Take one photo of your fridge and get back a list of what's in it and what you could cook from it tonight. A phone-first web app for people who stare into the fridge at 6pm.
 
-**Live: [feedmeai.victorsaly.com](https://feedmeai.victorsaly.com)** (installable as an app from the browser)
+**Site: [feedmeai.victorsaly.com](https://feedmeai.victorsaly.com)** · **App: [feedmeai.victorsaly.com/app](https://feedmeai.victorsaly.com/app/)** (installable from the browser)
 
 ![FeedMe AI start screen on desktop](docs/images/desktop.png)
 
@@ -30,7 +30,7 @@ Sign-in uses the shared victorsaly.com account (Google). Nothing needs it except
 
 ## How it works
 
-- The front end is a static React app on GitHub Pages. It holds no API keys.
+- The front end is static, on GitHub Pages, and holds no API keys. The product site is plain HTML at the root (`index.html`, `privacy/`, `support/`); the app is a React app at `/app/` (`app/index.html`). One build makes both.
 - `worker/` is a Cloudflare Worker (`feedmeai-api`) that does everything needing a secret: OpenAI vision and text calls (`gpt-4o-mini`), an optional generated "suggested look" image for new dishes (signed in only), Spoonacular recipe search, YouTube video lookup and Google Shopping search via SearchAPI. What each person may do is set by a plan (`worker/src/plan.js`): photos read a day, shop price checks, and generated pictures, counted separately for a free tier and a paid one that is not on sale yet. It also stores the shopping list in Cloudflare D1.
 - `workers/favorites-api/` is a second small Worker that stores saved recipes in the same D1 database, keyed by account.
 - Both Workers verify the session token against the shared auth API on each request.
@@ -47,7 +47,7 @@ Requires Node.js 22+.
 git clone https://github.com/victorsaly/feedmeAI.git
 cd feedmeAI
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # the site at http://localhost:5173, the app at http://localhost:5173/app/
 ```
 
 By default the app talks to the deployed Worker, so no `.env` is needed. To point it at your own Worker (for example `npx wrangler dev` in `worker/`), set `VITE_FEEDME_API` in `.env` (see `.env.example`).
@@ -96,7 +96,10 @@ Pushing to `main` runs lint and both sets of tests, then builds and deploys the 
 ## Project structure
 
 ```
+index.html             the product site's home page; privacy/ and support/ beside it
+app/index.html         the app's page shell
 src/
+  site/site.css        the product site's styles
   App.tsx              the single page and its stages (start, list, ideas, recipe, cook)
   components/          PhotoPicker, HaulList, IdeaList, IdeaSheet, CookScreen,
                        RecipesTab, SavedList, ListTab, TabBar, Account, ...

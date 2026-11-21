@@ -25,7 +25,7 @@ test('the sample path: photo to dinner to list, with nothing behind it', async (
   page.on('pageerror', (e) => errors.push(String(e)))
 
   await test.step('the first screen shows a real result before asking for a photo', async () => {
-    await page.goto('/')
+    await page.goto('/app/')
     await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Photograph it' })).toBeVisible()
     await expect(page.getByText('10 things in, 5 dinners out')).toBeVisible()
@@ -98,7 +98,7 @@ test('the sample path: photo to dinner to list, with nothing behind it', async (
     await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
     await page.goBack()
     await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
-    expect(new URL(page.url()).pathname).toBe('/')
+    expect(new URL(page.url()).pathname).toBe('/app/')
   })
 
   await test.step('the list has both items, by shelf name, and survives a reload', async () => {
@@ -128,7 +128,7 @@ test('the sample path: photo to dinner to list, with nothing behind it', async (
 
 test('the sample is never written into Recent', async ({ page }) => {
   await offline(page)
-  await page.goto('/')
+  await page.goto('/app/')
   await page.getByRole('button', { name: 'Try a sample photo' }).click()
   await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
   await page.reload()
@@ -139,7 +139,7 @@ test('the sample is never written into Recent', async ({ page }) => {
 
 test('with no connection, the app says so and the list still works', async ({ page, context }) => {
   await offline(page)
-  await page.goto('/')
+  await page.goto('/app/')
   await expect(page.getByText('No connection.')).toHaveCount(0)
 
   await context.setOffline(true)
@@ -162,7 +162,7 @@ test('a recipe can be reported, with no account', async ({ page }) => {
     if (url.pathname === '/v1/reports') { reports.push(route.request().postDataJSON()); return route.fulfill({ status: 201, json: { ok: true } }) }
     return route.abort()
   })
-  await page.goto('/')
+  await page.goto('/app/')
   await page.getByRole('button', { name: 'Try a sample photo' }).click()
   await page.getByRole('button', { name: /Vegetable Stir-Fry/ }).click()
   const sheet = page.getByRole('dialog')
@@ -188,7 +188,7 @@ test('signed in, deleting my data empties the list and saved recipes and signs o
     if (url.pathname === '/v1/account' && method === 'DELETE') { server.deleted++; server.todos = []; return route.fulfill({ json: { ok: true } }) }
     return route.abort()
   })
-  await page.goto('/')
+  await page.goto('/app/')
   await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /List/ }).click()
   await expect(page.locator('.list-item-name')).toHaveText(['Soy sauce'])
 
@@ -215,7 +215,7 @@ test("when today's free photos are used up, the first screen says so and still o
     if (url.pathname === '/v1/plan') return route.fulfill({ json: { tier: 'free', photos: { used: 3, allowed: 3, per: 'day', resets: '' }, compares: { used: 0, allowed: 2, per: 'week', resets: '' }, pictures: { used: 0, allowed: 0, per: 'month', resets: '' } } })
     return route.abort()
   })
-  await page.goto('/')
+  await page.goto('/app/')
   await page.locator('input[type="file"]').last().setInputFiles('public/food/sample-fridge.jpg')
 
   const note = page.getByRole('status').filter({ hasText: "You've used today's 3 free photos." })
@@ -228,4 +228,27 @@ test("when today's free photos are used up, the first screen says so and still o
   await page.getByRole('button', { name: /^Account/ }).click()
   await expect(page.getByRole('dialog').getByText('3 of 3 today')).toBeVisible()
   await expect(page.getByRole('dialog').getByText('Free', { exact: true })).toBeVisible()
+})
+
+test('the product site is the home page and leads into the app', async ({ page }) => {
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => route.abort())
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
+  await expect(page.locator('#root')).toHaveCount(0) // the site, not the app
+  const { scroll, client } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }))
+  expect(scroll, 'the site fits the screen').toBe(client)
+
+  for (const path of ['/privacy/', '/support/']) {
+    const res = await page.request.get(path)
+    expect(res.status(), path).toBe(200)
+  }
+
+  // "Try a sample photo" lands on a result, and the address is left clean
+  await page.getByRole('link', { name: 'Try a sample photo' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
+  expect(new URL(page.url()).pathname + new URL(page.url()).search).toBe('/app/')
+
+  await page.goto('/')
+  await page.getByRole('link', { name: 'Open the app' }).first().click()
+  await expect(page.getByRole('button', { name: 'Photograph it' })).toBeVisible()
 })

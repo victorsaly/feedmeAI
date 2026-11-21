@@ -22,7 +22,7 @@ const SHELL = __SHELL__;
 const CORE = `feedme-core-${VERSION}`;
 const KEEP = [CORE];
 
-const INDEX = "/index.html";
+const INDEX = "/app/index.html";
 
 /*
  * Match on the URL alone.

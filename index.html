@@ -2,100 +2,158 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    
-    <!-- Favicons and App Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="alternate icon" href="/favicon.ico" />
-    <link rel="mask-icon" href="/favicon.svg" color="#3667c9" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    
-    <!-- Viewport and Mobile Optimization -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f2f6f9" />
-    
-    <!-- Primary Meta Tags -->
-    <title>FeedMe AI — what's in the fridge?</title>
-    <meta name="title" content="FeedMe AI — what's in the fridge?" />
-    <meta name="description" content="One photo. You get what's in it, and what to cook from it tonight — plus a shopping list that works in the supermarket." />
-    <meta name="keywords" content="AI recipe suggestions, cooking app, ingredient recognition, recipe finder, meal planning, cooking assistant, food AI" />
+    <title>FeedMe AI: what's in the fridge?</title>
+    <meta name="description" content="One photo of what you have, dinner from it, and the two or three missing things on a list you can read in the shop." />
     <meta name="author" content="Victor Saly" />
-    <meta name="robots" content="index, follow" />
-    
-    <!-- Open Graph / Facebook -->
+    <link rel="canonical" href="https://feedmeai.victorsaly.com/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FeedMe AI" />
     <meta property="og:url" content="https://feedmeai.victorsaly.com/" />
-    <meta property="og:title" content="FeedMe AI — what's in the fridge?" />
-    <meta property="og:description" content="One photo. You get what's in it, and what to cook from it tonight — plus a shopping list that works in the supermarket." />
+    <meta property="og:title" content="FeedMe AI: what's in the fridge?" />
+    <meta property="og:description" content="One photo of what you have, dinner from it, and the two or three missing things on a list you can read in the shop." />
     <meta property="og:image" content="https://feedmeai.victorsaly.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="FeedMe AI" />
-    <meta property="og:image:alt" content="FeedMe AI: what's in the fridge? One photo gives you what's in it and what to cook from it tonight." />
-    
-    <!-- Twitter -->
+    <meta property="og:image:alt" content="FeedMe AI: a photo of vegetables with a tag reading needs soy sauce, ginger." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://feedmeai.victorsaly.com/" />
-    <meta name="twitter:title" content="FeedMe AI — what's in the fridge?" />
-    <meta name="twitter:description" content="One photo. You get what's in it, and what to cook from it tonight — plus a shopping list that works in the supermarket." />
-    <meta name="twitter:image" content="https://feedmeai.victorsaly.com/og-image.png" />
-    <meta name="twitter:image:alt" content="FeedMe AI: what's in the fridge? One photo gives you what's in it and what to cook from it tonight." />
-    <meta name="twitter:creator" content="@victorsaly" />
-    
-    <!-- LinkedIn -->
-    <meta property="og:locale" content="en_US" />
-    <meta property="article:author" content="Victor Saly" />
-    
-    <!-- PWA Meta Tags -->
-    <meta name="application-name" content="FeedMe AI" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="FeedMe AI" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="msapplication-TileColor" content="#3667c9" />
-    <meta name="msapplication-tap-highlight" content="no" />
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://feedmeai.victorsaly.com/" />
-    
-    <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://api.openai.com" />
-    <link href="/src/main.css" rel="stylesheet" />
-    
-    <!-- JSON-LD Structured Data -->
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/src/site/site.css" />
+    <script>
+      /* An installed copy of the app from before it moved opens at "/": send it on. */
+      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) window.location.replace("/app/");
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "FeedMe AI",
-      "description": "AI-powered recipe suggestion app that transforms your ingredients into delicious meals",
-      "url": "https://feedmeai.victorsaly.com",
-      "applicationCategory": "Food & Cooking",
+      "description": "One photo of what you have, dinner from it, and the missing things on a shopping list.",
+      "url": "https://feedmeai.victorsaly.com/app/",
+      "applicationCategory": "LifestyleApplication",
       "operatingSystem": "Any",
-      "browserRequirements": "Modern web browser with JavaScript enabled",
-      "author": {
-        "@type": "Person",
-        "name": "Victor Saly"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150"
-      }
+      "author": { "@type": "Person", "name": "Victor Saly", "url": "https://victorsaly.com" }
     }
     </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header class="top wrap">
+      <a class="brand" href="/" aria-label="FeedMe AI home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="5 1.5 22 29" width="22" height="29" aria-hidden="true"><rect x="5" y="1.5" width="22" height="29" rx="6" fill="#3667c9"/><path d="M5 12.5h22" stroke="#fff" stroke-width="1.75"/><rect x="20.5" y="5" width="2.5" height="4.5" rx="1.25" fill="#fff"/><rect x="20.5" y="16" width="2.5" height="7" rx="1.25" fill="#fff"/></svg>FeedMe <small>AI</small></a>
+      <nav aria-label="Site">
+        <a class="quiet-hide" href="/support/">Support</a>
+        <a class="quiet-hide" href="/privacy/">Privacy</a>
+        <a href="/app/">Open the app</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero wrap">
+        <div>
+          <h1>What's in the fridge?</h1>
+          <p class="lede">One photo of what you have. Dinner from it. And the two or three missing things on a list you can read in the shop.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="/app/">Open the app</a>
+            <a class="btn btn-quiet" href="/app/?sample">Try a sample photo</a>
+          </div>
+          <p class="terms">Free, with a daily limit on photos. No account needed. An iPhone app is on the way.</p>
+        </div>
+
+        <div class="door">
+          <img class="door-photo" src="/food/sample-fridge.jpg" width="507" height="768" alt="A photo of vegetables laid out: carrots, red cabbage, spinach, radish, cucumber and tomato." />
+          <ul class="magnets" aria-label="What the app read in the photo">
+            <li class="magnet">Red cabbage</li>
+            <li class="magnet">Carrots</li>
+            <li class="magnet">Avocado</li>
+            <li class="magnet">Radish</li>
+            <li class="magnet">Spinach</li>
+            <li class="magnet">+5 more</li>
+          </ul>
+          <div class="phone"><img src="/site/screen-results.jpg" width="780" height="1688" alt="The app after that photo: 10 things in, and dinner ideas such as Cabbage and Carrot Slaw and Vegetable Stir-Fry, each tagged with what it still needs." /></div>
+        </div>
+      </section>
+
+      <section class="steps wrap" aria-labelledby="steps-title">
+        <h2 id="steps-title">From an open fridge to a short shopping list.</h2>
+        <ol>
+          <li class="step">
+            <div class="phone"><img loading="lazy" src="/site/screen-results.jpg" width="780" height="1688" alt="The results screen: the photo, the ingredients read from it, and dinner ideas." /></div>
+            <div>
+              <h3>Photograph it</h3>
+              <p>The fridge with the door open, or everything on the worktop. The app lists what it can see, with rough amounts, and you correct anything it got wrong.</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="phone"><img loading="lazy" src="/site/screen-recipe.jpg" width="780" height="1688" alt="A recipe for Vegetable Stir-Fry: two things to buy, soy sauce and ginger, then three you already have." /></div>
+            <div>
+              <h3>Pick dinner</h3>
+              <p>Each idea says how much of your food it uses and what it <span class="shelf-tag">still needs</span>. Open one and the missing things come first, with one button to add them to your list.</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="phone"><img loading="lazy" src="/site/screen-list.jpg" width="780" height="1688" alt="The shopping list with soy sauce and ginger, and Iceland shown as the cheapest shop for both at £2.25." /></div>
+            <div>
+              <h3>Buy the rest</h3>
+              <p>The list names what to look for on the shelf. Signed in, it finds the cheapest supermarket for all of it. UK shops only for now.</p>
+              <p class="note">Prices in this picture were recorded in September 2026.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="facts" aria-label="Good to know">
+        <div class="wrap">
+          <div class="fact">
+            <h3>It works in the shop.</h3>
+            <p>Your list is kept on your phone, so it opens with no signal, three aisles from the door.</p>
+          </div>
+          <div class="fact">
+            <h3>No account needed.</h3>
+            <p>Photograph, cook and keep a list without signing in. An account only carries your list to another device and unlocks shop prices.</p>
+          </div>
+          <div class="fact">
+            <h3>Your photo isn't kept.</h3>
+            <p>We don't store it. It is sent to an AI service to be read, and the copy in your recent photos stays on your phone. <a href="/privacy/">How your data is handled</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="plates" aria-labelledby="plates-title">
+        <div class="wrap">
+          <h2 id="plates-title">Nothing to photograph? Cook one of these.</h2>
+          <p>Six recipes come with the app and need no photo, no account and no connection.</p>
+        </div>
+        <ul class="plate-row wrap">
+          <li><img loading="lazy" src="/food/pasta-aglio-olio.jpg" width="480" height="360" alt="Spaghetti with garlic and chilli" /><b>Quick Garlic Pasta</b><span>17 minutes</span></li>
+          <li><img loading="lazy" src="/food/chicken-stir-fry.jpg" width="480" height="360" alt="Chicken and vegetables with rice" /><b>Chicken Stir Fry</b><span>20 minutes</span></li>
+          <li><img loading="lazy" src="/food/shrimp-scampi.jpg" width="480" height="360" alt="Prawns on linguine" /><b>Buttery Shrimp Scampi</b><span>25 minutes</span></li>
+          <li><img loading="lazy" src="/food/mediterranean-quesadilla.jpg" width="480" height="360" alt="A filled quesadilla with a fried egg" /><b>Mediterranean Veggie Quesadilla</b><span>20 minutes</span></li>
+          <li><img loading="lazy" src="/food/teriyaki-salmon.jpg" width="480" height="360" alt="Glazed salmon with rice and asparagus" /><b>Honey Teriyaki Salmon</b><span>20 minutes</span></li>
+          <li><img loading="lazy" src="/food/caprese-grilled-cheese.jpg" width="480" height="360" alt="A toasted sandwich with tomato and mozzarella" /><b>Caprese Grilled Cheese</b><span>13 minutes</span></li>
+        </ul>
+      </section>
+
+      <section class="close" aria-labelledby="close-title">
+        <div class="wrap">
+          <h2 id="close-title">It's six o'clock. Open the fridge.</h2>
+          <p>One photo is enough to find out. Or try the sample first; it costs you nothing.</p>
+          <div class="cta">
+            <a class="btn btn-light" href="/app/">Open the app</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <span>FeedMe AI, made by <a href="https://victorsaly.com">Victor Saly</a></span>
+      <nav aria-label="More">
+        <a href="/support/">Support</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/victorsaly/feedmeAI">Source on GitHub</a>
+      </nav>
+    </footer>
   </body>
 </html>

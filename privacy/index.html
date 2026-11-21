@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2f6f9" />
+    <title>Privacy · FeedMe AI</title>
+    <meta name="description" content="What FeedMe AI keeps on your device, what leaves it, where it goes and how to delete it." />
+    <meta name="author" content="Victor Saly" />
+    <link rel="canonical" href="https://feedmeai.victorsaly.com/privacy/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FeedMe AI" />
+    <meta property="og:url" content="https://feedmeai.victorsaly.com/privacy/" />
+    <meta property="og:title" content="Privacy · FeedMe AI" />
+    <meta property="og:description" content="What FeedMe AI keeps on your device, what leaves it, where it goes and how to delete it." />
+    <meta property="og:image" content="https://feedmeai.victorsaly.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="FeedMe AI: a photo of vegetables with a tag reading needs soy sauce, ginger." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/src/site/site.css" />
+  </head>
+  <body>
+    <header class="top wrap">
+      <a class="brand" href="/" aria-label="FeedMe AI home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="5 1.5 22 29" width="22" height="29" aria-hidden="true"><rect x="5" y="1.5" width="22" height="29" rx="6" fill="#3667c9"/><path d="M5 12.5h22" stroke="#fff" stroke-width="1.75"/><rect x="20.5" y="5" width="2.5" height="4.5" rx="1.25" fill="#fff"/><rect x="20.5" y="16" width="2.5" height="7" rx="1.25" fill="#fff"/></svg>FeedMe <small>AI</small></a>
+      <nav aria-label="Site">
+        <a class="quiet-hide" href="/support/">Support</a>
+        <a class="quiet-hide" href="/privacy/">Privacy</a>
+        <a href="/app/">Open the app</a>
+      </nav>
+    </header>
+
+    <main class="read wrap">
+      <h1>Privacy</h1>
+      <p class="updated">Last updated 21 November 2026. FeedMe AI is made by Victor Saly.</p>
+
+      <p>FeedMe AI works without an account and keeps as much as it can on your own device. This page says what leaves your device, where it goes, and how to remove it. There are no adverts and no analytics or tracking scripts in the app or on this site.</p>
+
+      <h2>What stays on your device</h2>
+      <ul>
+        <li>Your shopping list and saved recipes, when you are not signed in.</li>
+        <li>Your recent photos, as small copies, with the ingredients and ideas that came from them.</li>
+        <li>Your recent recipe searches, the meal you last chose and the country you chose for shop prices.</li>
+        <li>A random number that identifies this device to our server, so your daily allowance is your own. It says nothing about you or the device.</li>
+      </ul>
+      <p>All of this lives in your browser's storage for this site, or inside the app. Clearing the site's data, or deleting the app, removes it.</p>
+
+      <h2>What leaves your device</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>What</th><th>When</th><th>Where it goes</th></tr></thead>
+        <tbody>
+          <tr><td>The photo you take or choose</td><td>When you ask for it to be read</td><td>Our server passes it to OpenAI, which reads it and returns a list of ingredients. Our server does not store the photo.</td></tr>
+          <tr><td>The ingredient list, the meal, and a recipe's name</td><td>When you ask for ideas or open a recipe</td><td>OpenAI, through our server, to write the ideas and the recipe.</td></tr>
+          <tr><td>Ingredient names and recipe names</td><td>When you are signed in and browse or open recipes</td><td>Spoonacular, to find published recipes and cooking videos; YouTube's search, when Spoonacular has no video.</td></tr>
+          <tr><td>The names of items on your list, and your chosen country</td><td>When you ask for shop prices</td><td>SearchAPI, which searches Google Shopping.</td></tr>
+          <tr><td>A recipe, your reason and your note</td><td>When you report a recipe</td><td>Our server, where a person reads it.</td></tr>
+          <tr><td>Your network address</td><td>With every request, as on any website</td><td>Our hosts (GitHub Pages for the pages, Cloudflare for the server). Our server also uses it, or your account or device number, to count daily use.</td></tr>
+        </tbody>
+      </table></div>
+      <p>A cooking video is YouTube's player, loaded in its privacy-enhanced mode and only when you press play.</p>
+
+      <h2>If you sign in</h2>
+      <p>Signing in is optional. It uses the account service shared by victorsaly.com's apps, which signs you in with Google. FeedMe AI receives an account number and your name from that service; it does not receive your email address or your Google password.</p>
+      <p>Once signed in, your shopping list and saved recipes are stored on our server (a Cloudflare database) under your account number, so they can follow you to another device. A saved recipe is the recipe itself and, where it has one, a picture of the dish. Your own photos are never stored there.</p>
+
+      <h2>How long things are kept</h2>
+      <ul>
+        <li>Photos: not stored by our server at all. OpenAI handles what it is sent under <a href="https://openai.com/policies/">its own policies</a>.</li>
+        <li>Your list and saved recipes: until you remove them or delete your data.</li>
+        <li>Daily use counts: a count per day against an account number, device number or network address.</li>
+        <li>Reports: kept so that recipes can be checked. A report made while signed in is detached from your account if you delete your data.</li>
+      </ul>
+
+      <h2>Deleting your data</h2>
+      <p>In the app, open Account and choose <b>Delete my data</b>. It removes your shopping list, saved recipes and use counts from our server and from the device you are using, and signs you out.</p>
+      <p>It does not remove your sign-in with victorsaly.com itself, which is shared with its other apps. To have that removed as well, ask through the <a href="/support/">support page</a>.</p>
+
+      <h2>Children</h2>
+      <p>FeedMe AI is not written for children and does not knowingly collect anything from them.</p>
+
+      <h2>Changes and questions</h2>
+      <p>If this page changes, the date at the top changes with it. Questions go through the <a href="/support/">support page</a>.</p>
+    </main>
+
+    <footer class="wrap">
+      <span>FeedMe AI, made by <a href="https://victorsaly.com">Victor Saly</a></span>
+      <nav aria-label="More">
+        <a href="/support/">Support</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="https://github.com/victorsaly/feedmeAI">Source on GitHub</a>
+      </nav>
+    </footer>
+  </body>
+</html>
