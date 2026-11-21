@@ -353,9 +353,20 @@ async function chatJSON(env, system, user, maxTokens) {
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     }),
   }).catch(() => null);
-  if (!response) return { error: json({ error: "the AI is unreachable" }, { status: 502 }) };
-  if (response.status === 429) return { error: json({ error: "the AI is rate-limited right now" }, { status: 429 }) };
-  if (!response.ok) return { error: json({ error: `the AI answered ${response.status}` }, { status: 502 }) };
+  if (!response) return { error: json({ error: "The AI could not be reached. Try again in a moment." }, { status: 502 }) };
+  if (!response.ok) {
+    // Say why in the Worker's log (npx wrangler tail), and tell the person
+    // the truth: "busy" passes in a moment, "no credit" does not, and
+    // neither is anything wrong with their photo.
+    const why = await response.json().catch(() => null);
+    const code = why?.error?.code ?? why?.error?.type ?? "";
+    console.error("openai refused", response.status, code, why?.error?.message ?? "");
+    if (response.status === 429 && code === "insufficient_quota") {
+      return { error: json({ error: "The AI is switched off for now. That is on our side, not your photo. The sample and the built-in recipes still work.", reason: "no-credit" }, { status: 429 }) };
+    }
+    if (response.status === 429) return { error: json({ error: "The AI is busy right now. Try again in a moment.", reason: "busy" }, { status: 429 }) };
+    return { error: json({ error: `The AI could not answer (${response.status}). Try again in a moment.` }, { status: 502 }) };
+  }
   const data = await response.json().catch(() => null);
   const content = data?.choices?.[0]?.message?.content;
   if (!content) return { error: json({ error: "the AI answered nothing" }, { status: 502 }) };
