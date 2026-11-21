@@ -3,6 +3,7 @@ import { ArrowLeft, CaretLeft, CaretRight, Check, Timer, Sun } from '@phosphor-i
 import type { Recipe } from '@/lib/kitchen'
 import { forStep, timeIn } from '@/lib/pantry'
 import { useWakeLock } from '@/hooks/use-wake-lock'
+import { cancelRing, haptic, ringAt } from '@/lib/native'
 
 interface CookScreenProps {
   recipe: Recipe
@@ -38,7 +39,20 @@ export function CookScreen({ recipe, photo, onBack, onDone }: CookScreenProps) {
   }, [timer])
   const left = timer ? Math.max(0, Math.ceil((timer.ends - now) / 1000)) : 0
   const rung = Boolean(timer) && left === 0
-  useEffect(() => { if (rung) navigator.vibrate?.([200, 100, 200]) }, [rung])
+  useEffect(() => { if (rung) { navigator.vibrate?.([200, 100, 200]); haptic('alarm') } }, [rung])
+  // leaving the cooking screen takes its timer with it
+  useEffect(() => () => { cancelRing() }, [])
+
+  function startTimer(seconds: number) {
+    const ends = Date.now() + seconds * 1000
+    setNow(Date.now())
+    setTimer({ step: n, ends })
+    ringAt(new Date(ends), 'Timer done', `${recipe.title}: step ${n + 1}`)
+  }
+  function stopTimer() {
+    setTimer(null)
+    cancelRing()
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -93,9 +107,9 @@ export function CookScreen({ recipe, photo, onBack, onDone }: CookScreenProps) {
           <div className={`cook-timer ${mine && rung ? 'is-rung' : ''}`} role="timer">
             <span className="cook-timer-time">{mine ? (rung ? "Time's up" : clock(left)) : clock(seconds)}</span>
             {mine ? (
-              <button type="button" className="btn btn-quiet" onClick={() => setTimer(null)}>{rung ? 'Clear' : 'Stop'}</button>
+              <button type="button" className="btn btn-quiet" onClick={stopTimer}>{rung ? 'Clear' : 'Stop'}</button>
             ) : (
-              <button type="button" className="btn btn-quiet" onClick={() => { setNow(Date.now()); setTimer({ step: n, ends: Date.now() + seconds * 1000 }) }}>
+              <button type="button" className="btn btn-quiet" onClick={() => startTimer(seconds)}>
                 <Timer size={18} weight="bold" /> Start timer
               </button>
             )}

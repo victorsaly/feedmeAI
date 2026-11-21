@@ -11,6 +11,7 @@ import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Rec
 import { findVideo } from '@/lib/spoonacular'
 import { isSample } from '@/lib/sample'
 import { sortIngredients } from '@/lib/pantry'
+import { haptic } from '@/lib/native'
 
 interface IdeaSheetProps {
   idea: Idea | null
@@ -101,6 +102,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
 
   // The list is on this device, so adding never fails and never needs an account.
   function addToList(line: string) {
+    haptic('tick')
     setAdded((prev) => new Set(prev).add(line))
     addItem(token, line, { id: idea!.id, name: idea!.title })
   }
@@ -121,7 +123,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
       // The photo you took stays on this device — only the recipe itself
       // (and whichever dish photo it already has) is kept.
       const ok = await saveFavorite(token, { ...recipe, image: recipe.image ?? dish, isFavorite: true })
-      if (ok) toast.success('Saved')
+      if (ok) { haptic('done'); toast.success('Saved') }
       else toast.error("Couldn't save that. Try again.")
     }
   }

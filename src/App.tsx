@@ -15,6 +15,7 @@ import { RecipesTab } from '@/components/RecipesTab'
 import { HaulHistory } from '@/components/HaulHistory'
 import { RecipeStrip } from '@/components/RecipeStrip'
 import { useBack } from '@/hooks/use-back'
+import { useOnline } from '@/hooks/use-online'
 import { SampleCard } from '@/components/SampleCard'
 import { SAMPLE, isSample } from '@/lib/sample'
 import { TabBar, type Tab } from '@/components/TabBar'
@@ -67,6 +68,7 @@ function App() {
   const [opened, setOpened] = useState<Record<string, Recipe>>({}) // recipes written out for it
   const run = useRef(0) // a newer request makes an older result irrelevant
   const token = useSessionToken()
+  const online = useOnline()
   const listCount = useList().filter((t) => !t.checked).length
 
   // Saved is server-backed under the account, same as the shopping list
@@ -252,6 +254,11 @@ function App() {
               <p>One photo. You get what's in it, and what to cook from it tonight.</p>
             </section>
 
+            {!online && (
+              <p className="offline-note" role="status">
+                No connection. A new photo needs one; your list, saved recipes and earlier photos still work.
+              </p>
+            )}
             <PhotoPicker onPhoto={onPhoto} onSample={() => reopen(SAMPLE)} looking={analyzing ? photo : undefined} />
 
             {!hasKey() && !analyzing && (

@@ -5,6 +5,7 @@ import { canSignIn, signIn, useSessionToken } from '@/lib/account'
 import { addItem, checkItem, removeItem, syncList, useList, type Item } from '@/lib/list'
 import { nameOf } from '@/lib/pantry'
 import { DEVICE } from '@/lib/device'
+import { haptic, shareText } from '@/lib/native'
 import { COMPARE_CAP, COUNTRIES, compareShops, loadCountry, type Comparison } from '@/lib/shopping'
 
 /** "2 tablespoons soy sauce" → what to look for on the shelf: "Soy sauce" */
@@ -65,11 +66,12 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
 
   async function share() {
     const text = open.map((t) => `• ${shelfName(t.ingredient)}${nameOf(t.ingredient) && nameOf(t.ingredient) !== t.ingredient.toLowerCase() ? ` (${t.ingredient})` : ''}`).join('\n')
+    if (await shareText('Shopping list', text)) return
     try {
-      if (navigator.share) await navigator.share({ title: 'Shopping list', text })
-      else { await navigator.clipboard.writeText(text); toast.success('List copied') }
+      await navigator.clipboard.writeText(text)
+      toast.success('List copied')
     } catch {
-      // closed the share sheet: nothing to say
+      toast.error("Couldn't copy the list.")
     }
   }
 
@@ -79,7 +81,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
     const price = prices.get(name)
     return (
       <li key={t.id} className={`list-item ${t.checked ? 'is-checked' : ''}`}>
-        <button type="button" className="list-tick" onClick={() => checkItem(token, t.id, !t.checked)} aria-pressed={t.checked}>
+        <button type="button" className="list-tick" onClick={() => { haptic('tick'); checkItem(token, t.id, !t.checked) }} aria-pressed={t.checked}>
           <span className="list-box" aria-hidden="true">{t.checked && <Check size={16} weight="bold" />}</span>
           <span className="list-item-main">
             <span className="list-item-name">{name}</span>

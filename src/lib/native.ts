@@ -42,3 +42,61 @@ export async function keepAwake(on: boolean): Promise<boolean> {
     return false
   }
 }
+
+/* ---------- what only an app can do ---------- */
+
+/** A small tap you can feel: ticking an item, adding to the list, a timer
+ *  ending. Silent in a browser, where iPhones give a page no such thing. */
+export async function haptic(kind: 'tick' | 'done' | 'alarm'): Promise<void> {
+  if (!isNative) return
+  try {
+    const { Haptics, ImpactStyle, NotificationType } = await import('@capacitor/haptics')
+    if (kind === 'tick') await Haptics.impact({ style: ImpactStyle.Light })
+    else await Haptics.notification({ type: kind === 'done' ? NotificationType.Success : NotificationType.Warning })
+  } catch {
+    // no taptic engine: nothing lost
+  }
+}
+
+/** Hand text to the system share sheet. False when there is no sheet to
+ *  hand it to, so the caller can copy it instead. */
+export async function shareText(title: string, text: string): Promise<boolean> {
+  try {
+    if (isNative) {
+      const { Share } = await import('@capacitor/share')
+      await Share.share({ title, text, dialogTitle: title })
+      return true
+    }
+    if (navigator.share) { await navigator.share({ title, text }); return true }
+    return false
+  } catch {
+    return true // the sheet opened and was closed: that is an answer, not a failure
+  }
+}
+
+const TIMER_ID = 4201 // one cooking timer at a time, so one fixed notification
+
+/** Ring even if the phone is locked or the app is behind another: a cooking
+ *  timer you only hear with the app open is not a timer. Asks for permission
+ *  the first time. In a browser the on-screen timer is all there is. */
+export async function ringAt(when: Date, title: string, body: string): Promise<void> {
+  if (!isNative) return
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    const { display } = await LocalNotifications.requestPermissions()
+    if (display !== 'granted') return
+    await LocalNotifications.schedule({ notifications: [{ id: TIMER_ID, title, body, schedule: { at: when }, sound: 'default' }] })
+  } catch {
+    // refused or unavailable: the timer on screen still runs
+  }
+}
+
+export async function cancelRing(): Promise<void> {
+  if (!isNative) return
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    await LocalNotifications.cancel({ notifications: [{ id: TIMER_ID }] })
+  } catch {
+    // nothing was scheduled
+  }
+}

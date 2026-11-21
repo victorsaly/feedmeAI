@@ -136,3 +136,21 @@ test('the sample is never written into Recent', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Recent' })).toHaveCount(0)
   expect(await page.evaluate(() => localStorage.getItem('feedme-history'))).toBeNull()
 })
+
+test('with no connection, the app says so and the list still works', async ({ page, context }) => {
+  await offline(page)
+  await page.goto('/')
+  await expect(page.getByText('No connection.')).toHaveCount(0)
+
+  await context.setOffline(true)
+  await expect(page.getByRole('status').filter({ hasText: 'No connection.' })).toBeVisible()
+
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /List/ }).click()
+  await page.getByLabel('Add an item').fill('milk')
+  await page.getByLabel('Add an item').press('Enter')
+  await expect(page.locator('.list-item-name')).toHaveText(['Milk'])
+
+  await context.setOffline(false)
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /Fridge/ }).click()
+  await expect(page.getByText('No connection.')).toHaveCount(0)
+})
