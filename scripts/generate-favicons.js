@@ -2,7 +2,7 @@
 
 /**
  * Generate favicon PNG files from SVG using Canvas
- * This script creates proper favicon PNGs with the FeedmeAI design
+ * This script creates proper favicon PNGs with the FeedMe AI design
  */
 
 import fs from 'fs';
@@ -28,7 +28,7 @@ const htmlContent = `
     </style>
 </head>
 <body>
-    <h2>FeedmeAI Favicon Generator</h2>
+    <h2>FeedMe AI Favicon Generator</h2>
     <div id="canvases"></div>
     <div id="downloads"></div>
 

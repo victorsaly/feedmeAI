@@ -1,7 +1,7 @@
 #!/bin/bash
 # Create proper favicon PNG files using ImageMagick (if available)
 
-echo "🎨 Creating FeedmeAI favicon PNG files..."
+echo "🎨 Creating FeedMe AI favicon PNG files..."
 
 # Check if ImageMagick is available
 if command -v convert &> /dev/null; then

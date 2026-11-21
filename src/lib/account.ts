@@ -4,7 +4,7 @@
  * Sign-in, borrowed rather than built.
  *
  * arcade-api (api.victorsaly.com) already runs Google OAuth for the other
- * victorsaly.com sites — one account, one name, across all of them. FeedmeAI
+ * victorsaly.com sites — one account, one name, across all of them. FeedMe AI
  * asks it for identity and nothing else: no email is ever requested, and no
  * session secret lives in this app. `src/lib/todos.ts` and
  * `src/lib/shopping.ts` send the token on here to feedmeai-api, which checks

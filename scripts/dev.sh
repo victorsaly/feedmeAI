@@ -1,4 +1,4 @@
 #!/bin/bash
 # Development server startup script
-echo "🚀 Starting FeedmeAI development server..."
+echo "🚀 Starting FeedMe AI development server..."
 npm run dev

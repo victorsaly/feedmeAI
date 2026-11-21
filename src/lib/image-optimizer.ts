@@ -80,8 +80,8 @@ function calculateOptimalSize(
   maxWidth: number,
   maxHeight: number
 ): { width: number; height: number } {
-  let width = originalWidth
-  let height = originalHeight
+  const width = originalWidth
+  const height = originalHeight
   
   // If image is smaller than max dimensions, keep original size
   if (width <= maxWidth && height <= maxHeight) {

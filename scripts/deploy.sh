@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build and deploy script for GitHub Pages
-echo "📦 Building FeedmeAI for production..."
+echo "📦 Building FeedMe AI for production..."
 npm run build
 
 echo "✅ Build complete! Files ready in dist/ directory"

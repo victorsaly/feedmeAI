@@ -1,5 +1,5 @@
 /*
- * FeedmeAI, offline.
+ * FeedMe AI, offline.
  *
  * The shopping list is the reason this exists. It is held in this browser and
  * read in a supermarket, which is exactly where the signal goes — so the app
