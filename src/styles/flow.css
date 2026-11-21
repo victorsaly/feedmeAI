@@ -1,11 +1,21 @@
 /*
  * Cold Store — the fridge is the interface.
  *
- * Cold white ground, pure-white grouped lists, one glacier-blue interior
- * light, one cobalt action. The system face so it feels installed, a
- * large title so it reads like a native screen, and the things you have
- * stuck to the door as magnets. Mobile is the default; desktop just widens.
+ * Cold white ground, white panels, one glacier-blue interior light, one
+ * denim action, and an amber shelf tag on anything you have to buy. The
+ * photo you took is the door; what was read in it is stuck on as magnets.
+ * Headings, dish names and numbers speak in Bricolage Grotesque; everything
+ * read or tapped is the phone's own face, so it feels installed.
+ * Mobile is the default; desktop just widens.
  */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-grotesque-latin.woff2") format("woff2");
+}
 
 :root {
   color-scheme: light;
@@ -18,12 +28,17 @@
   --hairline: #e3e9ef;
   --light: #d9efff;         /* the interior light */
   --light-2: #a6d8fb;
-  --blue: #1f57ff;          /* the one hot point: the action */
+  --blue: #3667c9;          /* denim: the one action, and every selected state */
   --blue-ink: #ffffff;
-  --blue-deep: #1646d6;
-  --blue-tint: #eaf0ff;
-  --amber: #a85f00;
+  --blue-deep: #2b55ab;
+  --blue-tint: #e8eefa;
+  --amber: #8a4d00;
+  --tag: #ffe7a3;           /* the shelf tag: anything you have to buy */
+  --tag-pale: #fff6dc;
+  --tag-line: #f0dc9c;
+  --tag-ink: #5c3b00;
 
+  --display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Roboto, "Segoe UI", system-ui, sans-serif;
 
   --r-list: 16px;
@@ -435,40 +450,12 @@
 .analyzing-sub { display: block; margin-top: .15rem; font-size: .85rem; font-weight: 400; color: var(--ink-3); }
 
 .demo-note {
-  margin: 2rem .25rem 0;
+  margin: 1.25rem .25rem 0;
   font-size: .8rem;
   line-height: 1.45;
   color: var(--ink-3);
   text-wrap: pretty;
 }
-
-/* ---------- how it works: the pitch in one picture ---------- */
-
-.how {
-  margin: 1.75rem 0 0;
-  padding: .5rem .5rem 0;
-  border-radius: var(--r-list);
-  background: var(--white);
-  box-shadow: var(--shadow-list);
-  overflow: hidden;
-}
-.how-art { display: block; width: 100%; height: auto; }
-
-/* One entrance, not a loop: the question wobbles once, the sparkles twinkle
-   in, the arrow fades in, the bar fills — a single ~1.4s cascade the first
-   moment this screen appears, then still. It's the app's home screen, seen
-   every session; it doesn't get to keep moving the whole time you're on it. */
-.how-q { transform-origin: 138px 46px; animation: how-tip .8s var(--ease-in-out) both; }
-.how-dots circle { opacity: 0; animation: how-twinkle .4s var(--ease-out) both; }
-.how-dots circle:nth-child(1) { animation-delay: .15s; }
-.how-dots circle:nth-child(2) { animation-delay: .32s; }
-.how-dots circle:nth-child(3) { animation-delay: .48s; }
-.how-dots circle:nth-child(4) { animation-delay: .62s; }
-.how-arrow { opacity: 0; animation: fade .35s var(--ease-out) .55s both; }
-.how-bar { transform-origin: 199px 382px; transform: scaleX(0); animation: how-fill .5s var(--ease-out) .9s both; }
-@keyframes how-tip { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
-@keyframes how-twinkle { to { opacity: 1; } }
-@keyframes how-fill { to { transform: scaleX(1); } }
 
 /* ---------- what you've got: magnets on the door ---------- */
 
@@ -1118,9 +1105,6 @@
   .fridge.is-looking::before { animation: breathe 3.2s var(--ease-in-out) infinite; }
   .scan::after { animation: none; opacity: 0; }
   .sk { animation-duration: 3s; }
-  .how-q { animation: none; }
-  .how-dots circle, .how-arrow { animation: none; opacity: 1; }
-  .how-bar { animation: none; transform: none; }
   :root { --press: 1; }
   .haul-photo:active, .magnet-remove:active, .magnet-plus:active { transform: none; }
 }
@@ -1151,4 +1135,287 @@
   }
   .sheet-dialog .sheet-scroll { padding: 1.5rem 1.75rem 1.25rem; }
   .sheet-dialog .sheet-actions { padding: .9rem 1.75rem; }
+}
+
+/* ============================================================
+   The door: type with a voice, the photo as the door, food on
+   every row, the shelf tag for what is missing.
+   ============================================================ */
+
+/* ---------- the parts the browser draws ---------- */
+.app ::selection, .sheet ::selection { background: var(--light-2); color: var(--ink); }
+.app input, .sheet input { caret-color: var(--blue); accent-color: var(--blue); }
+.app :focus-visible, .sheet :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.app a, .sheet a { text-underline-offset: .18em; }
+
+/* ---------- the voice ---------- */
+.brand { font-family: var(--display); font-size: 1.12rem; font-weight: 700; letter-spacing: -.015em; }
+.brand-ai { font-family: var(--font); }
+.hero h1, .hero-tab h1, .haul-hero h1, .sheet-title {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+.hero h1 { font-size: clamp(2.3rem, 10vw, 2.9rem); line-height: 1; }
+.idea-title { font-family: var(--display); font-weight: 600; font-size: 1.1rem; letter-spacing: -.012em; line-height: 1.18; }
+.label { margin-top: 1.5rem; }
+.label h2 { font: inherit; margin: 0; letter-spacing: inherit; }
+
+/* ---------- the photo is the door ---------- */
+.haul-hero { display: flex; align-items: flex-end; padding: .5rem 0 0; }
+.haul-hero h1 { margin: 0; font-size: clamp(2rem, 9vw, 2.5rem); line-height: 1; }
+.haul.has-photo .haul-hero {
+  position: relative;
+  padding: 0;
+  aspect-ratio: 16 / 9;
+  max-height: 34dvh;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--light);
+  box-shadow: var(--shadow-list);
+  isolation: isolate;
+}
+.haul.has-photo .haul-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.haul.has-photo .haul-hero::after {
+  /* enough shade under the count to read it on any photo */
+  content: "";
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(180deg, rgba(15, 22, 32, 0), rgba(15, 22, 32, .72));
+  z-index: -1;
+}
+.haul.has-photo .haul-hero h1 { padding: 0 1rem 2rem; color: #fff; }
+
+.door.is-folded {
+  margin: .9rem 0 0;
+  padding: 0;
+  gap: .4rem;
+  background: none;
+  box-shadow: none;
+  align-items: center;
+}
+.haul.has-photo .door.is-folded { position: relative; margin: -1.15rem .6rem 0; }
+.door.is-folded .magnet { min-height: 36px; padding: 0 .85rem; font-size: .9rem; }
+/* stuck on by hand, not typeset: each sits a touch off true */
+.door.is-folded li:nth-child(3n + 1) { rotate: -1.4deg; }
+.door.is-folded li:nth-child(3n + 2) { rotate: 1deg; }
+.door.is-folded li:nth-child(3n) { rotate: -.4deg; }
+.door-edit { display: flex; }
+.magnet-edit {
+  appearance: none;
+  border: 0;
+  margin: -4px 0;
+  min-height: 44px !important;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  gap: .35rem;
+  transition: transform .12s var(--ease-out);
+}
+.magnet-edit:active { transform: scale(var(--press)); }
+
+.door-open { margin-top: .9rem; }
+.door-hint { margin: 0 .25rem .6rem; font-size: .9rem; line-height: 1.4; color: var(--ink-2); }
+.magnet.is-full { min-height: 44px; padding: 0 0 0 .9rem; gap: .5rem; }
+.magnet.is-unsure { box-shadow: inset 0 0 0 1.5px var(--tag), var(--shadow-magnet); }
+.magnet-amount { min-height: 30px; padding: .1rem .6rem; font-size: .76rem; }
+.magnet-remove { flex: none; width: 44px; height: 44px; }
+.magnet-add { min-height: 44px; padding-right: 0; }
+.magnet-plus { width: 44px; height: 44px; }
+.door-done { margin-top: .6rem; }
+
+/* ---------- meal: one segmented control ---------- */
+.meals {
+  gap: 2px;
+  margin: 1rem 0 0;
+  padding: 3px;
+  border-radius: 15px;
+  background: var(--white);
+  box-shadow: var(--shadow-magnet);
+}
+.meal-chip {
+  min-height: 44px;
+  padding: 0 .25rem;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  flex-direction: row;
+  font-size: .86rem;
+  transition: background-color .15s ease, color .15s ease;
+}
+.meal-chip.is-active { background: var(--blue); color: var(--blue-ink); box-shadow: none; }
+
+/* ---------- ideas: the food is in the row ---------- */
+.idea-btn { padding: .7rem .6rem .7rem .7rem; }
+.idea-thumb { width: 64px; height: 64px; border-radius: 14px; background: var(--light); }
+.idea-thumb.is-crop { display: block; background-size: 300%; background-repeat: no-repeat; }
+.idea-blurb { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.idea-meta { align-items: center; }
+.tag-buy {
+  padding: .12rem .5rem;
+  border-radius: 6px;
+  background: var(--tag);
+  color: var(--tag-ink);
+  font-weight: 600;
+}
+
+/* the ideas no longer match the list: say so where the thumb is, not a scroll away */
+.update-bar {
+  position: sticky;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: 1rem;
+  padding: .45rem .45rem .45rem 1.1rem;
+  border-radius: 18px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 10px 28px -10px rgba(15, 22, 32, .5);
+}
+
+/* ---------- first screen: a result, then real food ---------- */
+.sample-card {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0 0 .95rem;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  row-gap: .85rem;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: var(--shadow-list);
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .12s var(--ease-out);
+}
+.sample-card:active { transform: scale(.985); }
+.sample-photo { grid-column: 1 / -1; position: relative; display: block; aspect-ratio: 16 / 8; background: var(--light); }
+.sample-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sample-magnets { position: absolute; left: .7rem; right: .7rem; bottom: .7rem; display: flex; flex-wrap: wrap; gap: .35rem; }
+.sample-magnets .magnet { min-height: 30px; padding: 0 .7rem; font-size: .82rem; animation: none; }
+.sample-magnets .magnet:nth-child(odd) { rotate: -1.4deg; }
+.sample-magnets .magnet:nth-child(even) { rotate: 1deg; }
+.sample-text { display: grid; gap: .25rem; min-width: 0; padding-left: 1rem; }
+.sample-title { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -.02em; line-height: 1.1; }
+.sample-ideas { color: var(--ink-2); font-size: .9rem; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.sample-card .idea-caret { margin: 0 .9rem 0 .5rem; }
+
+.strip-row {
+  list-style: none;
+  display: flex;
+  gap: .75rem;
+  margin: 0 calc(-1 * max(1rem, env(safe-area-inset-right))) 0 calc(-1 * max(1rem, env(safe-area-inset-left)));
+  padding: .15rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left));
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.strip-row::-webkit-scrollbar { display: none; }
+.strip-row li { flex: none; scroll-snap-align: start; }
+.strip-tile {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 9.75rem;
+  display: grid;
+  gap: .3rem;
+  background: none;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.strip-tile img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 16px; background: var(--light); box-shadow: var(--shadow-magnet); margin-bottom: .2rem; transition: transform .12s var(--ease-out); }
+.strip-tile:active img { transform: scale(var(--press)); }
+.strip-title { font-family: var(--display); font-weight: 600; font-size: 1rem; letter-spacing: -.01em; line-height: 1.18; }
+.strip-meta { font-size: .8rem; font-weight: 500; color: var(--ink-3); }
+
+/* ---------- recipe: what to buy comes first ---------- */
+.sheet-buy {
+  padding: .15rem .75rem .75rem 1rem;
+  border-radius: var(--r-list);
+  background: var(--tag-pale);
+  box-shadow: inset 0 0 0 1px var(--tag-line);
+}
+.sheet-buy .sheet-ings { padding: 0; background: none; box-shadow: none; }
+.sheet-buy .sheet-ings li { border-top-color: var(--tag-line); font-weight: 600; }
+.sheet-buy-all { width: 100%; min-height: 48px; margin-top: .4rem; }
+.sheet-ings li { min-height: 48px; padding: .2rem 0; }
+.sheet-ing-add { width: 44px; height: 44px; background: var(--white); box-shadow: var(--shadow-magnet); }
+.sheet-ings:not(.is-have) { padding-right: .5rem; }
+.sheet-buy .sheet-ings { padding-right: 0; }
+.sheet-ings.is-have li { color: var(--ink-2); }
+.sheet-tick { flex: none; color: var(--blue); }
+.sheet-cupboard { margin: .75rem .25rem 0; font-size: .88rem; line-height: 1.45; color: var(--ink-2); }
+.sheet-cupboard b { font-weight: 600; color: var(--ink); }
+
+/* ---------- cooking ---------- */
+.cook-page { min-height: calc(100dvh - 48px - 5.5rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+.cook-step {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 7.8vw, 2.35rem);
+  line-height: 1.16;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+.cook-needs { list-style: none; margin: 1.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .45rem; }
+.cook-needs .magnet { min-height: 40px; padding: 0 .95rem; font-size: 1rem; animation: fade .2s ease both; }
+.cook-timer {
+  margin-top: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem .55rem .55rem 1.1rem;
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: var(--shadow-list);
+  transition: background-color .2s ease;
+}
+.cook-timer.is-rung { background: var(--tag); }
+.cook-timer-time { font-family: var(--display); font-weight: 700; font-size: 1.9rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cook-chip {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  min-height: 44px;
+  padding: 0 .8rem;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: var(--shadow-magnet);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  cursor: pointer;
+}
+.cook-chip.is-rung { background: var(--tag); color: var(--tag-ink); }
+.cook-awake { margin: auto 0 0; padding: 1.75rem .1rem .5rem; display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--ink-3); }
+
+/* ---------- the list tab fits the phone ---------- */
+.list-toolbar .magnet-add { flex: 1 1 0; min-width: 0; }
+.list-country { min-width: 0; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .door.is-folded li, .sample-magnets .magnet { rotate: none; }
+  .cook-needs .magnet { animation: none; }
 }

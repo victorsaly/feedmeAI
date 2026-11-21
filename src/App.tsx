@@ -14,7 +14,8 @@ import { CookScreen } from '@/components/CookScreen'
 import { MealPicker } from '@/components/MealPicker'
 import { RecipesTab } from '@/components/RecipesTab'
 import { HaulHistory } from '@/components/HaulHistory'
-import { HowItWorks } from '@/components/HowItWorks'
+import { RecipeStrip } from '@/components/RecipeStrip'
+import { useBack } from '@/hooks/use-back'
 import { SampleCard } from '@/components/SampleCard'
 import { SAMPLE, isSample } from '@/lib/sample'
 import { TabBar, type Tab } from '@/components/TabBar'
@@ -204,6 +205,14 @@ function App() {
 
   const leaveCook = () => { setStage(items.length ? 'haul' : 'start'); setTab(cameFrom) }
 
+  // Back closes whatever is on top — cooking, then the recipe, then the
+  // photo's results — instead of leaving the app. Bottom layer first.
+  useBack([
+    { open: tab === 'fridge' && (stage === 'haul' || (stage === 'cook' && items.length > 0)), close: startOver },
+    { open: Boolean(openIdea), close: () => setOpenIdea(null) },
+    { open: stage === 'cook' && Boolean(cooking), close: () => { leaveCook(); setOpenIdea(lastIdea) } },
+  ])
+
   /* ----- cook: full screen, no bar ----- */
 
   if (stage === 'cook' && cooking) {
@@ -264,21 +273,15 @@ function App() {
 
             {!analyzing && hauls.length === 0 && <SampleCard onOpen={() => reopen(SAMPLE)} />}
             {!analyzing && <HaulHistory hauls={hauls} onOpen={reopen} onRemove={(id) => setHauls(removeHaul(id))} />}
-            {!analyzing && <HowItWorks />}
+            {!analyzing && <RecipeStrip meal={meal} onOpen={setOpenIdea} />}
           </div>
         )}
 
         {tab === 'fridge' && stage === 'haul' && (
           <>
-            <HaulList photo={photo} items={items} onChange={editItems} onRetake={startOver} />
-            {isSample(haul?.id) && (
-              <p className="demo-note">
-                A sample: one real photo and what the app made of it, recorded. Nothing here calls the AI
-                until you change the list. Take your own photo to try it on your fridge.
-              </p>
-            )}
-            <MealPicker value={meal} onChange={changeMeal} />
-            <IdeaList
+            <HaulList photo={photo} items={items} onChange={editItems} />
+            {items.length > 0 && <MealPicker value={meal} onChange={changeMeal} />}
+            {items.length > 0 && <IdeaList
               ideas={ideas}
               state={ideasState}
               source={ideasSource}
@@ -286,7 +289,20 @@ function App() {
               heading={HEADING[meal]}
               onOpen={setOpenIdea}
               onRefresh={() => draft(items, meal)}
-            />
+              photo={photo}
+            />}
+            {isSample(haul?.id) && (
+              <p className="demo-note">
+                A sample: one real photo and what the app made of it, recorded. Nothing here calls the AI
+                until you change the list. Take your own photo to try it on your fridge.
+              </p>
+            )}
+            {ideasState === 'stale' && (
+              <div className="update-bar" role="status">
+                <span>The list changed.</span>
+                <button type="button" className="btn btn-primary" onClick={() => draft(items, meal)}>Update ideas</button>
+              </div>
+            )}
           </>
         )}
 
@@ -299,7 +315,6 @@ function App() {
         idea={openIdea}
         lateImage={openIdea ? ideas.find((i) => i.id === openIdea.id)?.image : undefined}
         items={tab === 'fridge' ? items : []}
-        photo={tab === 'fridge' && !isSample(haul?.id) ? photo : undefined}
         onClose={() => setOpenIdea(null)}
         onRecipe={onRecipe}
         onCook={(r) => { setLastIdea(openIdea); setCameFrom(tab); setOpenIdea(null); setCooking(r); setStage('cook') }}

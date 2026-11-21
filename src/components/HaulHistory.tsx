@@ -15,7 +15,7 @@ export function HaulHistory({ hauls, onOpen, onRemove }: HaulHistoryProps) {
   return (
     <section aria-labelledby="history-title" className="history">
       <header className="label">
-        <h2 id="history-title" style={{ font: 'inherit', margin: 0, letterSpacing: 'inherit' }}>Recent</h2>
+        <h2 id="history-title">Recent</h2>
         <span className="label-note">kept on this device</span>
       </header>
       <ul className="idea-list">

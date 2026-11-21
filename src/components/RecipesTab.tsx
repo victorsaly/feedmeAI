@@ -113,7 +113,7 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
       {browsing && recent.length > 0 && (
         <section aria-labelledby="recent-searches">
           <header className="label">
-            <h2 id="recent-searches" style={{ font: 'inherit', margin: 0, letterSpacing: 'inherit' }}>Recent searches</h2>
+            <h2 id="recent-searches">Recent searches</h2>
             <span className="label-note">kept on this device</span>
           </header>
           <ul className="idea-list">

@@ -4,7 +4,7 @@ interface LogoProps {
 }
 
 /* A fridge: freezer over fridge, two handles, a little light on the top.
-   Reads at 16px and at 64px. Cobalt, one weight. */
+   Reads at 16px and at 64px. Denim, one weight. */
 export function Logo({ className = '', size = 28 }: LogoProps) {
   return (
     <svg
@@ -21,7 +21,7 @@ export function Logo({ className = '', size = 28 }: LogoProps) {
           <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect x="5" y="1.5" width="22" height="29" rx="6" fill="#1f57ff" />
+      <rect x="5" y="1.5" width="22" height="29" rx="6" fill="#3667c9" />
       <rect x="5" y="1.5" width="22" height="29" rx="6" fill="url(#fm-sheen)" />
       <path d="M5 12.5h22" stroke="#fff" strokeWidth="1.75" />
       <rect x="20.5" y="5" width="2.5" height="4.5" rx="1.25" fill="#fff" />

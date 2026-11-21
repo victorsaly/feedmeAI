@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Heart, Clock, ChefHat, Play, Fire, Plus, Check, ArrowsLeftRight } from '@phosphor-icons/react'
+import { Heart, Clock, ChefHat, Play, Fire, Plus, Check, ListPlus } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -10,11 +10,11 @@ import { addTodo } from '@/lib/todos'
 import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Recipe } from '@/lib/kitchen'
 import { findVideo } from '@/lib/spoonacular'
 import { isSample } from '@/lib/sample'
+import { sortIngredients } from '@/lib/pantry'
 
 interface IdeaSheetProps {
   idea: Idea | null
   items: Ingredient[]
-  photo?: string
   /** a dish photo found after the idea was opened, if one turned up */
   lateImage?: string
   onClose: () => void
@@ -28,13 +28,12 @@ interface IdeaSheetProps {
  * a dialog on a desktop. The full recipe is fetched when the sheet opens
  * and cached per idea, so reopening is instant.
  */
-export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, onCook }: IdeaSheetProps) {
+export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }: IdeaSheetProps) {
   const isMobile = useIsMobile()
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [failed, setFailed] = useState(false)
   const [added, setAdded] = useState<Set<string>>(new Set())
   const [playing, setPlaying] = useState(false)
-  const [showMine, setShowMine] = useState(false)
   const token = useSessionToken()
   const report = useRef(onRecipe)
   report.current = onRecipe
@@ -53,7 +52,6 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
     setFailed(false)
     setAdded(new Set())
     setPlaying(false)
-    setShowMine(false)
     const cached = cache.get(idea.id)
     if (cached) {
       setRecipe(cached)
@@ -114,6 +112,16 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
     }
   }
 
+  /** Everything missing, in one tap — one request each, so one that fails
+   *  comes back off on its own and the rest stay. */
+  async function addAll(lines: string[]) {
+    if (!token) {
+      toast('Sign in to keep a shopping list', { action: { label: 'Sign in', onClick: signIn } })
+      return
+    }
+    await Promise.all(lines.filter((l) => !added.has(l)).map(addToList))
+  }
+
   async function toggleSave() {
     if (!recipe) return
     if (!token) {
@@ -132,13 +140,32 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
     }
   }
 
-  const have = new Set(items.map((i) => i.name.toLowerCase()))
-  // The dish leads: a real or built-in photo, else the AI's suggested look.
-  // When there's also the photo you took, one tap swaps between the two.
+  // Only ever the dish: a real or built-in photo, else the AI's suggested
+  // look. A photo of raw ingredients is not a picture of dinner.
   const dish = recipe?.image ?? idea?.image ?? lateImage ?? recipe?.previewImage
-  const shotSrc = dish && !showMine ? dish : photo ?? dish
-  const shotCaption = shotSrc === photo ? 'Your photo' : shotSrc === recipe?.previewImage ? 'Suggested look, AI-generated' : 'The finished dish'
-  const canSwap = Boolean(dish && photo)
+  const shotCaption = dish === recipe?.previewImage ? 'Suggested look, AI-generated' : 'The finished dish'
+  // With a fridge to compare against, the lines sort into what to buy, what
+  // you have and what any cupboard holds. Opened from Recipes there is no
+  // fridge, so it is one plain list.
+  const sorted = recipe && items.length > 0 ? sortIngredients(recipe.ingredients, items.map((i) => i.name), idea?.missing) : null
+  const toBuy = sorted?.buy ?? []
+  const allAdded = toBuy.length > 0 && toBuy.every((l) => added.has(l))
+
+  const addButton = (line: string) => {
+    const isAdded = added.has(line)
+    return (
+      <button
+        type="button"
+        className="sheet-ing-add"
+        onClick={() => addToList(line)}
+        disabled={isAdded}
+        aria-label={isAdded ? `${line} added to list` : `Add ${line} to list`}
+      >
+        {isAdded ? <Check size={16} weight="bold" /> : <Plus size={16} weight="bold" />}
+      </button>
+    )
+  }
+
   const video = recipe?.video
   const videoBlock = video && (
     <figure className="sheet-video">
@@ -167,15 +194,10 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
   )
   const body = idea && (
     <div className="sheet-body">
-      {shotSrc && (
+      {dish && (
         <figure className="sheet-shot">
-          <img src={shotSrc} alt="" />
+          <img src={dish} alt="" />
           <figcaption>{shotCaption}</figcaption>
-          {canSwap && (
-            <button type="button" className="sheet-shot-swap" onClick={() => setShowMine((v) => !v)}>
-              <ArrowsLeftRight size={14} weight="bold" /> {showMine ? 'The dish' : 'Your photo'}
-            </button>
-          )}
         </figure>
       )}
       <div className="sheet-meta">
@@ -211,31 +233,58 @@ export function IdeaSheet({ idea, items, photo, lateImage, onClose, onRecipe, on
             </>
           )}
 
-          <h3>Ingredients</h3>
-          <ul className="sheet-ings">
-            {recipe.ingredients.map((line, n) => {
-              const got = [...have].some((h) => line.toLowerCase().includes(h))
-              const isAdded = added.has(line)
-              return (
-                <li key={n} className={got ? 'got' : ''}>
-                  <span className="sheet-dot" aria-hidden="true" />
-                  <span className="sheet-ing-text">{line}</span>
-                  {got && <span className="sr-only"> (you have this)</span>}
-                  <button
-                    type="button"
-                    className="sheet-ing-add"
-                    onClick={() => addToList(line)}
-                    disabled={isAdded}
-                    aria-label={isAdded ? `${line} added to list` : `Add ${line} to list`}
-                  >
-                    {isAdded ? <Check size={15} weight="bold" /> : <Plus size={15} weight="bold" />}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-          {items.length > 0 && <p className="sheet-key"><span className="sheet-dot got" /> you have it</p>}
-
+          {sorted ? (
+            <>
+              {toBuy.length > 0 && (
+                <>
+                  <h3>To buy · {toBuy.length}</h3>
+                  <div className="sheet-buy">
+                    <ul className="sheet-ings">
+                      {toBuy.map((line, n) => (
+                        <li key={n}>
+                          <span className="sheet-ing-text">{line}</span>
+                          {addButton(line)}
+                        </li>
+                      ))}
+                    </ul>
+                    <button type="button" className="btn btn-primary sheet-buy-all" onClick={() => addAll(toBuy)} disabled={allAdded}>
+                      {allAdded
+                        ? <><Check size={18} weight="bold" /> On your list</>
+                        : <><ListPlus size={18} weight="bold" /> {toBuy.length === 1 ? 'Add it to the list' : toBuy.length === 2 ? 'Add both to the list' : `Add all ${toBuy.length} to the list`}</>}
+                    </button>
+                  </div>
+                </>
+              )}
+              {sorted.have.length > 0 && (
+                <>
+                  <h3>You have · {sorted.have.length}</h3>
+                  <ul className="sheet-ings is-have">
+                    {sorted.have.map((line, n) => (
+                      <li key={n}>
+                        <Check size={16} weight="bold" className="sheet-tick" aria-hidden="true" />
+                        <span className="sheet-ing-text">{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {sorted.cupboard.length > 0 && (
+                <p className="sheet-cupboard"><b>From the cupboard:</b> {sorted.cupboard.join('; ')}</p>
+              )}
+            </>
+          ) : (
+            <>
+              <h3>Ingredients</h3>
+              <ul className="sheet-ings">
+                {recipe.ingredients.map((line, n) => (
+                  <li key={n}>
+                    <span className="sheet-ing-text">{line}</span>
+                    {addButton(line)}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <h3>Method</h3>
           <ol className="sheet-steps">
             {recipe.instructions.map((step, n) => <li key={n}>{step}</li>)}
