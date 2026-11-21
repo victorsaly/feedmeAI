@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T21:13:51Z",
+  "title": "Design System: FeedMe AI",
+  "extensions": {
+    "colorMeta": {
+      "blue": {
+        "role": "primary",
+        "displayName": "Denim",
+        "canonical": "oklch(53.4% 0.162 262)",
+        "tonalRamp": [
+          "oklch(15% 0.034 262)",
+          "oklch(27% 0.099 262)",
+          "oklch(39% 0.141 262)",
+          "oklch(51% 0.160 262)",
+          "oklch(63% 0.157 262)",
+          "oklch(75% 0.130 262)",
+          "oklch(86% 0.085 262)",
+          "oklch(95% 0.034 262)"
+        ]
+      },
+      "blue-deep": {
+        "role": "primary",
+        "displayName": "Denim Deep",
+        "canonical": "oklch(46.9% 0.146 263)",
+        "tonalRamp": [
+          "oklch(15% 0.031 263)",
+          "oklch(27% 0.089 263)",
+          "oklch(39% 0.128 263)",
+          "oklch(51% 0.145 263)",
+          "oklch(63% 0.141 263)",
+          "oklch(75% 0.117 263)",
+          "oklch(86% 0.077 263)",
+          "oklch(95% 0.031 263)"
+        ]
+      },
+      "blue-tint": {
+        "role": "primary",
+        "displayName": "Denim Tint",
+        "canonical": "oklch(94.8% 0.017 264)",
+        "tonalRamp": [
+          "oklch(15% 0.004 264)",
+          "oklch(27% 0.011 264)",
+          "oklch(39% 0.015 264)",
+          "oklch(51% 0.017 264)",
+          "oklch(63% 0.017 264)",
+          "oklch(75% 0.014 264)",
+          "oklch(86% 0.009 264)",
+          "oklch(95% 0.004 264)"
+        ]
+      },
+      "blue-ink": {
+        "role": "primary",
+        "displayName": "On Denim",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "oklch(15% 0.000 90)",
+          "oklch(27% 0.000 90)",
+          "oklch(39% 0.000 90)",
+          "oklch(51% 0.000 90)",
+          "oklch(63% 0.000 90)",
+          "oklch(75% 0.000 90)",
+          "oklch(86% 0.000 90)",
+          "oklch(95% 0.000 90)"
+        ]
+      },
+      "tag": {
+        "role": "secondary",
+        "displayName": "Shelf Tag",
+        "canonical": "oklch(93.2% 0.090 91)",
+        "tonalRamp": [
+          "oklch(15% 0.019 91)",
+          "oklch(27% 0.055 91)",
+          "oklch(39% 0.078 91)",
+          "oklch(51% 0.089 91)",
+          "oklch(63% 0.087 91)",
+          "oklch(75% 0.072 91)",
+          "oklch(86% 0.047 91)",
+          "oklch(95% 0.019 91)"
+        ]
+      },
+      "tag-pale": {
+        "role": "secondary",
+        "displayName": "Shelf Tag Pale",
+        "canonical": "oklch(97.3% 0.035 91)",
+        "tonalRamp": [
+          "oklch(15% 0.007 91)",
+          "oklch(27% 0.022 91)",
+          "oklch(39% 0.031 91)",
+          "oklch(51% 0.035 91)",
+          "oklch(63% 0.034 91)",
+          "oklch(75% 0.028 91)",
+          "oklch(86% 0.019 91)",
+          "oklch(95% 0.007 91)"
+        ]
+      },
+      "tag-line": {
+        "role": "secondary",
+        "displayName": "Shelf Tag Line",
+        "canonical": "oklch(89.6% 0.085 93)",
+        "tonalRamp": [
+          "oklch(15% 0.018 93)",
+          "oklch(27% 0.052 93)",
+          "oklch(39% 0.074 93)",
+          "oklch(51% 0.084 93)",
+          "oklch(63% 0.082 93)",
+          "oklch(75% 0.068 93)",
+          "oklch(86% 0.044 93)",
+          "oklch(95% 0.018 93)"
+        ]
+      },
+      "tag-ink": {
+        "role": "secondary",
+        "displayName": "Shelf Tag Ink",
+        "canonical": "oklch(38.2% 0.081 74)",
+        "tonalRamp": [
+          "oklch(15% 0.017 74)",
+          "oklch(27% 0.050 74)",
+          "oklch(39% 0.071 74)",
+          "oklch(51% 0.080 74)",
+          "oklch(63% 0.078 74)",
+          "oklch(75% 0.065 74)",
+          "oklch(86% 0.043 74)",
+          "oklch(95% 0.017 74)"
+        ]
+      },
+      "amber": {
+        "role": "secondary",
+        "displayName": "Amber",
+        "canonical": "oklch(48.3% 0.111 62)",
+        "tonalRamp": [
+          "oklch(15% 0.023 62)",
+          "oklch(27% 0.068 62)",
+          "oklch(39% 0.097 62)",
+          "oklch(51% 0.111 62)",
+          "oklch(63% 0.108 62)",
+          "oklch(75% 0.089 62)",
+          "oklch(86% 0.059 62)",
+          "oklch(95% 0.023 62)"
+        ]
+      },
+      "light": {
+        "role": "tertiary",
+        "displayName": "Interior Light",
+        "canonical": "oklch(94.1% 0.032 239)",
+        "tonalRamp": [
+          "oklch(15% 0.007 239)",
+          "oklch(27% 0.020 239)",
+          "oklch(39% 0.028 239)",
+          "oklch(51% 0.032 239)",
+          "oklch(63% 0.031 239)",
+          "oklch(75% 0.026 239)",
+          "oklch(86% 0.017 239)",
+          "oklch(95% 0.007 239)"
+        ]
+      },
+      "light-2": {
+        "role": "tertiary",
+        "displayName": "Interior Light Edge",
+        "canonical": "oklch(85.9% 0.071 239)",
+        "tonalRamp": [
+          "oklch(15% 0.015 239)",
+          "oklch(27% 0.044 239)",
+          "oklch(39% 0.062 239)",
+          "oklch(51% 0.071 239)",
+          "oklch(63% 0.069 239)",
+          "oklch(75% 0.057 239)",
+          "oklch(86% 0.037 239)",
+          "oklch(95% 0.015 239)"
+        ]
+      },
+      "cold": {
+        "role": "neutral",
+        "displayName": "Enamel",
+        "canonical": "oklch(97.1% 0.006 240)",
+        "tonalRamp": [
+          "oklch(15% 0.001 240)",
+          "oklch(27% 0.004 240)",
+          "oklch(39% 0.005 240)",
+          "oklch(51% 0.006 240)",
+          "oklch(63% 0.006 240)",
+          "oklch(75% 0.005 240)",
+          "oklch(86% 0.003 240)",
+          "oklch(95% 0.001 240)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "Panel White",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "oklch(15% 0.000 90)",
+          "oklch(27% 0.000 90)",
+          "oklch(39% 0.000 90)",
+          "oklch(51% 0.000 90)",
+          "oklch(63% 0.000 90)",
+          "oklch(75% 0.000 90)",
+          "oklch(86% 0.000 90)",
+          "oklch(95% 0.000 90)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(19.8% 0.023 257)",
+        "tonalRamp": [
+          "oklch(15% 0.005 257)",
+          "oklch(27% 0.014 257)",
+          "oklch(39% 0.020 257)",
+          "oklch(51% 0.023 257)",
+          "oklch(63% 0.022 257)",
+          "oklch(75% 0.018 257)",
+          "oklch(86% 0.012 257)",
+          "oklch(95% 0.005 257)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "oklch(44.9% 0.028 256)",
+        "tonalRamp": [
+          "oklch(15% 0.006 256)",
+          "oklch(27% 0.017 256)",
+          "oklch(39% 0.025 256)",
+          "oklch(51% 0.028 256)",
+          "oklch(63% 0.027 256)",
+          "oklch(75% 0.023 256)",
+          "oklch(86% 0.015 256)",
+          "oklch(95% 0.006 256)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "oklch(52.0% 0.026 255)",
+        "tonalRamp": [
+          "oklch(15% 0.005 255)",
+          "oklch(27% 0.016 255)",
+          "oklch(39% 0.023 255)",
+          "oklch(51% 0.026 255)",
+          "oklch(63% 0.025 255)",
+          "oklch(75% 0.021 255)",
+          "oklch(86% 0.014 255)",
+          "oklch(95% 0.005 255)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(93.1% 0.010 248)",
+        "tonalRamp": [
+          "oklch(15% 0.002 248)",
+          "oklch(27% 0.006 248)",
+          "oklch(39% 0.009 248)",
+          "oklch(51% 0.010 248)",
+          "oklch(63% 0.010 248)",
+          "oklch(75% 0.008 248)",
+          "oklch(86% 0.005 248)",
+          "oklch(95% 0.002 248)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The first-screen heading; one step smaller for tab headings and the count over the photo."
+      },
+      "step": {
+        "displayName": "Step",
+        "purpose": "The one instruction on the cooking screen; scales up for shorter steps."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The recipe name at the top of the sheet."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Money and time in the display voice: shop totals, line prices, the timer."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings in sentence case: Tonight, To buy, Method."
+      },
+      "dish": {
+        "displayName": "Dish",
+        "purpose": "A dish name in a row, under a tile or on the sample card."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, blurbs and method steps in the phone's own face."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, magnets, segments and tabs."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Minutes, counts and other quiet facts under a dish name."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-magnet",
+        "value": "0 1px 1.5px rgba(15, 22, 32, .10), 0 4px 10px -4px rgba(15, 22, 32, .16)",
+        "purpose": "Anything you could pick up: magnets, chips, quiet buttons, the segmented shell, picture tiles."
+      },
+      {
+        "name": "shadow-list",
+        "value": "0 1px 2px rgba(15, 22, 32, .04), 0 10px 28px -18px rgba(15, 22, 32, .18)",
+        "purpose": "Panels: grouped lists, the photo card and band, the search field, the timer."
+      },
+      {
+        "name": "shadow-sheet",
+        "value": "0 -10px 40px -10px rgba(15, 22, 32, .28)",
+        "purpose": "The recipe drawer only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.23, 1, .32, 1)",
+        "purpose": "Press, snap-on and the interior light coming on."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(.77, 0, .175, 1)",
+        "purpose": "The two loops while a photo is read: the light breathing and the sweep."
+      },
+      {
+        "name": "press",
+        "value": "scale(.97) over 120ms",
+        "purpose": "Every pressable control; 1 (no shrink) under reduced motion."
+      },
+      {
+        "name": "state",
+        "value": "150ms ease",
+        "purpose": "Colour, ground and ring changes on selection and hover."
+      },
+      {
+        "name": "snap",
+        "value": "320ms ease-out, from opacity 0 scale(.94) translateY(6px); 360ms for rows; staggered 40 to 45ms",
+        "purpose": "Magnets and dinner rows arriving, once. A 200ms fade under reduced motion."
+      },
+      {
+        "name": "light-on",
+        "value": "400ms ease-out, from opacity 0 scale(.85)",
+        "purpose": "The interior light when the photo card appears."
+      },
+      {
+        "name": "breathe",
+        "value": "1.6s ease-in-out infinite, opacity 1 to .45",
+        "purpose": "The interior light while a photo is being read; 3.2s under reduced motion."
+      },
+      {
+        "name": "sweep",
+        "value": "1.3s ease-in-out infinite",
+        "purpose": "A line of light across the photo thumbnail while it is read; off under reduced motion."
+      },
+      {
+        "name": "shimmer",
+        "value": "1.4s linear infinite",
+        "purpose": "Skeleton rows; 3s under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "768px"
+      },
+      {
+        "name": "wide",
+        "value": "960px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action on a view. Flat Denim, no shadow; full width and 54px for the main action.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M5 3.2v11.6a.6.6 0 0 0 .9.5l9.4-5.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z\"/></svg> Cook step by step</button>",
+      "css": ".ds-btn-primary { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; font-weight: 600; font-size: .95rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: .6rem 1rem; border: 0; border-radius: 14px; cursor: pointer; transition: transform .12s cubic-bezier(.23,1,.32,1), background-color .15s ease; background: var(--blue, #3667c9); color: var(--blue-ink, #fff); } .ds-btn-primary:hover { background: var(--blue-deep, #2b55ab); } .ds-btn-primary:active { transform: scale(.97); } .ds-btn-primary:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "The second choice beside a primary: white, lifted like a magnet.",
+      "html": "<button class=\"ds-btn-quiet\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 15S2.5 11.3 2.5 6.8A3.3 3.3 0 0 1 9 5.5a3.3 3.3 0 0 1 6.5 1.3C15.5 11.3 9 15 9 15z\"/></svg> Save</button>",
+      "css": ".ds-btn-quiet { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; font-weight: 600; font-size: .95rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: .6rem 1rem; border: 0; border-radius: 14px; cursor: pointer; transition: transform .12s cubic-bezier(.23,1,.32,1), background-color .15s ease; background: var(--white, #fff); color: var(--ink, #0f1620); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); } .ds-btn-quiet:hover { background: #f8fafc; } .ds-btn-quiet:active { transform: scale(.97); } .ds-btn-quiet:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; }"
+    },
+    {
+      "name": "Magnets on the door",
+      "kind": "chip",
+      "refersTo": "magnet",
+      "description": "What was read in the photo, stuck on by hand: white pills, a small lift, each a touch off true, ending in the one that opens the rest.",
+      "html": "<ul class=\"ds-door\"><li class=\"ds-magnet\">Red cabbage</li><li class=\"ds-magnet\">Carrots</li><li class=\"ds-magnet\">Tomato</li><li><button class=\"ds-magnet ds-magnet-edit\">5 more, edit</button></li></ul>",
+      "css": ".ds-door { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-magnet { display: inline-flex; align-items: center; min-height: 36px; padding: 0 .85rem; border: 0; border-radius: 999px; background: var(--white, #fff); color: var(--ink, #0f1620); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); font: inherit; font-weight: 600; font-size: .9rem; } .ds-door li:nth-child(3n + 1) { rotate: -1.4deg; } .ds-door li:nth-child(3n + 2) { rotate: 1deg; } .ds-door li:nth-child(3n) { rotate: -.4deg; } .ds-magnet-edit { min-height: 44px; color: var(--blue, #3667c9); cursor: pointer; transition: transform .12s cubic-bezier(.23,1,.32,1); } .ds-magnet-edit:active { transform: scale(.97); } .ds-magnet-edit:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-door li { rotate: none; } }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented",
+      "description": "One white shell, equal segments, the chosen one a filled Denim block. Used for the meal.",
+      "html": "<div class=\"ds-seg\" role=\"group\"><button class=\"ds-seg-item\">Breakfast</button><button class=\"ds-seg-item\">Lunch</button><button class=\"ds-seg-item ds-is-active\" aria-pressed=\"true\">Dinner</button><button class=\"ds-seg-item\">Dessert</button></div>",
+      "css": ".ds-seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 3px; border-radius: 15px; background: var(--white, #fff); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-seg-item { min-height: 44px; padding: 0 .25rem; border: 0; border-radius: 12px; background: transparent; color: var(--ink-2, #4b5665); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; transition: background-color .15s ease, color .15s ease; } .ds-seg-item:hover { color: var(--ink, #0f1620); } .ds-seg-item.ds-is-active { background: var(--blue, #3667c9); color: var(--blue-ink, #fff); } .ds-seg-item:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; }"
+    },
+    {
+      "name": "Dinner Row",
+      "kind": "card",
+      "refersTo": "list-panel",
+      "description": "A row in a grouped white panel: a food thumb, the dish in the display face, a blurb, a meta line and the shelf tag naming what it needs.",
+      "html": "<ul class=\"ds-list\"><li><button class=\"ds-row\"><span class=\"ds-thumb\"></span><span class=\"ds-row-main\"><span class=\"ds-dish\">Vegetable Stir-Fry</span><span class=\"ds-blurb\">A quick stir-fry with broccoli, pepper and spinach.</span><span class=\"ds-meta\"><span>25 min</span><span>uses 3 of yours</span><span class=\"ds-tag\">needs soy sauce, ginger</span></span></span><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 3.5 12.5 9 7 14.5\"/></svg></button></li><li><button class=\"ds-row\"><span class=\"ds-thumb\"></span><span class=\"ds-row-main\"><span class=\"ds-dish\">Spinach and Tomato Salad</span><span class=\"ds-blurb\">Fresh spinach with tomato and cucumber.</span><span class=\"ds-meta\"><span>10 min</span><span class=\"ds-ok\">nothing extra</span></span></span><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 3.5 12.5 9 7 14.5\"/></svg></button></li></ul>",
+      "css": ".ds-list { list-style: none; margin: 0; padding: 0; border-radius: 16px; background: var(--white, #fff); box-shadow: var(--shadow-list, 0 1px 2px rgba(15,22,32,.04), 0 10px 28px -18px rgba(15,22,32,.18)); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-list li + li .ds-row { border-top: 1px solid var(--hairline, #e3e9ef); } .ds-row { width: 100%; border: 0; padding: .7rem .6rem .7rem .7rem; background: var(--white, #fff); color: var(--ink, #0f1620); font: inherit; text-align: left; display: flex; align-items: center; gap: .75rem; cursor: pointer; transition: background-color .1s ease; } .ds-row:hover { background: #f8fafc; } .ds-row:active { background: #f3f6f9; } .ds-row:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: -2px; } .ds-row > svg { flex: none; color: var(--ink-3, #5f6a78); transition: transform .2s cubic-bezier(.23,1,.32,1); } .ds-row:hover > svg { transform: translateX(2px); } .ds-thumb { flex: none; width: 64px; height: 64px; border-radius: 14px; background: var(--light, #d9efff); } .ds-row-main { flex: 1; min-width: 0; display: grid; gap: .2rem; } .ds-dish { font-family: var(--display, 'Bricolage Grotesque', system-ui, sans-serif); font-weight: 600; font-size: 1.1rem; letter-spacing: -.012em; line-height: 1.18; } .ds-blurb { color: var(--ink-2, #4b5665); font-size: .9rem; line-height: 1.4; } .ds-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .7rem; margin-top: .15rem; font-size: .8rem; font-weight: 500; color: var(--ink-3, #5f6a78); font-variant-numeric: tabular-nums; } .ds-tag { padding: .12rem .5rem; border-radius: 6px; background: var(--tag, #ffe7a3); color: var(--tag-ink, #5c3b00); font-weight: 600; } .ds-ok { color: var(--blue, #3667c9); }"
+    },
+    {
+      "name": "To-buy Panel",
+      "kind": "card",
+      "refersTo": "buy-panel",
+      "description": "What a recipe is missing, before what you have: pale shelf-tag ground, one round add button per line, one button for all.",
+      "html": "<div class=\"ds-buy\"><ul><li><span>2 tablespoons soy sauce</span><button class=\"ds-buy-add\" aria-label=\"Add soy sauce to the list\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M9 3v12M3 9h12\"/></svg></button></li><li><span>1 teaspoon grated ginger</span><button class=\"ds-buy-add\" aria-label=\"Add ginger to the list\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M9 3v12M3 9h12\"/></svg></button></li></ul><button class=\"ds-buy-all\">Add both to the list</button></div>",
+      "css": ".ds-buy { padding: .15rem .75rem .75rem 1rem; border-radius: 16px; background: var(--tag-pale, #fff6dc); box-shadow: inset 0 0 0 1px var(--tag-line, #f0dc9c); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; color: var(--ink, #0f1620); } .ds-buy ul { list-style: none; margin: 0; padding: 0; } .ds-buy li { display: flex; align-items: center; gap: .65rem; min-height: 48px; padding: .2rem 0; font-weight: 600; line-height: 1.4; } .ds-buy li + li { border-top: 1px solid var(--tag-line, #f0dc9c); } .ds-buy li span { flex: 1; } .ds-buy-add { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--white, #fff); color: var(--blue, #3667c9); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); display: grid; place-items: center; cursor: pointer; transition: transform .12s cubic-bezier(.23,1,.32,1); } .ds-buy-add:active { transform: scale(.9); } .ds-buy-all { width: 100%; min-height: 48px; margin-top: .4rem; border: 0; border-radius: 14px; background: var(--white, #fff); color: var(--blue-deep, #2b55ab); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); font: inherit; font-weight: 600; font-size: .95rem; cursor: pointer; transition: transform .12s cubic-bezier(.23,1,.32,1); } .ds-buy-all:hover { background: #f8fafc; } .ds-buy-all:active { transform: scale(.97); } .ds-buy-add:focus-visible, .ds-buy-all:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "search",
+      "description": "White field on enamel with the list shadow; focus draws an inset Denim ring.",
+      "html": "<label class=\"ds-search\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"5\"/><path d=\"m12 12 3.5 3.5\"/></svg><input type=\"search\" placeholder=\"Search recipes\" aria-label=\"Search recipes\"></label>",
+      "css": ".ds-search { display: flex; align-items: center; gap: .6rem; min-height: 48px; padding: 0 .9rem; border-radius: 14px; background: var(--white, #fff); color: var(--ink-3, #5f6a78); box-shadow: var(--shadow-list, 0 1px 2px rgba(15,22,32,.04), 0 10px 28px -18px rgba(15,22,32,.18)); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-search:focus-within { box-shadow: 0 0 0 2px var(--blue, #3667c9) inset, var(--shadow-list, 0 1px 2px rgba(15,22,32,.04), 0 10px 28px -18px rgba(15,22,32,.18)); color: var(--blue, #3667c9); } .ds-search input { flex: 1; min-width: 0; border: 0; padding: .6rem 0; background: none; font: inherit; font-size: 1rem; color: var(--ink, #0f1620); outline: none; caret-color: var(--blue, #3667c9); appearance: none; -webkit-appearance: none; } .ds-search input::placeholder { color: var(--ink-3, #5f6a78); }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Three tabs on translucent enamel at the bottom of the phone; the active one is Denim with a filled icon, and the List tab carries a count.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Sections\"><button class=\"ds-tab ds-is-active\" aria-current=\"page\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><rect x=\"5\" y=\"1.5\" width=\"22\" height=\"29\" rx=\"6\" fill=\"currentColor\"/><path d=\"M5 12.5h22\" stroke=\"#fff\" stroke-width=\"1.75\"/><rect x=\"20.5\" y=\"5\" width=\"2.5\" height=\"4.5\" rx=\"1.25\" fill=\"#fff\"/><rect x=\"20.5\" y=\"16\" width=\"2.5\" height=\"7\" rx=\"1.25\" fill=\"#fff\"/></svg></span><span>Fridge</span></button><button class=\"ds-tab\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 6h8M12 12h8M12 18h8M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17\"/></svg><span class=\"ds-tab-badge\">2</span></span><span>List</span></button><button class=\"ds-tab\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 7.5A3 3 0 0 0 9 4.5H3v13.5h6.5a2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1 2.5-2.5H21V4.5h-6a3 3 0 0 0-3 3zM12 7.5v13\"/></svg></span><span>Recipes</span></button></nav>",
+      "css": ".ds-tabs { display: grid; grid-template-columns: repeat(3, 1fr); padding: .35rem .5rem; background: rgba(242, 246, 249, .82); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%); border-top: 1px solid rgba(15, 22, 32, .06); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-tab { border: 0; padding: .3rem 0 .2rem; min-height: 50px; background: transparent; color: var(--ink-3, #5f6a78); font: inherit; font-size: .68rem; font-weight: 600; letter-spacing: .01em; display: flex; flex-direction: column; align-items: center; gap: .15rem; border-radius: 12px; cursor: pointer; } .ds-tab:hover, .ds-tab:active { color: var(--ink, #0f1620); } .ds-tab.ds-is-active { color: var(--blue, #3667c9); } .ds-tab:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; } .ds-tab-icon { position: relative; display: grid; place-items: center; height: 26px; } .ds-tab-badge { position: absolute; top: -4px; right: -12px; min-width: 1.05rem; height: 1.05rem; padding: 0 .28rem; border-radius: 999px; background: var(--blue, #3667c9); color: var(--blue-ink, #fff); font-size: .66rem; font-weight: 700; font-variant-numeric: tabular-nums; display: grid; place-items: center; }"
+    },
+    {
+      "name": "Cheapest-shop Card",
+      "kind": "card",
+      "refersTo": "figure",
+      "description": "The answer on the List tab: the cheapest shop and its total in the display face on Denim Tint, with a small button out to the shop.",
+      "html": "<div class=\"ds-shop\"><span class=\"ds-shop-note\">Cheapest for both</span><b>Iceland</b><span class=\"ds-shop-total\">&pound;2.25</span><a class=\"ds-shop-open\" href=\"#\">Open</a></div>",
+      "css": ".ds-shop { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; column-gap: .75rem; padding: .8rem .8rem .8rem 1rem; border-radius: 16px; background: var(--blue-tint, #e8eefa); box-shadow: inset 0 0 0 1px #d2ddf3; color: var(--ink, #0f1620); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, 'Segoe UI', system-ui, sans-serif; } .ds-shop-note { grid-column: 1 / -1; font-size: .8rem; font-weight: 600; color: var(--ink-2, #4b5665); } .ds-shop b, .ds-shop-total { font-family: var(--display, 'Bricolage Grotesque', system-ui, sans-serif); font-weight: 700; font-size: 1.45rem; letter-spacing: -.02em; line-height: 1.15; } .ds-shop-total { font-variant-numeric: tabular-nums; } .ds-shop-open { display: inline-flex; align-items: center; min-height: 36px; padding: .4rem .75rem; border-radius: 14px; background: var(--white, #fff); color: var(--ink, #0f1620); box-shadow: var(--shadow-magnet, 0 1px 1.5px rgba(15,22,32,.10), 0 4px 10px -4px rgba(15,22,32,.16)); font-size: .85rem; font-weight: 600; text-decoration: none; transition: transform .12s cubic-bezier(.23,1,.32,1); } .ds-shop-open:hover { background: #f8fafc; } .ds-shop-open:active { transform: scale(.97); } .ds-shop-open:focus-visible { outline: 2px solid var(--blue, #3667c9); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Cold Store: the fridge is the interface",
+    "overview": "The app looks like the inside and the outside of a fridge. The ground is cold enamel, slightly blue. Panels are plain white. One pale glow, the interior light, sits behind the place where a photo goes in. The photo the person took is the door: it stays on screen, large, and what was read in it is stuck on as white pill magnets that sit a touch off true, as if placed by hand. Dinner is directly under it, and every dinner row carries a picture of food.\n\nTwo colours carry meaning and nothing else does. Denim is the one action and every selected state. The amber shelf tag marks what the person does not have yet: the ingredient a dinner needs, the things to buy in a recipe. Type has two voices: Bricolage Grotesque speaks for headings, dish names, prices and the cooking step; the phone's own face does everything that is read at length or tapped, so the app feels installed.\n\nIt is built for one hand at an open fridge and for a supermarket aisle. Targets are 44px or more, the primary action is full width where it matters, the bars are translucent and content scrolls under them. The phone is the default; wider screens widen the same page, they do not get a different one.",
+    "keyCharacteristics": [
+      "Cold enamel ground, white panels, no borders around panels.",
+      "One blue for action and selection; one amber for what is missing.",
+      "Food on screen in every view: the photo as the door, a thumb on every row, picture tiles for recipes.",
+      "Pill magnets with a small lift and a slight tilt.",
+      "Display type for what the screen is saying; system type for what you read and tap.",
+      "Light theme only."
+    ],
+    "rules": [
+      {
+        "name": "The One Blue Rule",
+        "body": "Denim means \"this is the action\" or \"this is selected\". It is never decoration, never a heading colour, never a second accent beside itself.",
+        "section": "colors"
+      },
+      {
+        "name": "The Shelf Tag Rule",
+        "body": "Amber means something the person does not have or has to deal with: an ingredient to buy, a reading the app is unsure of, a timer that has rung. A thing the person already has is never amber.",
+        "section": "colors"
+      },
+      {
+        "name": "The Deep On Tint Rule",
+        "body": "Denim text on anything but white or enamel uses Denim Deep. Denim on Denim Tint is 4.6 to 1 and Denim Deep is 6 to 1; small text gets the deeper one.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Bricolage is for what the screen says: headings, dish names, money, time, the step. The system face is for what is read at length or tapped: body, buttons, magnets, fields, tabs, meta. A button label is never Bricolage and a section heading is never the system face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Headings Speak Rule",
+        "body": "Section headings are display type in sentence case and full Ink. The build replaced small grey uppercase tracked headers with these; do not bring them back.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sixteen Pixel Rule",
+        "body": "Any field the person types into is at least 16px, so iOS does not zoom the page.",
+        "section": "typography"
+      },
+      {
+        "name": "The Three Lifts Rule",
+        "body": "Magnet, list, sheet. A new surface takes one of the three by what it is, not by how important it feels. The primary button has no shadow at all; its colour is its weight.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Press Rule",
+        "body": "Things that can be pressed shrink to 0.97 for 120ms on an ease-out curve (`cubic-bezier(.23, 1, .32, 1)`); rows change ground instead of shrinking. Under reduced motion nothing shrinks.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep Denim for the one action and for selected states, and use Denim Deep when Denim text sits on Denim Tint or amber.",
+      "Do put food in the view: the person's photo as the door, a 64px thumb on every dinner row, 4:3 pictures for recipes. Give every image the Interior Light ground while it loads.",
+      "Do name what is missing with the shelf tag, and put what to buy before what the person already has.",
+      "Do set headings, dish names, prices, times and the cooking step in Bricolage Grotesque at 600 to 700 with tight tracking; set everything read or tapped in the system face.",
+      "Do group related rows in one white 16px panel with hairline dividers and the list shadow.",
+      "Do keep every target at 44px or more and every typed field at 16px or more.",
+      "Do keep motion short and single: 120ms press, 150 to 200ms state changes, magnets and rows snapping on once in about 320 to 360ms. Loops are for reading a photo and for skeletons only, and all of it has a reduced-motion form.",
+      "Do honour the safe areas on every fixed or sticky bar."
+    ],
+    "donts": [
+      "Don't use amber for anything the person already has, or as decoration.",
+      "Don't add a second accent colour, a Denim heading, or a gradient fill. The only gradients are the interior light, the fade under the count on the photo, and the skeleton shimmer.",
+      "Don't put a border around a panel, or draw selection by recolouring a border.",
+      "Don't bring back small grey uppercase tracked section headers.",
+      "Don't set buttons, magnets, tabs or body text in Bricolage.",
+      "Don't tilt magnets that are being edited, and don't tilt anything that is not a magnet.",
+      "Don't invent a fourth shadow, or put a shadow on the primary button.",
+      "Don't show a list of dinners as text-only rows under a title.",
+      "Don't take the old cobalt from the PNG app icons or the share image; they predate Denim and are not part of this system.",
+      "Don't take tokens from the Tailwind and shadcn theme files (`src/styles/theme.css`, `src/index.css`). They are leftovers that only reach the dialog and drawer shells, the toast and the error fallback. The system is `src/styles/flow.css`."
+    ]
+  }
+}

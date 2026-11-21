@@ -1109,7 +1109,7 @@
   .haul-photo:active, .magnet-remove:active, .magnet-plus:active { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .top, .sheet-actions { background: var(--cold); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .top, .sheet-actions, .tabs, .cook-bar { background: var(--cold); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
 /* ---------- desktop ---------- */
@@ -1514,7 +1514,7 @@
   width: 28px;
   height: 28px;
   border-radius: 9px;
-  border: 2px solid #b9c3cf;
+  border: 2px solid #7b8796; /* 3.7 to 1 on white: a box you can see is a box you can tick */
   display: grid;
   place-items: center;
   color: var(--blue-ink);

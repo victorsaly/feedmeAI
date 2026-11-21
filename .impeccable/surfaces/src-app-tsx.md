@@ -11,7 +11,8 @@ Scope: `src/App.tsx` and the components it renders on the Fridge tab. Mode: Oper
 Audience and job: someone at an open fridge deciding dinner, one hand free. Task: photo, pick a dinner,
 see what is missing, cook.
 Constraints: no AI call without a tap; works at 375 px; 44 pt targets; the fridge logo and Denim stay.
-Still to do after this slice: List, Recipes with Saved inside, three tabs, the desktop layout, Account.
+Built since: List, Recipes with Saved inside, three tabs, the wide-screen layout, Account. Still to do:
+Sign in with Apple, Delete account and "Report this recipe" (they need backend work); Denim app icons.
 
 ## Direction contract
 
