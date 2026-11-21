@@ -1415,6 +1415,258 @@
 .list-toolbar .magnet-add { flex: 1 1 0; min-width: 0; }
 .list-country { min-width: 0; min-height: 44px; }
 
+/* ---------- after the review: headings speak, cooking is not empty ---------- */
+.label, .sheet-body h3 {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  text-transform: none;
+  color: var(--ink);
+}
+.sheet-body h3 { margin: 1.6rem 0 .6rem .25rem; }
+.label-note { font-family: var(--font); color: var(--ink-3); }
+
+/* the open door keeps its ground: magnets on enamel, not on a white panel */
+.door-open .door { padding: 0; background: none; box-shadow: none; }
+
+.sheet-buy-all { color: var(--blue-deep); }
+.sheet-shot { margin-top: 1rem; }
+.sheet-scroll {
+  padding-top: .9rem;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 .8rem);
+  mask-image: linear-gradient(180deg, transparent, #000 .8rem);
+}
+.strip-row, .cats { scroll-padding-inline: max(1rem, env(safe-area-inset-left, 0px)); }
+
+.cook-page { padding-top: .5rem; }
+.cook-photo { display: block; width: 100%; height: 22dvh; max-height: 190px; object-fit: cover; border-radius: 22px; background: var(--light); box-shadow: var(--shadow-list); margin-bottom: 1rem; }
+.cook-progress { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+.cook-progress .cook-dots { flex: 1; margin: 0; }
+.cook-count { margin: 0; font-family: var(--display); font-size: .95rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
+.cook-step.is-mid { font-size: clamp(2.05rem, 9vw, 2.6rem); line-height: 1.1; }
+.cook-step.is-short { font-size: clamp(2.5rem, 11vw, 3.2rem); line-height: 1.04; letter-spacing: -.03em; }
+.cook-tools { margin-top: auto; padding-top: 1.5rem; display: grid; gap: .9rem; }
+.cook-needs { margin: 0; }
+.cook-timer { margin-top: 0; }
+.cook-awake { margin: 0; padding: 1rem .1rem .25rem; }
+
+/* ---------- three tabs ---------- */
+.tabs { grid-template-columns: repeat(3, 1fr); }
+.meals.seg-two { grid-template-columns: 1fr 1fr; margin: 0 0 1rem; }
+.signin-btn { min-width: 44px; min-height: 44px; }
+.signin-name { max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- the list, read in an aisle ---------- */
+.list-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; }
+.list-add { display: flex; margin-bottom: 1rem; background: var(--white); border-style: solid; }
+.list-item { display: flex; align-items: stretch; }
+.list-tick {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .65rem .25rem .65rem .9rem;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .1s ease;
+}
+.list-tick:active { background: #f3f6f9; }
+.list-box {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  border: 2px solid #b9c3cf;
+  display: grid;
+  place-items: center;
+  color: var(--blue-ink);
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.list-item.is-checked .list-box { background: var(--blue); border-color: var(--blue); }
+.list-item-name { font-size: 1.08rem; }
+.list-price { flex: none; font-family: var(--display); font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.list-remove {
+  flex: none;
+  width: 48px;
+  border: 0;
+  background: var(--white);
+  color: var(--ink-3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.list-remove:active { color: var(--blue-deep); }
+
+.shops { margin-bottom: .25rem; }
+.shops-ask { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .9rem; }
+.shops-country {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0 .25rem;
+  min-height: 44px;
+  background: none;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  cursor: pointer;
+}
+.shops-best { border-radius: var(--r-list); background: var(--blue-tint); box-shadow: inset 0 0 0 1px #d2ddf3; overflow: hidden; }
+.shops-lead { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; column-gap: .75rem; padding: .8rem .8rem .8rem 1rem; }
+.shops-note { grid-column: 1 / -1; font-size: .8rem; font-weight: 600; color: var(--ink-2); }
+.shops-lead b, .shops-total { font-family: var(--display); font-weight: 700; font-size: 1.45rem; letter-spacing: -.02em; line-height: 1.15; }
+.shops-total { font-variant-numeric: tabular-nums; }
+.shops-more {
+  appearance: none;
+  border: 0;
+  border-top: 1px solid #d2ddf3;
+  margin: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: .55rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  background: none;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--ink-2);
+  text-align: left;
+  cursor: pointer;
+}
+.shops-toggle { flex: none; display: inline-flex; align-items: center; gap: .25rem; font-weight: 600; color: var(--blue-deep); }
+.shops-more[aria-expanded="true"] .shops-toggle svg { rotate: 180deg; }
+.shops-all { list-style: none; margin: 0; padding: 0 .8rem .35rem 1rem; }
+.shops-all li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .75rem; min-height: 52px; border-top: 1px solid #d2ddf3; }
+.shops-all-name { font-weight: 600; }
+.shops-all-name small { display: block; font-size: .76rem; font-weight: 500; color: var(--ink-2); }
+.shops-foot { margin: .5rem .25rem 0; font-size: .8rem; color: var(--ink-3); }
+
+/* ---------- recipes: pictures to browse ---------- */
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem .8rem; }
+.grid-tile { width: 100%; }
+.grid-blank { display: block; aspect-ratio: 4 / 3; border-radius: 16px; background: var(--light); margin-bottom: .2rem; }
+
+/* ---------- account ---------- */
+.account { display: grid; gap: 1rem; padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px)); }
+.account-why { margin: 0; line-height: 1.5; color: var(--ink-2); text-wrap: pretty; }
+.account-who { display: flex; align-items: center; gap: .8rem; color: var(--blue); }
+.account-who div { display: grid; gap: .1rem; color: var(--ink); }
+.account-who span { font-size: .88rem; color: var(--ink-2); }
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .8rem .8rem .8rem 1rem;
+  border-radius: var(--r-list);
+  background: var(--white);
+  box-shadow: var(--shadow-list);
+}
+.account-row > span { display: grid; gap: .1rem; min-width: 0; }
+.account-row > span span { font-size: .85rem; color: var(--ink-2); }
+.account-select {
+  flex: none;
+  max-width: 11rem;
+  min-height: 44px;
+  padding: 0 .7rem;
+  border: 1.5px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+.account-out { justify-self: start; }
+
+@media (min-width: 768px) {
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sheet-dialog.account-dialog { width: min(28rem, calc(100% - 2rem)); }
+}
+
+/* ---------- a wide screen: tabs in the header, two columns, the recipe beside the page ---------- */
+@media (min-width: 960px) {
+  .page { max-width: 68rem; padding-top: 1.5rem; }
+  .has-tabs .page { padding-bottom: 3rem; }
+  .top { justify-content: flex-end; gap: .25rem; min-height: 56px; padding-left: 1.5rem; padding-right: 1rem; }
+  .brand { margin-right: auto; }
+  .tabs {
+    position: fixed;
+    top: 0;
+    bottom: auto;
+    left: 10.5rem;
+    right: auto;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    transform: none;
+    z-index: 21;
+    display: flex;
+    gap: .25rem;
+    height: 56px;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .tab { flex-direction: row; gap: .45rem; min-height: 40px; padding: 0 .9rem; border-radius: 12px; color: var(--ink-2); }
+  .tab.is-active { background: var(--blue-tint); color: var(--blue-deep); }
+  .tab-icon { height: 22px; }
+  .tab-icon svg { width: 20px; height: 20px; }
+  .tab-label { font-size: .92rem; }
+  .tab-badge { position: static; margin-left: .35rem; }
+  .tab-icon { display: inline-flex; align-items: center; }
+
+  .home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 3rem; align-items: start; }
+  .home > .hero, .home > .fridge, .home > .demo-note { grid-column: 1; }
+  .home > .sample, .home > .history { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
+  .home > .sample .label, .home > .history .label { margin-top: 2.1rem; }
+  .home > .strip { grid-column: 1 / -1; }
+  .strip-row { margin: 0; padding-left: 0; padding-right: 0; flex-wrap: wrap; overflow: visible; }
+  .strip-tile { width: 12.5rem; }
+  .fridge { grid-template-columns: 1fr 1fr; }
+
+  .results { display: grid; grid-template-columns: 24rem minmax(0, 1fr); column-gap: 3rem; align-items: start; }
+  .results-side { position: sticky; top: calc(56px + 1.5rem); }
+  .results-main .meals { margin-top: 0; }
+  .haul.has-photo .haul-hero { aspect-ratio: 4 / 3; max-height: none; }
+  .update-bar { bottom: 1.5rem; }
+
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem 1.1rem; }
+  .tiles .grid-tile { width: 100%; }
+  .meals { max-width: 30rem; }
+  .search { max-width: 30rem; }
+
+  /* the recipe opens beside the page, not over it */
+  .sheet-dialog:not(.account-dialog) {
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    /* the dialog centres itself through these two; zero them rather than fight the property */
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    width: min(31rem, 100%);
+    height: 100dvh;
+    max-height: none;
+    border-radius: 24px 0 0 24px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .door.is-folded li, .sample-magnets .magnet { rotate: none; }
   .cook-needs .magnet { animation: none; }

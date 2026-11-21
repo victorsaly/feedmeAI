@@ -4,6 +4,9 @@ import { formatDistanceToNow } from 'date-fns'
 import { loadSearches, saveSearch, removeSearch, type Search } from '@/lib/history'
 import { MealPicker } from '@/components/MealPicker'
 import { IdeaList } from '@/components/IdeaList'
+import { IdeaGrid } from '@/components/IdeaGrid'
+import { SavedList } from '@/components/SavedList'
+import { useFavorites } from '@/lib/favorites'
 import { signIn, useSessionToken } from '@/lib/account'
 import { searchRecipes } from '@/lib/spoonacular'
 import { CATEGORIES, localSearch, recipesForMeal, ideaFromLocal, type Category, type Idea, type Meal } from '@/lib/kitchen'
@@ -28,6 +31,11 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
   const [state, setState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [remote, setRemote] = useState(false)
   const [recent, setRecent] = useState<Search[]>(() => loadSearches())
+  const [view, setView] = useState<'all' | 'saved'>('all')
+  const savedCount = useFavorites()?.length ?? 0
+  // Signed out, only the built-in recipes answer: a filter that would return
+  // nothing is not offered. Signed in, the wider search covers every one.
+  const cats = token ? CATEGORIES : CATEGORIES.filter((c) => localSearch('', c, meal).length > 0)
 
   const words = q.trim()
   const browsing = !words && !category
@@ -71,8 +79,16 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
     <>
       <section className="hero hero-tab">
         <h1>Recipes</h1>
-        <p>Ready to cook right now &mdash; no photo needed.</p>
       </section>
+
+      <div className="meals seg-two" role="radiogroup" aria-label="Which recipes">
+        <button type="button" role="radio" aria-checked={view === 'all'} className={`meal-chip ${view === 'all' ? 'is-active' : ''}`} onClick={() => setView('all')}>All</button>
+        <button type="button" role="radio" aria-checked={view === 'saved'} className={`meal-chip ${view === 'saved' ? 'is-active' : ''}`} onClick={() => setView('saved')}>
+          Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
+        </button>
+      </div>
+
+      {view === 'saved' ? <SavedList onOpen={onOpen} /> : <>
 
       <label className="search">
         <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />
@@ -92,7 +108,7 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
       </label>
 
       <div className="cats" role="group" aria-label="Category">
-        {CATEGORIES.map((c) => {
+        {cats.map((c) => {
           const active = category?.id === c.id
           return (
             <button
@@ -150,20 +166,19 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
         </p>
       )}
 
-      <IdeaList
-        ideas={shown}
-        state={browsing ? 'ready' : state}
-        onOpen={onOpen}
-        onRefresh={() => {}}
-        quiet
-        emptyMessage={
-          browsing
-            ? `No built-in ${meal} recipes yet — try another meal, or take a photo on the Fridge tab.`
-            : token
-              ? 'Nothing for that. Try fewer words, or a different chip.'
-              : 'Nothing built in for that.'
-        }
-      />
+      {state === 'ready' || browsing ? (
+        shown.length > 0 ? <IdeaGrid ideas={shown} onOpen={onOpen} /> : (
+          <div className="ideas-empty">
+            <p>
+              {browsing
+                ? `No built-in ${meal} recipes yet. Try another meal, or take a photo on the Fridge tab.`
+                : token ? 'Nothing for that. Try fewer words, or a different filter.' : 'Nothing built in for that.'}
+            </p>
+          </div>
+        )
+      ) : (
+        <IdeaList ideas={[]} state={state} onOpen={onOpen} onRefresh={() => {}} quiet />
+      )}
 
       {!browsing && !token && state === 'ready' && (
         <div className="ideas-empty" style={{ marginTop: '1rem' }}>
@@ -171,6 +186,7 @@ export function RecipesTab({ meal, onMeal, onOpen }: RecipesTabProps) {
           <button type="button" className="btn btn-primary" onClick={signIn}>Sign in</button>
         </div>
       )}
+      </>}
     </>
   )
 }

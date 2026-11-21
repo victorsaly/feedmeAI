@@ -1,301 +1,201 @@
 import { useEffect, useState } from 'react'
-import { Plus, Trash, MagnifyingGlass, X, Storefront, ArrowSquareOut } from '@phosphor-icons/react'
+import { Plus, Trash, Check, Storefront, ArrowSquareOut, Export, CaretDown } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { signIn, useSessionToken } from '@/lib/account'
-import { addTodo, listTodos, removeTodo, setTodoChecked, type Todo } from '@/lib/todos'
-import {
-  COUNTRIES, COMPARE_CAP, compareShops, loadCountry, saveCountry, searchShopping,
-  type Comparison, type ShoppingSearch,
-} from '@/lib/shopping'
+import { addItem, checkItem, removeItem, syncList, useList, type Item } from '@/lib/list'
+import { nameOf } from '@/lib/pantry'
+import { COMPARE_CAP, COUNTRIES, compareShops, loadCountry, type Comparison } from '@/lib/shopping'
 
-/** A search in flight (`null` result) or finished, for one list item. */
-type Search = { id: string; result: ShoppingSearch | null }
+/** "2 tablespoons soy sauce" → what to look for on the shelf: "Soy sauce" */
+function shelfName(line: string): string {
+  const name = nameOf(line) || line
+  return name.charAt(0).toUpperCase() + name.slice(1)
+}
+
+const money = (n: number, c: string) => `${c}${n.toFixed(2)}`
 
 /**
- * The shopping list: what "Add to list" on a recipe sends items to, plus
- * anything typed in here directly. Kept under the signed-in account, so
- * it's the same list on the phone that took the fridge photo and the
- * laptop doing the shop.
+ * The shopping list, made to be read in an aisle: what to look for is the
+ * line, the amount and the recipe sit under it, and the whole row ticks it
+ * off. It lives on this device, so it opens with no signal and no account;
+ * signing in sends it to your other devices. Shop prices are a search that
+ * costs money, so they wait for a tap, and need an account.
  */
-export function ListTab() {
+export function ListTab({ onAccount }: { onAccount: () => void }) {
   const token = useSessionToken()
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [loading, setLoading] = useState(false)
+  const items = useList()
   const [draft, setDraft] = useState('')
-  const [country, setCountry] = useState(() => loadCountry() ?? 'gb')
-  const [shopping, setShopping] = useState<Search | null>(null)
-  // 'idle' | 'loading' | the comparison; the list it was made from is
-  // remembered so editing the list can mark it stale rather than wrong.
   const [compare, setCompare] = useState<{ state: 'loading' } | { state: 'ready'; result: Comparison; of: string[] } | null>(null)
+  const [allShops, setAllShops] = useState(false)
+  const country = loadCountry() ?? 'gb'
+  const countryName = COUNTRIES.find((c) => c.code === country)?.label ?? country.toUpperCase()
 
-  useEffect(() => {
-    if (!token) { setTodos([]); return }
-    let live = true
-    setLoading(true)
-    listTodos(token).then((t) => { if (live) { setTodos(t); setLoading(false) } })
-    return () => { live = false }
-  }, [token])
+  useEffect(() => { syncList(token) }, [token])
 
-  function changeCountry(code: string) {
-    setCountry(code)
-    saveCountry(code)
-    setShopping(null)
-    setCompare(null)
-  }
+  const open = items.filter((t) => !t.checked)
+  const done = items.filter((t) => t.checked)
+  const names = open.map((t) => shelfName(t.ingredient))
+  const fresh = compare?.state === 'ready' && compare.of.join('\n') === names.slice(0, COMPARE_CAP).join('\n')
+  const best = compare?.state === 'ready' ? compare.result.groups[0] : undefined
+  /** what the cheapest shop charges for each thing, by its shelf name */
+  const prices = new Map(fresh && best ? best.lines.map((l) => [l.ingredient, l.item.price]) : [])
 
-  async function runCompare(ingredients: string[]) {
-    if (!token || ingredients.length === 0) return
-    setShopping(null)
+  async function runCompare() {
+    if (!token) { signIn(); return }
+    const of = names.slice(0, COMPARE_CAP)
     setCompare({ state: 'loading' })
-    const result = await compareShops(token, ingredients, country)
-    setCompare({ state: 'ready', result, of: ingredients })
+    setCompare({ state: 'ready', result: await compareShops(token, of, country), of })
   }
 
-  async function submitDraft(e: React.FormEvent) {
+  function submit(e: React.FormEvent) {
     e.preventDefault()
     const ingredient = draft.trim()
-    if (!ingredient || !token) return
+    if (!ingredient) return
     setDraft('')
-    const created = await addTodo(token, ingredient)
-    if (created) setTodos((prev) => [created, ...prev])
-    else toast.error("Couldn't add that. Try again.")
+    addItem(token, ingredient)
   }
 
-  async function toggle(todo: Todo) {
-    setTodos((prev) => prev.map((t) => (t.id === todo.id ? { ...t, checked: !t.checked } : t)))
-    if (token) await setTodoChecked(token, todo.id, !todo.checked)
+  function remove(item: Item) {
+    removeItem(token, item.id)
+    toast(`Removed ${shelfName(item.ingredient)}`, {
+      action: { label: 'Undo', onClick: () => { addItem(token, item.ingredient, item.recipeId && item.recipeName ? { id: item.recipeId, name: item.recipeName } : undefined) } },
+    })
   }
 
-  async function remove(id: string) {
-    setTodos((prev) => prev.filter((t) => t.id !== id))
-    if (shopping?.id === id) setShopping(null)
-    if (token) await removeTodo(token, id)
+  async function share() {
+    const text = open.map((t) => `• ${shelfName(t.ingredient)}${nameOf(t.ingredient) && nameOf(t.ingredient) !== t.ingredient.toLowerCase() ? ` (${t.ingredient})` : ''}`).join('\n')
+    try {
+      if (navigator.share) await navigator.share({ title: 'Shopping list', text })
+      else { await navigator.clipboard.writeText(text); toast.success('List copied') }
+    } catch {
+      // closed the share sheet: nothing to say
+    }
   }
 
-  async function findIt(todo: Todo) {
-    if (!token) return
-    if (shopping?.id === todo.id) { setShopping(null); return }
-    setShopping({ id: todo.id, result: null })
-    const result = await searchShopping(token, todo.ingredient, country)
-    setShopping((cur) => (cur?.id === todo.id ? { id: todo.id, result } : cur))
-  }
-
-  if (!token) {
+  const row = (t: Item) => {
+    const name = shelfName(t.ingredient)
+    const full = t.ingredient.toLowerCase() !== name.toLowerCase() ? t.ingredient : null
+    const detail = [full, t.recipeName && (full ? t.recipeName : `for ${t.recipeName}`)].filter(Boolean).join(' · ')
+    const price = prices.get(name)
     return (
-      <>
-        <section className="hero hero-tab">
-          <h1>List</h1>
-          <p>Missing ingredients, kept in one place and findable near you.</p>
-        </section>
-        <div className="ideas-empty">
-          <p>Sign in to keep a shopping list — it follows your account, not this device.</p>
-          <button type="button" className="btn btn-primary" onClick={signIn}>Sign in</button>
-        </div>
-      </>
+      <li key={t.id} className={`list-item ${t.checked ? 'is-checked' : ''}`}>
+        <button type="button" className="list-tick" onClick={() => checkItem(token, t.id, !t.checked)} aria-pressed={t.checked}>
+          <span className="list-box" aria-hidden="true">{t.checked && <Check size={16} weight="bold" />}</span>
+          <span className="list-item-main">
+            <span className="list-item-name">{name}</span>
+            {detail && <span className="list-item-recipe">{detail}</span>}
+          </span>
+          {price && <span className="list-price">{price}</span>}
+        </button>
+        <button type="button" className="list-remove" onClick={() => remove(t)} aria-label={`Remove ${name}`}>
+          <Trash size={18} />
+        </button>
+      </li>
     )
   }
 
-  const open = todos.filter((t) => !t.checked)
-  const done = todos.filter((t) => t.checked)
-
   return (
     <>
-      <section className="hero hero-tab">
-        <h1>List</h1>
-        <p>Add missing ingredients from any recipe, or type your own.</p>
+      <section className="hero hero-tab list-head">
+        <div>
+          <h1>List</h1>
+          <p>{token ? 'On this phone and your account.' : 'Kept on this phone. Works with no signal.'}</p>
+        </div>
+        {open.length > 0 && (
+          <button type="button" className="btn btn-quiet" onClick={share}>
+            <Export size={18} weight="bold" /> Share
+          </button>
+        )}
       </section>
 
-      <div className="list-toolbar">
-        <form className="magnet-add" onSubmit={submitDraft}>
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Add an item"
-            aria-label="Add an item"
-          />
-          <button type="submit" className="magnet-plus" disabled={!draft.trim()}>
-            <Plus size={18} weight="bold" />
-          </button>
-        </form>
-        <select
-          className="list-country"
-          value={country}
-          onChange={(e) => changeCountry(e.target.value)}
-          aria-label="Country for shopping search"
-        >
-          {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
-        </select>
-      </div>
+      <form className="magnet-add list-add" onSubmit={submit}>
+        <input
+          id="list-add"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Add an item"
+          aria-label="Add an item"
+          enterKeyHint="done"
+          autoCapitalize="sentences"
+        />
+        <button type="submit" className="magnet-plus" disabled={!draft.trim()} aria-label="Add">
+          <Plus size={18} weight="bold" />
+        </button>
+      </form>
 
-      {loading ? (
-        <p className="label-note">Loading…</p>
-      ) : todos.length === 0 ? (
-        <div className="ideas-empty"><p>Nothing on the list yet.</p></div>
-      ) : (
-        <>
-          {open.length > 0 && (
-            <div className="compare-bar">
-              <button
-                type="button"
-                className="btn btn-quiet"
-                onClick={() => runCompare(open.map((t) => t.ingredient))}
-                disabled={compare?.state === 'loading'}
-              >
+      {items.length === 0 && (
+        <div className="ideas-empty">
+          <p>Nothing to buy yet. Open a recipe and tap “Add to the list”, or type something above.</p>
+        </div>
+      )}
+
+      {open.length > 0 && (
+        <section aria-label="Shop prices" className="shops">
+          {fresh && best ? (
+            <div className="shops-best">
+              <div className="shops-lead">
+                <span className="shops-note">
+                  {best.lines.length === compare.result.searched ? `Cheapest for ${best.lines.length === 1 ? 'it' : best.lines.length === 2 ? 'both' : `all ${best.lines.length}`}` : `Has ${best.lines.length} of ${compare.result.searched}`}
+                </span>
+                <b>{best.label}</b>
+                {best.total !== null && <span className="shops-total">{money(best.total, best.currency)}</span>}
+                {best.link && (
+                  <a className="btn btn-small" href={best.link} target="_blank" rel="noopener noreferrer">
+                    Open <ArrowSquareOut size={14} />
+                  </a>
+                )}
+              </div>
+              {compare.result.groups.length > 1 && (
+                <>
+                  <button type="button" className="shops-more" onClick={() => setAllShops((v) => !v)} aria-expanded={allShops}>
+                    <span>{compare.result.groups.slice(1, 3).map((g) => `${g.label}${g.total !== null ? ` ${money(g.total, g.currency)}` : ''}`).join(' · ')}</span>
+                    <span className="shops-toggle">{allShops ? 'Hide' : 'All shops'} <CaretDown size={14} weight="bold" /></span>
+                  </button>
+                  {allShops && (
+                    <ul className="shops-all">
+                      {compare.result.groups.map((g) => (
+                        <li key={g.label}>
+                          <span className="shops-all-name">{g.label}<small>{g.lines.length} of {compare.result.searched}</small></span>
+                          <span className="list-price">{g.total !== null ? money(g.total, g.currency) : '—'}</span>
+                          {g.link && <a className="btn btn-small" href={g.link} target="_blank" rel="noopener noreferrer" aria-label={`Open ${g.label}`}><ArrowSquareOut size={14} /></a>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+              {compare.result.unfound.length > 0 && <p className="shops-foot">Nothing found for {compare.result.unfound.join(', ')}.</p>}
+            </div>
+          ) : fresh ? (
+            <div className="ideas-empty"><p>No shop in {countryName} lists any of these.</p></div>
+          ) : (
+            <div className="shops-ask">
+              <button type="button" className="btn btn-quiet" onClick={runCompare} disabled={compare?.state === 'loading'}>
                 <Storefront size={18} />
                 {compare?.state === 'loading'
-                  ? `Checking ${Math.min(open.length, COMPARE_CAP)} items…`
-                  : `Compare shops for ${open.length === 1 ? 'this item' : `these ${open.length}`}`}
+                  ? `Checking ${Math.min(open.length, COMPARE_CAP)} ${open.length === 1 ? 'item' : 'items'}…`
+                  : !token ? 'Sign in to compare shop prices'
+                  : compare ? 'List changed. Compare again' : 'Find the cheapest shop'}
               </button>
-              {open.length > COMPARE_CAP && (
-                <span className="label-note">First {COMPARE_CAP} only, to keep it quick.</span>
-              )}
+              <button type="button" className="shops-country" onClick={onAccount}>Prices for {countryName}</button>
             </div>
           )}
+          {open.length > COMPARE_CAP && <p className="shops-foot">The first {COMPARE_CAP} items only, to keep it quick.</p>}
+        </section>
+      )}
 
-          {compare?.state === 'ready' && (
-            <CompareView
-              comparison={compare.result}
-              stale={compare.of.join('\n') !== open.map((t) => t.ingredient).join('\n')}
-              onClose={() => setCompare(null)}
-            />
-          )}
-
-          {open.length > 0 && (
-            <ul className="list-items">
-              {open.map((t) => (
-                <ListItem key={t.id} todo={t} shopping={shopping} onToggle={toggle} onRemove={remove} onFind={findIt} />
-              ))}
-            </ul>
-          )}
-          {done.length > 0 && (
-            <>
-              <p className="label">Got it</p>
-              <ul className="list-items">
-                {done.map((t) => (
-                  <ListItem key={t.id} todo={t} shopping={shopping} onToggle={toggle} onRemove={remove} onFind={findIt} />
-                ))}
-              </ul>
-            </>
-          )}
+      {open.length > 0 && (
+        <>
+          <p className="label">To buy · {open.length}</p>
+          <ul className="list-items">{open.map(row)}</ul>
+        </>
+      )}
+      {done.length > 0 && (
+        <>
+          <p className="label">Got it · {done.length}</p>
+          <ul className="list-items">{done.map(row)}</ul>
         </>
       )}
     </>
-  )
-}
-
-/**
- * The list turned inside out: one card per shop, best-covered first, each
- * line the shop's cheapest listing for one of your ingredients. A shop's
- * own search page is a tap away for the whole list, and each line links to
- * that shop's search for the specific product.
- */
-function CompareView({ comparison, stale, onClose }: { comparison: Comparison; stale: boolean; onClose: () => void }) {
-  const { groups, unfound, searched } = comparison
-  const fmt = (n: number, c: string) => `${c}${n.toFixed(2)}`
-  return (
-    <section className="compare" aria-label="Shops compared">
-      <p className="label">
-        <span>Where to buy{stale && ' · list changed, compare again'}</span>
-        <button type="button" className="magnet-remove" onClick={onClose} aria-label="Close comparison"><X size={16} /></button>
-      </p>
-      {groups.length === 0 && <div className="ideas-empty"><p>No shop listings for any of these.</p></div>}
-      {groups.map((g) => (
-        <article key={g.label} className="compare-shop">
-          <header className="compare-head">
-            <div>
-              <b>{g.label}</b>
-              <span className="compare-cover">
-                {g.lines.length} of {searched}{g.total !== null && ` · from ${fmt(g.total, g.currency)}`}
-              </span>
-            </div>
-            {g.link && (
-              <a className="btn btn-small" href={g.link} target="_blank" rel="noopener noreferrer">
-                Open <ArrowSquareOut size={14} />
-              </a>
-            )}
-          </header>
-          <ul className="compare-lines">
-            {g.lines.map((l) => (
-              <li key={l.ingredient}>
-                <a href={l.item.link ?? undefined} target="_blank" rel="noopener noreferrer">
-                  <span className="compare-ing">{l.ingredient}</span>
-                  <span className="compare-item">{l.item.title}</span>
-                  <span className="compare-price">{l.item.price ?? '—'}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </article>
-      ))}
-      {unfound.length > 0 && (
-        <p className="label-note">Nothing found for: {unfound.join(', ')}.</p>
-      )}
-    </section>
-  )
-}
-
-function ListItem({ todo, shopping, onToggle, onRemove, onFind }: {
-  todo: Todo
-  shopping: Search | null
-  onToggle: (t: Todo) => void
-  onRemove: (id: string) => void
-  onFind: (t: Todo) => void
-}) {
-  const searching = shopping?.id === todo.id
-  const result = searching ? shopping.result : null
-  return (
-    <li className={`list-item ${todo.checked ? 'is-checked' : ''}`}>
-      <div className="list-item-row">
-        <button type="button" className="list-check" onClick={() => onToggle(todo)} aria-pressed={todo.checked}>
-          <span className="magnet-dot" aria-hidden="true" />
-        </button>
-        <div className="list-item-main">
-          <span className="list-item-name">{todo.ingredient}</span>
-          {todo.recipeName && <span className="list-item-recipe">for {todo.recipeName}</span>}
-        </div>
-        {!todo.checked && (
-          <button type="button" className="magnet-remove" onClick={() => onFind(todo)} aria-label={`Find ${todo.ingredient} to buy`}>
-            {searching ? <X size={16} /> : <MagnifyingGlass size={16} />}
-          </button>
-        )}
-        <button type="button" className="magnet-remove" onClick={() => onRemove(todo.id)} aria-label={`Remove ${todo.ingredient}`}>
-          <Trash size={16} />
-        </button>
-      </div>
-      {searching && (
-        <div className="list-shopping">
-          {!result ? (
-            <p className="label-note">Searching…</p>
-          ) : (
-            <>
-              {result.items.length === 0 && (
-                <p className="label-note">
-                  {result.shops.length ? 'No supermarket listings for that — try the shops directly.' : 'Nothing found.'}
-                </p>
-              )}
-              {result.items.map((r, i) => (
-                <a key={i} className="list-shopping-item" href={r.link ?? undefined} target="_blank" rel="noopener noreferrer">
-                  {r.thumbnail && <img src={r.thumbnail} alt="" />}
-                  <span className="list-shopping-title">{r.title}</span>
-                  <span className="list-shopping-meta">
-                    {r.source && <b>{r.source}</b>}
-                    {r.price && <span> · {r.price}</span>}
-                  </span>
-                </a>
-              ))}
-              {result.shops.length > 0 && (
-                <div className="list-shops">
-                  {result.shops.map((s) => (
-                    <a key={s.key} className="list-shop" href={s.link} target="_blank" rel="noopener noreferrer">
-                      {s.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </li>
   )
 }

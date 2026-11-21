@@ -4,9 +4,9 @@ import { toast } from 'sonner'
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { signIn, useSessionToken } from '@/lib/account'
+import { useSessionToken } from '@/lib/account'
 import { ensureFavoritesLoaded, saveFavorite, removeFavorite, useFavorites } from '@/lib/favorites'
-import { addTodo } from '@/lib/todos'
+import { addItem } from '@/lib/list'
 import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Recipe } from '@/lib/kitchen'
 import { findVideo } from '@/lib/spoonacular'
 import { isSample } from '@/lib/sample'
@@ -99,41 +99,27 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
     return () => { live = false }
   }, [idea, recipe, lateImage, token])
 
-  async function addToList(line: string) {
-    if (!token) {
-      toast('Sign in to keep a shopping list', { action: { label: 'Sign in', onClick: signIn } })
-      return
-    }
+  // The list is on this device, so adding never fails and never needs an account.
+  function addToList(line: string) {
     setAdded((prev) => new Set(prev).add(line))
-    const created = await addTodo(token, line, { id: idea!.id, name: idea!.title })
-    if (!created) {
-      setAdded((prev) => { const next = new Set(prev); next.delete(line); return next })
-      toast.error("Couldn't add that to the list.")
-    }
+    addItem(token, line, { id: idea!.id, name: idea!.title })
   }
 
-  /** Everything missing, in one tap — one request each, so one that fails
-   *  comes back off on its own and the rest stay. */
-  async function addAll(lines: string[]) {
-    if (!token) {
-      toast('Sign in to keep a shopping list', { action: { label: 'Sign in', onClick: signIn } })
-      return
-    }
-    await Promise.all(lines.filter((l) => !added.has(l)).map(addToList))
+  /** Everything missing, in one tap. */
+  function addAll(lines: string[]) {
+    const fresh = lines.filter((l) => !added.has(l))
+    fresh.forEach(addToList)
+    toast.success(fresh.length === 1 ? 'Added to your list' : `${fresh.length} added to your list`)
   }
 
   async function toggleSave() {
     if (!recipe) return
-    if (!token) {
-      toast('Sign in to save recipes', { action: { label: 'Sign in', onClick: signIn } })
-      return
-    }
     if (saved) {
       const ok = await removeFavorite(token, recipe.id)
       if (!ok) toast.error("Couldn't remove that. Try again.")
     } else {
       // The photo you took stays on this device — only the recipe itself
-      // (and whichever dish photo it already has) goes to the server.
+      // (and whichever dish photo it already has) is kept.
       const ok = await saveFavorite(token, { ...recipe, image: recipe.image ?? dish, isFavorite: true })
       if (ok) toast.success('Saved')
       else toast.error("Couldn't save that. Try again.")
@@ -219,7 +205,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
         </div>
       ) : (
         <>
-          {recipe.description !== idea.blurb && <p className="sheet-desc">{recipe.description}</p>}
+          {!idea.blurb && <p className="sheet-desc">{recipe.description}</p>}
           {recipe.credit && (
             <p className="sheet-key sheet-credit">
               Recipe from <a href={recipe.credit.url} target="_blank" rel="noopener noreferrer">{recipe.credit.name}</a>, found via Spoonacular.
@@ -247,7 +233,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
                         </li>
                       ))}
                     </ul>
-                    <button type="button" className="btn btn-primary sheet-buy-all" onClick={() => addAll(toBuy)} disabled={allAdded}>
+                    <button type="button" className="btn btn-quiet sheet-buy-all" onClick={() => addAll(toBuy)} disabled={allAdded}>
                       {allAdded
                         ? <><Check size={18} weight="bold" /> On your list</>
                         : <><ListPlus size={18} weight="bold" /> {toBuy.length === 1 ? 'Add it to the list' : toBuy.length === 2 ? 'Add both to the list' : `Add all ${toBuy.length} to the list`}</>}

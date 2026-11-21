@@ -6,6 +6,8 @@ import { useWakeLock } from '@/hooks/use-wake-lock'
 
 interface CookScreenProps {
   recipe: Recipe
+  /** the food this is being cooked from: the dish, or the photo you took */
+  photo?: string
   onBack: () => void
   onDone: () => void
 }
@@ -20,7 +22,7 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2,
  * keeps running as you move on. The screen stays awake until you leave.
  * ← → step, and the last step's Next is Done.
  */
-export function CookScreen({ recipe, onBack, onDone }: CookScreenProps) {
+export function CookScreen({ recipe, photo, onBack, onDone }: CookScreenProps) {
   const steps = recipe.instructions
   const [n, setN] = useState(0)
   const last = n === steps.length - 1
@@ -68,14 +70,19 @@ export function CookScreen({ recipe, onBack, onDone }: CookScreenProps) {
       </header>
 
       <main className="page cook-page">
-        <ol className="cook-dots" aria-hidden="true">
-          {steps.map((_, i) => <li key={i} className={i < n ? 'done' : i === n ? 'now' : ''} />)}
-        </ol>
+        {photo && <img className="cook-photo" src={photo} alt="" />}
+        <div className="cook-progress">
+          <ol className="cook-dots" aria-hidden="true">
+            {steps.map((_, i) => <li key={i} className={i < n ? 'done' : i === n ? 'now' : ''} />)}
+          </ol>
+          <span className="cook-count" aria-hidden="true">{n + 1} of {steps.length}</span>
+        </div>
         <div aria-live="polite">
-          <p className="cook-count">Step {n + 1} of {steps.length}</p>
-          <p className="cook-step" key={n}>{steps[n]}</p>
+          <span className="sr-only">Step {n + 1} of {steps.length}. </span>
+          <p className={`cook-step ${steps[n].length < 60 ? 'is-short' : steps[n].length < 110 ? 'is-mid' : ''}`} key={n}>{steps[n]}</p>
         </div>
 
+        <div className="cook-tools">
         {needs.length > 0 && (
           <ul className="cook-needs" aria-label="For this step">
             {needs.map((line) => <li key={line} className="magnet">{line}</li>)}
@@ -94,6 +101,8 @@ export function CookScreen({ recipe, onBack, onDone }: CookScreenProps) {
             )}
           </div>
         )}
+
+        </div>
 
         {awake && <p className="cook-awake"><Sun size={14} weight="bold" aria-hidden="true" /> Screen stays on while you cook</p>}
       </main>

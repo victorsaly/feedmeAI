@@ -1,7 +1,8 @@
 /**
- * The shopping/todo list, kept server-side under whichever account is
- * signed in — feedmeai-api, not arcade-api, since a todo list isn't a game
- * score. Every call needs a session token from `@/lib/account`.
+ * The account's copy of the shopping list — feedmeai-api, not arcade-api,
+ * since a todo list isn't a game score. Every call needs a session token
+ * from `@/lib/account`. The screen never calls these directly: `list.ts`
+ * holds the list on the device and sends changes here.
  */
 
 const API = import.meta.env.VITE_FEEDME_API ?? 'https://feedmeai-api.still-union-ef8a.workers.dev'
@@ -30,6 +31,12 @@ async function call<T>(path: string, token: string, opts: { method?: string; bod
   } catch {
     return null
   }
+}
+
+/** null when the server could not be reached, so a caller can keep what it has */
+export async function fetchTodos(token: string): Promise<Todo[] | null> {
+  const data = await call<{ todos: Todo[] }>('/v1/todos', token)
+  return data ? data.todos ?? [] : null
 }
 
 export async function listTodos(token: string): Promise<Todo[]> {

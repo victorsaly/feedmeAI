@@ -7,9 +7,8 @@ import { PhotoPicker } from '@/components/PhotoPicker'
 import { HaulList } from '@/components/HaulList'
 import { IdeaList } from '@/components/IdeaList'
 import { IdeaSheet, primeRecipe } from '@/components/IdeaSheet'
-import { SavedList } from '@/components/SavedList'
 import { ListTab } from '@/components/ListTab'
-import { SignIn } from '@/components/SignIn'
+import { Account, AccountButton } from '@/components/Account'
 import { CookScreen } from '@/components/CookScreen'
 import { MealPicker } from '@/components/MealPicker'
 import { RecipesTab } from '@/components/RecipesTab'
@@ -19,9 +18,9 @@ import { useBack } from '@/hooks/use-back'
 import { SampleCard } from '@/components/SampleCard'
 import { SAMPLE, isSample } from '@/lib/sample'
 import { TabBar, type Tab } from '@/components/TabBar'
-import { ensureFavoritesLoaded, useFavorites } from '@/lib/favorites'
+import { ensureFavoritesLoaded } from '@/lib/favorites'
+import { syncList, useList } from '@/lib/list'
 import { completeSignIn, useSessionToken } from '@/lib/account'
-import { listTodos } from '@/lib/todos'
 import { findImage } from '@/lib/spoonacular'
 import { loadHauls, saveHaul, removeHaul, thumbnail, LARGE, type Haul } from '@/lib/history'
 import {
@@ -32,8 +31,8 @@ import {
 export type { Ingredient } from '@/lib/kitchen'
 
 /*
- * Three tabs — the fridge, the built-in recipes, saved — and one full-screen
- * stage, Cook, that hides the bar. The fridge tab holds the flow: take the
+ * Three tabs — the fridge, the list, recipes (with saved inside) — and one
+ * full-screen stage, Cook, that hides the bar. The fridge tab holds the flow: take the
  * photo, read the list, pick an idea. Its state survives a tab switch.
  */
 type Stage = 'start' | 'haul' | 'cook'
@@ -60,7 +59,7 @@ function App() {
   const [cooking, setCooking] = useState<Recipe | null>(null)
   const [lastIdea, setLastIdea] = useState<Idea | null>(null) // the sheet to reopen after Cook → back
   const [cameFrom, setCameFrom] = useState<Tab>('fridge') // the tab Cook was opened from
-  const [listCount, setListCount] = useState(0)
+  const [account, setAccount] = useState(false)
   const [tab, setTab] = useState<Tab>('fridge')
   const [meal, setMeal] = useState<Meal>(() => loadMeal())
   const [hauls, setHauls] = useState<Haul[]>(() => loadHauls())
@@ -68,8 +67,7 @@ function App() {
   const [opened, setOpened] = useState<Record<string, Recipe>>({}) // recipes written out for it
   const run = useRef(0) // a newer request makes an older result irrelevant
   const token = useSessionToken()
-  const favorites = useFavorites()
-  const savedCount = favorites?.length ?? 0
+  const listCount = useList().filter((t) => !t.checked).length
 
   // Saved is server-backed under the account, same as the shopping list
   // below — load it once a token exists so the tab badge is accurate.
@@ -86,12 +84,8 @@ function App() {
   const [, setAiKnown] = useState(false)
   useEffect(() => { probeAI().then(() => setAiKnown(true)) }, [])
 
-  useEffect(() => {
-    if (!token) { setListCount(0); return }
-    let live = true
-    listTodos(token).then((todos) => { if (live) setListCount(todos.filter((t) => !t.checked).length) })
-    return () => { live = false }
-  }, [token, tab, openIdea])
+  // The list is on this device; an account's copy is brought in line with it.
+  useEffect(() => { syncList(token) }, [token])
 
   // Whatever this screen shows is what history keeps — written on every
   // change, so a closed tab loses nothing. Loading ideas aren't kept: an
@@ -201,6 +195,10 @@ function App() {
   function onRecipe(r: Recipe) {
     if (tab !== 'fridge' || !haul) return
     setOpened((cur) => (cur[r.id] === r ? cur : { ...cur, [r.id]: r }))
+    // The written recipe knows its time better than the one-line idea did:
+    // the row and the sheet must not disagree.
+    const minutes = parseInt(r.cookingTime)
+    if (minutes) setIdeas((cur) => (cur.some((i) => i.id === r.id && i.minutes !== minutes) ? cur.map((i) => (i.id === r.id ? { ...i, minutes } : i)) : cur))
   }
 
   const leaveCook = () => { setStage(items.length ? 'haul' : 'start'); setTab(cameFrom) }
@@ -210,6 +208,7 @@ function App() {
   useBack([
     { open: tab === 'fridge' && (stage === 'haul' || (stage === 'cook' && items.length > 0)), close: startOver },
     { open: Boolean(openIdea), close: () => setOpenIdea(null) },
+    { open: account, close: () => setAccount(false) },
     { open: stage === 'cook' && Boolean(cooking), close: () => { leaveCook(); setOpenIdea(lastIdea) } },
   ])
 
@@ -219,6 +218,7 @@ function App() {
     return (
       <CookScreen
         recipe={cooking}
+        photo={cooking.image ?? cooking.previewImage ?? (cameFrom === 'fridge' ? photo : undefined)}
         onBack={() => { leaveCook(); setOpenIdea(lastIdea) }}
         onDone={() => { setCooking(null); setLastIdea(null); leaveCook() }}
       />
@@ -239,21 +239,11 @@ function App() {
             <ArrowLeft size={16} weight="bold" /> New photo
           </button>
         )}
-        <SignIn />
+        <AccountButton onOpen={() => setAccount(true)} />
       </header>
 
       <main className="page">
         {tab === 'recipes' && <RecipesTab meal={meal} onMeal={changeMeal} onOpen={setOpenIdea} />}
-
-        {tab === 'saved' && (
-          <>
-            <section className="hero hero-tab">
-              <h1>Saved</h1>
-              <p>Recipes you've kept for later.</p>
-            </section>
-            <SavedList onOpen={setOpenIdea} />
-          </>
-        )}
 
         {tab === 'fridge' && stage === 'start' && (
           <div className="home">
@@ -278,8 +268,11 @@ function App() {
         )}
 
         {tab === 'fridge' && stage === 'haul' && (
-          <>
-            <HaulList photo={photo} items={items} onChange={editItems} />
+          <div className="results">
+            <div className="results-side">
+              <HaulList photo={photo} items={items} onChange={editItems} />
+            </div>
+            <div className="results-main">
             {items.length > 0 && <MealPicker value={meal} onChange={changeMeal} />}
             {items.length > 0 && <IdeaList
               ideas={ideas}
@@ -303,13 +296,14 @@ function App() {
                 <button type="button" className="btn btn-primary" onClick={() => draft(items, meal)}>Update ideas</button>
               </div>
             )}
-          </>
+            </div>
+          </div>
         )}
 
-        {tab === 'list' && <ListTab />}
+        {tab === 'list' && <ListTab onAccount={() => setAccount(true)} />}
       </main>
 
-      <TabBar tab={tab} savedCount={savedCount} listCount={listCount} onChange={setTab} />
+      <TabBar tab={tab} listCount={listCount} onChange={setTab} />
 
       <IdeaSheet
         idea={openIdea}
@@ -319,6 +313,8 @@ function App() {
         onRecipe={onRecipe}
         onCook={(r) => { setLastIdea(openIdea); setCameFrom(tab); setOpenIdea(null); setCooking(r); setStage('cook') }}
       />
+
+      <Account open={account} onClose={() => setAccount(false)} />
 
       <Toaster position="top-center" />
     </div>

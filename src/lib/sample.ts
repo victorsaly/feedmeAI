@@ -22,7 +22,7 @@ const ideas: Idea[] = data.ideas.map((i, n) => ({
   id: `${ID}-${n}`,
   title: i.title,
   blurb: i.blurb,
-  minutes: i.minutes,
+  minutes: i.recipe.minutes, // the written recipe's time, so the row and the sheet agree
   uses: i.uses,
   missing: i.missing,
   source: 'ai',
