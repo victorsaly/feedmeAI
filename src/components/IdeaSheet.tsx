@@ -12,6 +12,7 @@ import { findVideo } from '@/lib/spoonacular'
 import { isSample } from '@/lib/sample'
 import { sortIngredients } from '@/lib/pantry'
 import { haptic } from '@/lib/native'
+import { ReportRecipe } from '@/components/ReportRecipe'
 
 interface IdeaSheetProps {
   idea: Idea | null
@@ -292,6 +293,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
               <p className="sheet-key">Estimated per serving &mdash; useful as a rough guide, not a lab figure.</p>
             </>
           )}
+          <ReportRecipe key={recipe.id} recipe={recipe} source={idea.source} />
 
         </>
       )}

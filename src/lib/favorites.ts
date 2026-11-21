@@ -96,6 +96,14 @@ export function ensureFavoritesLoaded(token: string | null): void {
   })
 }
 
+/** Forget what is saved on this device as well: for deleting an account's data. */
+export function clearFavorites(): void {
+  writeLocal([])
+  cache = []
+  cacheToken = null
+  notify()
+}
+
 export function isFavoriteCached(id: string): boolean {
   return cache?.some((r) => r.id === id) ?? false
 }

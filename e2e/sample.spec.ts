@@ -154,3 +154,53 @@ test('with no connection, the app says so and the list still works', async ({ pa
   await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /Fridge/ }).click()
   await expect(page.getByText('No connection.')).toHaveCount(0)
 })
+
+test('a recipe can be reported, with no account', async ({ page }) => {
+  const reports: unknown[] = []
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/v1/reports') { reports.push(route.request().postDataJSON()); return route.fulfill({ status: 201, json: { ok: true } }) }
+    return route.abort()
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Try a sample photo' }).click()
+  await page.getByRole('button', { name: /Vegetable Stir-Fry/ }).click()
+  const sheet = page.getByRole('dialog')
+
+  await sheet.getByRole('button', { name: 'Report this recipe' }).click()
+  await expect(sheet.getByRole('button', { name: 'Send report' })).toBeDisabled()
+  await sheet.getByRole('radio', { name: /Wrong/ }).check()
+  await sheet.getByLabel(/Anything to add/).fill('Step 3 says two minutes of heat for no reason.')
+  await sheet.getByRole('button', { name: 'Send report' }).click()
+
+  await expect(sheet.getByRole('status').filter({ hasText: 'Reported.' })).toBeVisible()
+  expect(reports).toEqual([expect.objectContaining({ title: 'Vegetable Stir-Fry', reason: 'wrong', note: 'Step 3 says two minutes of heat for no reason.', steps: expect.any(Array) })])
+})
+
+test('signed in, deleting my data empties the list and saved recipes and signs out', async ({ page }) => {
+  const server = { todos: [{ id: 't1', ingredient: '2 tablespoons soy sauce', recipeId: null, recipeName: 'Vegetable Stir-Fry', checked: false }], deleted: 0 }
+  await page.addInitScript(() => { if (!sessionStorage.getItem('seeded')) { localStorage.setItem('feedme-session', 'demo.token'); sessionStorage.setItem('seeded', '1') } })
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url()), method = route.request().method()
+    if (url.pathname === '/v1/me') return route.fulfill({ json: { id: 'u1', name: 'Victor' } })
+    if (url.pathname === '/v1/todos' && method === 'GET') return route.fulfill({ json: { todos: server.todos } })
+    if (url.pathname.startsWith('/v1/favorites')) return route.fulfill({ json: { favorites: [] } })
+    if (url.pathname === '/v1/account' && method === 'DELETE') { server.deleted++; server.todos = []; return route.fulfill({ json: { ok: true } }) }
+    return route.abort()
+  })
+  await page.goto('/')
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /List/ }).click()
+  await expect(page.locator('.list-item-name')).toHaveText(['Soy sauce'])
+
+  await page.getByRole('button', { name: /^Account/ }).click()
+  const account = page.getByRole('dialog')
+  await account.getByRole('button', { name: 'Delete my data' }).click()
+  // a second, explicit step: nothing is deleted by one tap
+  expect(server.deleted).toBe(0)
+  await account.getByRole('button', { name: 'Yes, delete it all' }).click()
+
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  expect(server.deleted).toBe(1)
+  await expect(page.locator('.list-item')).toHaveCount(0)
+  expect(await page.evaluate(() => [localStorage.getItem('feedme-session'), localStorage.getItem('feedme-list')])).toEqual([null, '[]'])
+})

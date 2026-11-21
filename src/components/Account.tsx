@@ -3,8 +3,10 @@ import { UserCircle } from '@phosphor-icons/react'
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { canSignIn, signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
-import { keepLocally } from '@/lib/list'
+import { canSignIn, deleteAccountData, signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
+import { clearFavorites } from '@/lib/favorites'
+import { toast } from 'sonner'
+import { clearList, keepLocally } from '@/lib/list'
 import { COUNTRIES, loadCountry, saveCountry } from '@/lib/shopping'
 import { DEVICE } from '@/lib/device'
 
@@ -42,7 +44,20 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
   const token = useSessionToken()
   const name = useName(token)
   const [country, setCountry] = useState(() => loadCountry() ?? 'gb')
-  const onOpenChange = (o: boolean) => { if (!o) onClose() }
+  const [deleting, setDeleting] = useState<'no' | 'ask' | 'busy' | 'failed'>('no')
+  const onOpenChange = (o: boolean) => { if (!o) { setDeleting('no'); onClose() } }
+
+  async function deleteData() {
+    if (!token) return
+    setDeleting('busy')
+    if (!(await deleteAccountData(token))) { setDeleting('failed'); return }
+    clearList()
+    clearFavorites()
+    signOut()
+    setDeleting('no')
+    onClose()
+    toast.success('Your list and saved recipes are deleted.')
+  }
 
   const body = (
     <div className="account">
@@ -85,6 +100,27 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
         <button type="button" className="btn btn-quiet account-out" onClick={() => { keepLocally(); signOut(); onClose() }}>
           Sign out
         </button>
+      )}
+
+      {token && (
+        <section className="account-delete" aria-labelledby="account-delete-title">
+          <h3 id="account-delete-title">Delete my data</h3>
+          <p>
+            Deletes your shopping list and saved recipes from our servers and from this {DEVICE}, and signs you
+            out. It cannot be undone. Your sign-in with victorsaly.com, shared with its other apps, is not removed.
+          </p>
+          {deleting === 'failed' && <p className="report-error" role="alert">That didn’t go through, so nothing was deleted. Check the connection and try again.</p>}
+          {deleting === 'no' || deleting === 'failed' ? (
+            <button type="button" className="btn btn-quiet account-danger" onClick={() => setDeleting('ask')}>Delete my data</button>
+          ) : (
+            <div className="report-actions">
+              <button type="button" className="btn btn-quiet" onClick={() => setDeleting('no')} disabled={deleting === 'busy'}>Keep it</button>
+              <button type="button" className="btn account-danger is-filled" onClick={deleteData} disabled={deleting === 'busy'}>
+                {deleting === 'busy' ? 'Deleting…' : 'Yes, delete it all'}
+              </button>
+            </div>
+          )}
+        </section>
       )}
     </div>
   )

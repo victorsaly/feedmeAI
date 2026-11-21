@@ -120,3 +120,20 @@ export async function whoAmI(token: string): Promise<{ id: string; name: string 
   }
   return data
 }
+
+const FEEDME = import.meta.env.VITE_FEEDME_API ?? 'https://feedmeai-api.still-union-ef8a.workers.dev'
+
+/** Delete everything FeedMe AI holds for this account on its servers: the
+ *  shopping list, saved recipes and usage counts. True only when the server
+ *  confirmed it, so the screen never says "deleted" on a guess. The sign-in
+ *  identity itself is shared with the other victorsaly.com sites and lives
+ *  in arcade-api; removing that is not something this app can do yet. */
+export async function deleteAccountData(token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${FEEDME}/v1/account`, { method: 'DELETE', headers: { authorization: `Bearer ${token}` } })
+    if (!res.ok) return false
+    return Boolean(((await res.json()) as { ok?: boolean }).ok)
+  } catch {
+    return false
+  }
+}

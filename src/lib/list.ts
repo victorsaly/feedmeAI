@@ -97,6 +97,13 @@ export async function removeItem(token: string | null, id: string): Promise<void
   if (!(await removeTodo(token, id))) { pending.removed.push(id); savePending() }
 }
 
+/** Forget the list on this device as well: for deleting an account's data. */
+export function clearList(): void {
+  pending = { checked: {}, removed: [] }
+  savePending()
+  set([])
+}
+
 /** When signing out, what is on screen stays on this device as a local list. */
 export function keepLocally(): void {
   pending = { checked: {}, removed: [] }

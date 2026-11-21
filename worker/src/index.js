@@ -32,6 +32,9 @@ const CORS = (origin, allowed) => ({
 
 const now = () => Math.floor(Date.now() / 1000);
 
+const REPORT_REASONS = ["unsafe", "wrong", "other"];
+const REPORTS_A_DAY = 20;
+
 /**
  * The supermarkets worth sending someone to, per country, and how to reach
  * their search. `match` is tested against SearchAPI's free-form `seller`.
@@ -116,6 +119,57 @@ async function route(request, env, url) {
       if (!result.meta.changes) return json({ error: "not found" }, { status: 404 });
       return json({ ok: true });
     }
+  }
+
+  /* ---------- report a recipe ----------
+   * The recipes are written by a model, so anyone must be able to say one is
+   * unsafe or wrong (App Store guideline 1.2). Open to everyone, signed in or
+   * not, and capped per caller per day so it cannot be used to fill the table.
+   * What is kept: the recipe as shown, the reason, an optional note, and the
+   * account id when there is one. No address is stored with a report. */
+  if (method === "POST" && pathname === "/v1/reports") {
+    const user = await currentUser(request, env);
+    const body = await request.json().catch(() => null);
+    const title = str(body?.title, 200).trim();
+    const reason = REPORT_REASONS.includes(body?.reason) ? body.reason : "";
+    if (!title || !reason) return json({ error: "a recipe and a reason are required" }, { status: 400 });
+
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS usage (key TEXT PRIMARY KEY, count INTEGER NOT NULL, updated_at INTEGER NOT NULL)").run();
+    const who = user ? `u:${user.id}` : `ip:${request.headers.get("cf-connecting-ip") ?? "unknown"}`;
+    const key = `report:${who}:${new Date().toISOString().slice(0, 10)}`;
+    const row = await env.DB.prepare(
+      "INSERT INTO usage (key, count, updated_at) VALUES (?, 1, ?) ON CONFLICT(key) DO UPDATE SET count = count + 1, updated_at = excluded.updated_at RETURNING count",
+    ).bind(key, now()).first();
+    if ((row?.count ?? 1) > REPORTS_A_DAY) return json({ error: "that is enough reports for today, thank you" }, { status: 429 });
+
+    await env.DB.prepare(
+      "CREATE TABLE IF NOT EXISTS reports (id TEXT PRIMARY KEY, user_id TEXT, title TEXT NOT NULL, reason TEXT NOT NULL, note TEXT, source TEXT, recipe TEXT, created_at INTEGER NOT NULL)",
+    ).run();
+    const recipe = JSON.stringify({
+      ingredients: Array.isArray(body?.ingredients) ? body.ingredients.filter((x) => typeof x === "string").slice(0, 60).map((x) => x.slice(0, 300)) : [],
+      steps: Array.isArray(body?.steps) ? body.steps.filter((x) => typeof x === "string").slice(0, 60).map((x) => x.slice(0, 1000)) : [],
+    });
+    await env.DB.prepare("INSERT INTO reports (id, user_id, title, reason, note, source, recipe, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(crypto.randomUUID(), user?.id ?? null, title, reason, str(body?.note, 500).trim() || null, str(body?.source, 20) || null, recipe, now())
+      .run();
+    return json({ ok: true }, { status: 201 });
+  }
+
+  /* ---------- delete everything this app holds for an account ----------
+   * The shopping list, saved recipes (favorites-api's table, in this same
+   * database) and the usage counts. The identity itself belongs to
+   * arcade-api and is shared with the other victorsaly.com sites, so it is
+   * not this worker's to delete. */
+  if (method === "DELETE" && pathname === "/v1/account") {
+    const user = await currentUser(request, env);
+    if (!user) return json({ error: "sign in first" }, { status: 401 });
+    const gone = { todos: 0, favorites: 0 };
+    // every table here is made on first use, so any of them may not exist yet
+    try { gone.todos = (await env.DB.prepare("DELETE FROM todos WHERE user_id = ?").bind(user.id).run()).meta.changes ?? 0; } catch { /* no todos table */ }
+    try { gone.favorites = (await env.DB.prepare("DELETE FROM favorites WHERE user_id = ?").bind(user.id).run()).meta.changes ?? 0; } catch { /* no favorites table */ }
+    try { await env.DB.prepare("DELETE FROM usage WHERE key LIKE ? OR key LIKE ?").bind(`u:${user.id}:%`, `report:u:${user.id}:%`).run(); } catch { /* no usage table */ }
+    try { await env.DB.prepare("UPDATE reports SET user_id = NULL WHERE user_id = ?").bind(user.id).run(); } catch { /* no reports table */ }
+    return json({ ok: true, deleted: gone });
   }
 
   if (method === "GET" && pathname === "/v1/shopping/search") {
