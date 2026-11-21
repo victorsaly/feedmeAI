@@ -29,6 +29,7 @@ export default defineConfig({
         site: resolve(__dirname, 'index.html'),
         privacy: resolve(__dirname, 'privacy/index.html'),
         support: resolve(__dirname, 'support/index.html'),
+        credits: resolve(__dirname, 'credits/index.html'),
         notfound: resolve(__dirname, '404.html'),
         app: resolve(__dirname, 'app/index.html'),
       },

@@ -1,1 +1,3 @@
 public/site/screen-results.jpg, screen-recipe.jpg, screen-list.jpg: screenshots of the built app at 390x844 @2x on the bundled sample run; shop prices in screen-list.jpg are UK listings recorded in September 2026.
+public/site/screen-start.jpg: screenshot of the built app's first screen at 390x844 @2x.
+public/site/film.mp4, film-poster.jpg: a 20.5 s film composed from a screen recording of the built app replaying recorded answers (brag-output/film/: capture.mjs, stage.html, render.mjs, audio.mjs); the photo is public/food/sample-fridge.jpg; the music is synthesised by audio.mjs, no samples.

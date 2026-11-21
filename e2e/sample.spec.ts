@@ -244,7 +244,7 @@ test('the product site is the home page and leads into the app', async ({ page }
   }
 
   // "Try a sample photo" lands on a result, and the address is left clean
-  await page.getByRole('link', { name: 'Try a sample photo' }).click()
+  await page.getByRole('link', { name: 'Try a sample photo' }).first().click()
   await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
   expect(new URL(page.url()).pathname + new URL(page.url()).search).toBe('/app/')
 

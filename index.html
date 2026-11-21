@@ -62,7 +62,7 @@
           <p class="terms">Free, with a daily limit on photos. No account needed. An iPhone app is on the way.</p>
         </div>
 
-        <div class="door">
+        <figure class="door" style="margin:0">
           <img class="door-photo" src="/food/sample-fridge.jpg" width="507" height="768" alt="A photo of vegetables laid out: carrots, red cabbage, spinach, radish, cucumber and tomato." />
           <ul class="magnets" aria-label="What the app read in the photo">
             <li class="magnet">Red cabbage</li>
@@ -72,15 +72,28 @@
             <li class="magnet">Spinach</li>
             <li class="magnet">+5 more</li>
           </ul>
-          <div class="phone"><img src="/site/screen-results.jpg" width="780" height="1688" alt="The app after that photo: 10 things in, and dinner ideas such as Cabbage and Carrot Slaw and Vegetable Stir-Fry, each tagged with what it still needs." /></div>
-        </div>
+          <div class="answer">
+            <b>Vegetable Stir-Fry</b>
+            <span>25 minutes · uses 3 of yours</span>
+            <span class="shelf-tag">needs soy sauce, ginger</span>
+          </div>
+          <figcaption>The app's sample photo, and what it made of it: a recorded run you can open yourself.</figcaption>
+        </figure>
+      </section>
+
+      <section class="film wrap" aria-labelledby="film-title">
+        <h2 id="film-title">The whole thing, in twenty seconds.</h2>
+        <video controls playsinline preload="none" poster="/site/film-poster.jpg" width="1920" height="1080" aria-describedby="film-note">
+          <source src="/site/film.mp4" type="video/mp4" />
+        </video>
+        <p id="film-note">Filmed from the real app. Its answers and the shop prices were recorded in September 2026 and replayed, so every take is the same. It has music and no speech.</p>
       </section>
 
       <section class="steps wrap" aria-labelledby="steps-title">
         <h2 id="steps-title">From an open fridge to a short shopping list.</h2>
         <ol>
           <li class="step">
-            <div class="phone"><img loading="lazy" src="/site/screen-results.jpg" width="780" height="1688" alt="The results screen: the photo, the ingredients read from it, and dinner ideas." /></div>
+            <div class="phone"><img loading="lazy" src="/site/screen-start.jpg" width="780" height="1688" alt="The app's first screen: Photograph it, Choose a photo, and Try a sample photo." /></div>
             <div>
               <h3>Photograph it</h3>
               <p>The fridge with the door open, or everything on the worktop. The app lists what it can see, with rough amounts, and you correct anything it got wrong.</p>
@@ -142,6 +155,7 @@
           <p>One photo is enough to find out. Or try the sample first; it costs you nothing.</p>
           <div class="cta">
             <a class="btn btn-light" href="/app/">Open the app</a>
+            <a class="btn btn-ghost" href="/app/?sample">Try a sample photo</a>
           </div>
         </div>
       </section>
@@ -152,6 +166,7 @@
       <nav aria-label="More">
         <a href="/support/">Support</a>
         <a href="/privacy/">Privacy</a>
+        <a href="/credits/">Photo credits</a>
         <a href="https://github.com/victorsaly/feedmeAI">Source on GitHub</a>
       </nav>
     </footer>

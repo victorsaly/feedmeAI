@@ -29,7 +29,7 @@ function walk(dir) {
 /* CNAME is for Pages, sw.js is this file, and the generator page is a dev tool */
 const SKIP = new Set(['sw.js', 'app/sw.js', 'CNAME', '.DS_Store', '404.html'])
 /* the product site's own pages and pictures: the app never shows them */
-const SITE = [/^\/index\.html$/, /^\/privacy\//, /^\/support\//, /^\/site\//, /^\/assets\/(site|privacy|support)-/]
+const SITE = [/^\/index\.html$/, /^\/privacy\//, /^\/support\//, /^\/credits\//, /^\/site\//, /^\/assets\/(site|privacy|support|credits|notfound)-/]
 
 const files = walk(DIST)
   .map((f) => '/' + relative(DIST, f).split(sep).join('/'))
