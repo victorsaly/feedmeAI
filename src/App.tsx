@@ -16,6 +16,7 @@ import { HaulHistory } from '@/components/HaulHistory'
 import { RecipeStrip } from '@/components/RecipeStrip'
 import { useBack } from '@/hooks/use-back'
 import { useOnline } from '@/hooks/use-online'
+import { PlanLimit } from '@/lib/plan'
 import { SampleCard } from '@/components/SampleCard'
 import { SAMPLE, isSample } from '@/lib/sample'
 import { TabBar, type Tab } from '@/components/TabBar'
@@ -61,6 +62,7 @@ function App() {
   const [lastIdea, setLastIdea] = useState<Idea | null>(null) // the sheet to reopen after Cook → back
   const [cameFrom, setCameFrom] = useState<Tab>('fridge') // the tab Cook was opened from
   const [account, setAccount] = useState(false)
+  const [photoLimit, setPhotoLimit] = useState<string>() // today's photos are used up: the Worker's own sentence
   const [tab, setTab] = useState<Tab>('fridge')
   const [meal, setMeal] = useState<Meal>(() => loadMeal())
   const [hauls, setHauls] = useState<Haul[]>(() => loadHauls())
@@ -107,13 +109,15 @@ function App() {
     try {
       const [{ items }, thumb, large] = await Promise.all([identify(small, token), thumbnail(small), thumbnail(small, LARGE)])
       if (id !== run.current) return
+      setPhotoLimit(undefined)
       setItems(items)
       setHaul({ id: `h-${Date.now()}`, createdAt: new Date().toISOString(), photo: thumb, photoLarge: large })
       setStage('haul')
       window.scrollTo({ top: 0 })
       if (items.length) draft(items, meal)
     } catch (err) {
-      toast.error(explain(err, "Couldn't read the photo. Check the connection and try again."))
+      if (err instanceof PlanLimit) { setPhoto(undefined); setPhotoLimit(err.message) }
+      else toast.error(explain(err, "Couldn't read the photo. Check the connection and try again."))
     } finally {
       if (id === run.current) setAnalyzing(false)
     }
@@ -258,6 +262,12 @@ function App() {
               <p className="offline-note" role="status">
                 No connection. A new photo needs one; your list, saved recipes and earlier photos still work.
               </p>
+            )}
+            {photoLimit && !analyzing && (
+              <div className="offline-note limit-note" role="status">
+                <b>{photoLimit}</b>
+                <span>The sample, your earlier photos and the recipes below still work.</span>
+              </div>
             )}
             <PhotoPicker onPhoto={onPhoto} onSample={() => reopen(SAMPLE)} looking={analyzing ? photo : undefined} />
 

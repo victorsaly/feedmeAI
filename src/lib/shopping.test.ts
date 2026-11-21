@@ -1,15 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { COMPARE_CAP, compareShops, loadCountry, saveCountry, type ShoppingSearch } from '@/lib/shopping'
+import { PlanLimit } from '@/lib/plan'
 
 const item = (source: string, title: string, price: string | null) => ({ title, price, link: null, source, thumbnail: null, delivery: null })
 
-/** Answer each search from a table keyed by the query. */
+/** The Worker: one request carries the whole list; answer each item from a table. */
 function answer(table: Record<string, ShoppingSearch>) {
   const asked: string[] = []
-  vi.stubGlobal('fetch', vi.fn(async (url: string) => {
-    const q = new URL(url).searchParams.get('q') ?? ''
-    asked.push(q)
-    return new Response(JSON.stringify(table[q] ?? { items: [], shops: [] }), { status: 200 })
+  vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+    expect(new URL(url).pathname).toBe('/v1/shopping/compare')
+    const { items } = JSON.parse(String(init?.body)) as { items: string[] }
+    asked.push(...items)
+    return Response.json({ results: items.map((q) => table[q] ?? { items: [], shops: [] }) })
   }))
   return asked
 }
@@ -57,6 +59,40 @@ describe('compareShops', () => {
     const many = Array.from({ length: COMPARE_CAP + 5 }, (_, n) => `item ${n}`)
     expect((await compareShops('t', many, 'gb')).searched).toBe(COMPARE_CAP)
     expect(asked).toHaveLength(COMPARE_CAP)
+  })
+
+  it('is one request however long the list, so a plan can count it as one price check', async () => {
+    const fetch = vi.fn(async () => Response.json({ results: [{ items: [], shops: [] }, { items: [], shops: [] }] }))
+    vi.stubGlobal('fetch', fetch)
+    await compareShops('t', ['a', 'b'], 'gb')
+    expect(fetch).toHaveBeenCalledTimes(1)
+    const init = (fetch.mock.calls[0] as unknown as [string, RequestInit])[1]
+    expect(JSON.parse(String(init.body))).toEqual({ items: ['a', 'b'], country: 'gb' })
+    expect((init.headers as Record<string, string>)['x-feedme-device']).toMatch(/^[a-f0-9-]{16,}$/)
+  })
+
+  it('raises a plan limit as its own thing, carrying the Worker\'s sentence', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json(
+      { error: "You've used this week's 2 free price checks. They come back on Monday.", limit: 'compares', tier: 'free', used: 2, allowed: 2, per: 'week', resets: '2026-11-23T00:00:00.000Z' },
+      { status: 429 },
+    )))
+    const err = await compareShops('t', ['a'], 'gb').catch((e) => e)
+    expect(err).toBeInstanceOf(PlanLimit)
+    expect(err.message).toBe("You've used this week's 2 free price checks. They come back on Monday.")
+    expect(err.hit).toMatchObject({ limit: 'compares', allowed: 2, per: 'week' })
+  })
+
+  it('still works against an older Worker, one search per item', async () => {
+    const asked: string[] = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      const u = new URL(url)
+      if (u.pathname === '/v1/shopping/compare') return new Response('{}', { status: 404 })
+      asked.push(u.searchParams.get('q') ?? '')
+      return Response.json({ items: [item('Shop', 'x', '£1.00')], shops: [] })
+    }))
+    const { groups } = await compareShops('t', ['a', 'b'], 'gb')
+    expect(asked).toEqual(['a', 'b'])
+    expect(groups[0]).toMatchObject({ label: 'Shop', total: 2 })
   })
 
   it('treats a failed search as nothing found, not as an error', async () => {

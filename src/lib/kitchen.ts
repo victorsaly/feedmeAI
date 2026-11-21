@@ -10,6 +10,7 @@
  */
 import { recipes as localRecipes, categories } from '@/data'
 import { fetchRecipe, findRecipes, isSpoonacular, type Video } from '@/lib/spoonacular'
+import { PlanLimit, limitFrom, planHeaders } from '@/lib/plan'
 
 export type Meal = 'breakfast' | 'lunch' | 'dinner' | 'dessert'
 
@@ -124,7 +125,7 @@ export class KitchenError extends Error {
 
 /** What to tell the person when a call fails. */
 export function explain(err: unknown, fallback: string): string {
-  return err instanceof KitchenError ? err.message : fallback
+  return err instanceof KitchenError || err instanceof PlanLimit ? err.message : fallback
 }
 
 /** Whether the worker has a model behind it. Assumed until the worker
@@ -151,10 +152,13 @@ class NotConfigured extends Error {}
 async function ask<T>(path: string, body: unknown, token?: string | null): Promise<T> {
   const res = await fetch(`${API}/v1/ai/${path}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    headers: { 'content-type': 'application/json', ...planHeaders(token) },
     body: JSON.stringify(body),
   })
   if (res.status === 503) { aiReady = false; throw new NotConfigured() }
+  // an allowance that has run out is not a fault: it gets its own screen
+  const hit = await limitFrom(res)
+  if (hit) throw new PlanLimit(hit)
   const data = (await res.json().catch(() => ({}))) as { error?: string } & T
   if (res.status === 401) throw new KitchenError('auth', 'Sign in to do that.')
   if (res.status === 429) throw new KitchenError('busy', data.error ?? 'The AI is busy right now. Try again in a moment.')

@@ -14,6 +14,8 @@
  * never leaks a session, and this worker cannot mint one.
  */
 
+import { FEATURES, PLANS, callerKey, decide, sentence, tierOf, usageKey } from "./plan.js";
+
 const json = (data, init = {}) =>
   new Response(JSON.stringify(data), {
     status: init.status ?? 200,
@@ -25,15 +27,53 @@ const origins = (env) => (env.ALLOWED_ORIGINS ?? "").split(",").map((s) => s.tri
 const CORS = (origin, allowed) => ({
   "access-control-allow-origin": allowed.includes(origin) ? origin : allowed[0] ?? "",
   "access-control-allow-methods": "GET,POST,PATCH,DELETE,OPTIONS",
-  "access-control-allow-headers": "content-type,authorization",
+  "access-control-allow-headers": "content-type,authorization,x-feedme-device",
   "access-control-max-age": "86400",
   vary: "origin",
 });
 
 const now = () => Math.floor(Date.now() / 1000);
 
+/* ---------- free and Plus (the rules are in plan.js) ---------- */
+
+let usageTable = false;
+async function usage(env) {
+  if (usageTable) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS usage (key TEXT PRIMARY KEY, count INTEGER NOT NULL, updated_at INTEGER NOT NULL)").run();
+  usageTable = true;
+}
+const usedOf = async (env, key) => ((await env.DB.prepare("SELECT count FROM usage WHERE key = ?").bind(key).first())?.count ?? 0);
+const bump = (env, key) =>
+  env.DB.prepare("INSERT INTO usage (key, count, updated_at) VALUES (?, 1, ?) ON CONFLICT(key) DO UPDATE SET count = count + 1, updated_at = excluded.updated_at")
+    .bind(key, now()).run();
+
+/** Who is asking, and on which plan. A purchase is a row in `plus`; until
+ *  purchases exist, PLUS_USERS (a list of account ids) grants it by hand. */
+async function planFor(request, env, user) {
+  await usage(env);
+  let row = null;
+  if (user?.id) {
+    try { row = await env.DB.prepare("SELECT expires_at FROM plus WHERE who = ?").bind(`u:${user.id}`).first(); } catch { /* no purchases yet, so no table */ }
+  }
+  return {
+    tier: tierOf(env, user, row, now()),
+    caller: callerKey(user, request.headers.get("x-feedme-device"), request.headers.get("cf-connecting-ip")),
+  };
+}
+
+/** Where this caller stands on one feature: counted only once the thing
+ *  succeeds (see `used`), so a failed photo never costs a free one. */
+async function standing(env, plan, feature) {
+  const date = new Date();
+  const key = usageKey(feature, plan.caller, PLANS[plan.tier][feature].per, date);
+  return { ...decide(plan.tier, feature, await usedOf(env, key), date), key };
+}
+const refuse = (d, status = 429) => json({ error: sentence(d), limit: d.feature, tier: d.tier, used: d.used, allowed: d.allowed, per: d.per, resets: d.resets }, { status });
+
 const REPORT_REASONS = ["unsafe", "wrong", "other"];
 const REPORTS_A_DAY = 20;
+const SEARCHES_A_DAY = 100;
+const COMPARE_ITEMS = 10;
 
 /**
  * The supermarkets worth sending someone to, per country, and how to reach
@@ -67,6 +107,46 @@ async function currentUser(request, env) {
   const response = await fetch(`${env.ARCADE_API}/v1/me`, { headers: { authorization: header } }).catch(() => null);
   if (!response || !response.ok) return null;
   return response.json().catch(() => null);
+}
+
+/** One Google Shopping search, narrowed to the country's supermarkets.
+ *  Null when the search itself failed. Each call costs money. */
+async function shopSearch(env, q, country) {
+  const search = new URL("https://www.searchapi.io/api/v1/search");
+  search.searchParams.set("engine", "google_shopping");
+  search.searchParams.set("q", q.slice(0, 200));
+  search.searchParams.set("gl", country);
+  search.searchParams.set("api_key", env.SEARCHAPI_KEY);
+
+  const response = await fetch(search).catch(() => null);
+  if (!response || !response.ok) return null;
+  const data = await response.json().catch(() => null);
+
+  // Verified against a live response: the retailer is `seller` (free-form:
+  // "Tesco", "sainsburys.co.uk", "Morrisons.com", "Asda Groceries"), and
+  // every link SearchAPI gives is a Google Shopping page -- the retailer's
+  // own URL is not exposed. So where we know the country's supermarkets we
+  // keep only their listings and link to *their* search for the product.
+  const stores = SUPERMARKETS[country] ?? [];
+  const storeFor = (seller) => stores.find((s) => s.match.test(seller ?? ""));
+  const results = data?.shopping_results ?? [];
+  const kept = stores.length ? results.filter((r) => storeFor(r.seller)) : results;
+  const items = kept.slice(0, 20).map((r) => {
+    const store = storeFor(r.seller);
+    return {
+      title: r.title,
+      price: r.price ?? null,
+      link: store ? store.search(r.title ?? q) : (r.product_link ?? r.offers_link ?? null),
+      googleLink: r.product_link ?? r.offers_link ?? null,
+      source: store ? store.label : (r.seller ?? null),
+      thumbnail: r.thumbnail ?? null,
+      delivery: r.delivery_return ?? null,
+    };
+  });
+  // The whole shortlist too, each with a search for the plain query, so the
+  // page can offer "look on Ocado" even when Google surfaced nothing there.
+  const shops = stores.map((s) => ({ key: s.key, label: s.label, link: s.search(q) }));
+  return { items, shops };
 }
 
 async function route(request, env, url) {
@@ -182,41 +262,50 @@ async function route(request, env, url) {
     if (!/^[a-z]{2}$/.test(country)) return json({ error: "a two-letter country code is required" }, { status: 400 });
     if (!env.SEARCHAPI_KEY) return json({ error: "shopping search is not configured" }, { status: 503 });
 
-    const search = new URL("https://www.searchapi.io/api/v1/search");
-    search.searchParams.set("engine", "google_shopping");
-    search.searchParams.set("q", q.slice(0, 200));
-    search.searchParams.set("gl", country);
-    search.searchParams.set("api_key", env.SEARCHAPI_KEY);
+    // The app compares a whole list through /v1/shopping/compare, which is
+    // what the plans count. This single search is kept for older copies of
+    // the app, behind a plain daily ceiling so it cannot run up a bill.
+    await usage(env);
+    const key = `search:u:${user.id}:${new Date().toISOString().slice(0, 10)}`;
+    if ((await usedOf(env, key)) >= SEARCHES_A_DAY) return json({ error: "that is enough searches for today" }, { status: 429 });
+    const found = await shopSearch(env, q, country);
+    if (!found) return json({ error: "shopping search failed" }, { status: 502 });
+    await bump(env, key);
+    return json(found, { headers: { "cache-control": "public, max-age=300" } });
+  }
 
-    const response = await fetch(search).catch(() => null);
-    if (!response || !response.ok) return json({ error: "shopping search failed" }, { status: 502 });
-    const data = await response.json().catch(() => null);
+  /* The whole list at once: one comparison, however many items (up to ten),
+   * and the unit the plans count. Counted only when at least one search
+   * came back, so an outage does not use up a free check. */
+  if (method === "POST" && pathname === "/v1/shopping/compare") {
+    const user = await currentUser(request, env);
+    if (!user) return json({ error: "sign in first" }, { status: 401 });
+    const body = await request.json().catch(() => null);
+    const items = strs(body?.items, COMPARE_ITEMS);
+    const country = str(body?.country, 2).toLowerCase();
+    if (!items.length) return json({ error: "a list is required" }, { status: 400 });
+    if (!/^[a-z]{2}$/.test(country)) return json({ error: "a two-letter country code is required" }, { status: 400 });
+    if (!env.SEARCHAPI_KEY) return json({ error: "shopping search is not configured" }, { status: 503 });
 
-    // Verified against a live response: the retailer is `seller` (free-form:
-    // "Tesco", "sainsburys.co.uk", "Morrisons.com", "Asda Groceries"), and
-    // every link SearchAPI gives is a Google Shopping page -- the retailer's
-    // own URL is not exposed. So where we know the country's supermarkets we
-    // keep only their listings and link to *their* search for the product.
-    const stores = SUPERMARKETS[country] ?? [];
-    const storeFor = (seller) => stores.find((s) => s.match.test(seller ?? ""));
-    const results = data?.shopping_results ?? [];
-    const kept = stores.length ? results.filter((r) => storeFor(r.seller)) : results;
-    const items = kept.slice(0, 20).map((r) => {
-      const store = storeFor(r.seller);
-      return {
-        title: r.title,
-        price: r.price ?? null,
-        link: store ? store.search(r.title ?? q) : (r.product_link ?? r.offers_link ?? null),
-        googleLink: r.product_link ?? r.offers_link ?? null,
-        source: store ? store.label : (r.seller ?? null),
-        thumbnail: r.thumbnail ?? null,
-        delivery: r.delivery_return ?? null,
-      };
-    });
-    // The whole shortlist too, each with a search for the plain query, so the
-    // page can offer "look on Ocado" even when Google surfaced nothing there.
-    const shops = stores.map((s) => ({ key: s.key, label: s.label, link: s.search(q) }));
-    return json({ items, shops }, { headers: { "cache-control": "public, max-age=300" } });
+    const plan = await planFor(request, env, user);
+    const where = await standing(env, plan, "compares");
+    if (!where.ok) return refuse(where);
+    const results = await Promise.all(items.map((q) => shopSearch(env, q, country)));
+    if (results.every((r) => r === null)) return json({ error: "shopping search failed" }, { status: 502 });
+    await bump(env, where.key);
+    return json({ results: results.map((r) => r ?? { items: [], shops: [] }), plan: { ...where, used: where.used + 1, key: undefined } });
+  }
+
+  /* What this caller has used and may use: for the Account screen. */
+  if (method === "GET" && pathname === "/v1/plan") {
+    const user = await currentUser(request, env);
+    const plan = await planFor(request, env, user);
+    const out = { tier: plan.tier };
+    for (const feature of FEATURES) {
+      const { used, allowed, per, resets } = await standing(env, plan, feature);
+      out[feature] = { used, allowed, per, resets };
+    }
+    return json(out);
   }
 
   if (method === "GET" && pathname.startsWith("/v1/recipes/")) return recipes(request, env, url);
@@ -306,7 +395,14 @@ async function ai(request, env, url) {
   if (pathname === "/v1/ai/image" && !user) return json({ error: "sign in first" }, { status: 401 });
 
   const { count, limit } = await spend(request, env, user);
-  if (count > limit) return json({ error: "that's the AI's limit for today from here — sign in for more, or try tomorrow" }, { status: 429 });
+  if (count > limit) return json({ error: "That is a lot for one day. Try again tomorrow." }, { status: 429 });
+
+  // A photo read and a generated picture are what the plans count.
+  const plan = await planFor(request, env, user);
+  const counted = pathname === "/v1/ai/identify" ? "photos" : pathname === "/v1/ai/image" ? "pictures" : null;
+  const where = counted ? await standing(env, plan, counted) : null;
+  if (where && !where.ok) return refuse(where, where.allowed === 0 ? 403 : 429);
+
 
   if (pathname === "/v1/ai/identify") {
     const image = str(body.image, 2_000_000);
@@ -327,6 +423,7 @@ async function ai(request, env, url) {
       500,
     );
     if (error) return error;
+    await bump(env, where.key);
     return json({ ingredients: Array.isArray(data.ingredients) ? data.ingredients : [] });
   }
 
@@ -405,7 +502,9 @@ async function ai(request, env, url) {
     }).catch(() => null);
     if (!response || !response.ok) return json({ url: null });
     const data = await response.json().catch(() => null);
-    return json({ url: data?.data?.[0]?.url ?? null });
+    const made = data?.data?.[0]?.url ?? null;
+    if (made) await bump(env, where.key);
+    return json({ url: made });
   }
 
   return json({ error: "not found" }, { status: 404 });

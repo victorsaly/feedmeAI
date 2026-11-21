@@ -1528,6 +1528,14 @@
 .account-danger { color: #a3231a; }
 .account-danger.is-filled { background: #a3231a; color: #fff; }
 
+.limit-note { display: grid; gap: .2rem; }
+.limit-note b { font-weight: 600; }
+.account-plan { margin: 0; border-radius: var(--r-list); background: var(--white); box-shadow: var(--shadow-list); padding: 0 1rem; }
+.account-plan div { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; min-height: 46px; padding: .6rem 0; }
+.account-plan div + div { border-top: 1px solid var(--hairline); }
+.account-plan dt { font-weight: 600; }
+.account-plan dd { margin: 0; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+
 /* ---------- three tabs ---------- */
 .tabs { grid-template-columns: repeat(3, 1fr); }
 .meals.seg-two { grid-template-columns: 1fr 1fr; margin: 0 0 1rem; }

@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { canSignIn, deleteAccountData, signIn, signOut, useSessionToken, whoAmI } from '@/lib/account'
 import { clearFavorites } from '@/lib/favorites'
 import { toast } from 'sonner'
+import { fetchPlan, used, type Plan } from '@/lib/plan'
 import { clearList, keepLocally } from '@/lib/list'
 import { COUNTRIES, loadCountry, saveCountry } from '@/lib/shopping'
 import { DEVICE } from '@/lib/device'
@@ -45,6 +46,14 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
   const name = useName(token)
   const [country, setCountry] = useState(() => loadCountry() ?? 'gb')
   const [deleting, setDeleting] = useState<'no' | 'ask' | 'busy' | 'failed'>('no')
+  const [plan, setPlan] = useState<Plan | null>(null)
+  // asked each time the sheet opens, so the numbers are today's
+  useEffect(() => {
+    if (!open) return
+    let live = true
+    fetchPlan(token).then((p) => { if (live) setPlan(p) })
+    return () => { live = false }
+  }, [open, token])
   const onOpenChange = (o: boolean) => { if (!o) { setDeleting('no'); onClose() } }
 
   async function deleteData() {
@@ -79,6 +88,15 @@ export function Account({ open, onClose }: { open: boolean; onClose: () => void 
             ? <button type="button" className="btn btn-primary btn-xl" onClick={signIn}>Continue with Google</button>
             : <p className="account-why"><b>Signing in is not in the iPhone app yet.</b> Everything on this phone works without it.</p>}
         </>
+      )}
+
+      {plan && (
+        <dl className="account-plan" aria-label="Your plan">
+          <div><dt>Plan</dt><dd>{plan.tier === 'plus' ? 'Plus' : 'Free'}</dd></div>
+          <div><dt>Photos read</dt><dd>{used(plan.photos)}</dd></div>
+          {token && <div><dt>Shop price checks</dt><dd>{used(plan.compares)}</dd></div>}
+          {plan.pictures.allowed > 0 && <div><dt>Generated pictures</dt><dd>{used(plan.pictures)}</dd></div>}
+        </dl>
       )}
 
       <label className="account-row" htmlFor="account-country">

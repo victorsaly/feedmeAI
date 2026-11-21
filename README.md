@@ -31,7 +31,7 @@ Sign-in uses the shared victorsaly.com account (Google). Nothing needs it except
 ## How it works
 
 - The front end is a static React app on GitHub Pages. It holds no API keys.
-- `worker/` is a Cloudflare Worker (`feedmeai-api`) that does everything needing a secret: OpenAI vision and text calls (`gpt-4o-mini`), an optional generated "suggested look" image for new dishes (signed in only), Spoonacular recipe search, YouTube video lookup and Google Shopping search via SearchAPI. AI calls are metered per day, with a higher limit when signed in. It also stores the shopping list in Cloudflare D1.
+- `worker/` is a Cloudflare Worker (`feedmeai-api`) that does everything needing a secret: OpenAI vision and text calls (`gpt-4o-mini`), an optional generated "suggested look" image for new dishes (signed in only), Spoonacular recipe search, YouTube video lookup and Google Shopping search via SearchAPI. What each person may do is set by a plan (`worker/src/plan.js`): photos read a day, shop price checks, and generated pictures, counted separately for a free tier and a paid one that is not on sale yet. It also stores the shopping list in Cloudflare D1.
 - `workers/favorites-api/` is a second small Worker that stores saved recipes in the same D1 database, keyed by account.
 - Both Workers verify the session token against the shared auth API on each request.
 

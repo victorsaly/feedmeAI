@@ -4,6 +4,8 @@
  * currently does (see the README note), just not fixed yet for that one.
  */
 
+import { PlanLimit, limitFrom, planHeaders } from '@/lib/plan'
+
 const API = import.meta.env.VITE_FEEDME_API ?? 'https://feedmeai-api.still-union-ef8a.workers.dev'
 const COUNTRY_KEY = 'feedme-country'
 
@@ -92,6 +94,29 @@ export async function searchShopping(token: string, query: string, country: stri
   }
 }
 
+/** Every item in one request, which is what a plan counts as one price
+ *  check. Throws PlanLimit when the allowance has run out. An older Worker
+ *  that does not know this route gets one search per item instead. */
+async function searchAll(token: string, queries: string[], country: string): Promise<ShoppingSearch[]> {
+  const nothing = (): ShoppingSearch[] => queries.map(() => ({ items: [], shops: [] }))
+  let res: Response
+  try {
+    res = await fetch(`${API}/v1/shopping/compare`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...planHeaders(token) },
+      body: JSON.stringify({ items: queries, country }),
+    })
+  } catch {
+    return nothing()
+  }
+  const hit = await limitFrom(res)
+  if (hit) throw new PlanLimit(hit)
+  if (res.status === 404) return Promise.all(queries.map((q) => searchShopping(token, q, country)))
+  if (!res.ok) return nothing()
+  const data = (await res.json().catch(() => null)) as { results?: Partial<ShoppingSearch>[] } | null
+  return queries.map((_, i) => ({ items: data?.results?.[i]?.items ?? [], shops: data?.results?.[i]?.shops ?? [] }))
+}
+
 /* ---------- the whole list at once, regrouped by shop ---------- */
 
 /** What one shop has for one ingredient: its cheapest matching listing. */
@@ -138,7 +163,7 @@ const currencyOf = (price: string | null): string => price?.match(/^[^\d\s]+/)?.
  */
 export async function compareShops(token: string, ingredients: string[], country: string): Promise<Comparison> {
   const queries = ingredients.slice(0, COMPARE_CAP)
-  const results = await Promise.all(queries.map((q) => searchShopping(token, q, country)))
+  const results = await searchAll(token, queries, country)
 
   const groups = new Map<string, ShopGroup>()
   const unfound: string[] = []

@@ -6,6 +6,7 @@ import { addItem, checkItem, removeItem, syncList, useList, type Item } from '@/
 import { nameOf } from '@/lib/pantry'
 import { DEVICE } from '@/lib/device'
 import { haptic, shareText } from '@/lib/native'
+import { PlanLimit } from '@/lib/plan'
 import { COMPARE_CAP, COUNTRIES, compareShops, loadCountry, type Comparison } from '@/lib/shopping'
 
 /** "2 tablespoons soy sauce" → what to look for on the shelf: "Soy sauce" */
@@ -29,6 +30,7 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
   const [draft, setDraft] = useState('')
   const [compare, setCompare] = useState<{ state: 'loading' } | { state: 'ready'; result: Comparison; of: string[]; at: Date } | null>(null)
   const [allShops, setAllShops] = useState(false)
+  const [limit, setLimit] = useState<string>()
   const country = loadCountry() ?? 'gb'
   const countryName = COUNTRIES.find((c) => c.code === country)?.label ?? country.toUpperCase()
 
@@ -46,7 +48,14 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
     if (!token) { if (canSignIn) signIn(); else onAccount(); return }
     const of = names.slice(0, COMPARE_CAP)
     setCompare({ state: 'loading' })
-    setCompare({ state: 'ready', result: await compareShops(token, of, country), of, at: new Date() })
+    setLimit(undefined)
+    try {
+      setCompare({ state: 'ready', result: await compareShops(token, of, country), of, at: new Date() })
+    } catch (err) {
+      setCompare(null)
+      if (err instanceof PlanLimit) setLimit(err.message)
+      else toast.error("Couldn't check prices. Try again.")
+    }
   }
 
   function submit(e: React.FormEvent) {
@@ -178,6 +187,8 @@ export function ListTab({ onAccount }: { onAccount: () => void }) {
             </div>
           ) : fresh ? (
             <div className="ideas-empty"><p>No shop in {countryName} lists any of these.</p></div>
+          ) : limit ? (
+            <p className="offline-note" role="status">{limit}</p>
           ) : (
             <div className="shops-ask">
               <button type="button" className="btn btn-quiet" onClick={runCompare} disabled={compare?.state === 'loading'}>

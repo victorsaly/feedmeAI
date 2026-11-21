@@ -8,10 +8,10 @@ afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); localStorage.clear(
 
 /** The Worker, answering each /v1/ai/<path> with a status and a body. */
 function worker(routes: Record<string, { status?: number; body: unknown }>) {
-  const seen: { path: string; body: unknown; auth: string | null }[] = []
+  const seen: { path: string; body: unknown; auth: string | null; device: string | null }[] = []
   vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
     const path = new URL(url).pathname.replace('/v1/ai/', '')
-    seen.push({ path, body: init?.body ? JSON.parse(String(init.body)) : null, auth: (init?.headers as Record<string, string> | undefined)?.authorization ?? null })
+    seen.push({ path, body: init?.body ? JSON.parse(String(init.body)) : null, auth: (init?.headers as Record<string, string> | undefined)?.authorization ?? null, device: (init?.headers as Record<string, string> | undefined)?.['x-feedme-device'] ?? null })
     const hit = routes[path]
     if (!hit) return new Response('{}', { status: 404 })
     return new Response(JSON.stringify(hit.body), { status: hit.status ?? 200 })
@@ -86,6 +86,16 @@ describe('identify', () => {
     expect(first.source).toBe('local')
     expect(first.items.length).toBeGreaterThan(0)
     expect(kitchen.hasKey()).toBe(false)
+  })
+
+  it('raises a used-up allowance as a plan limit, not an error, and names the device', async () => {
+    const seen = worker({ identify: { status: 429, body: { error: "You've used today's 3 free photos. They come back tomorrow.", limit: 'photos', tier: 'free', used: 3, allowed: 3, per: 'day', resets: '2026-11-22T00:00:00.000Z' } } })
+    const { PlanLimit } = await import('@/lib/plan')
+    const err = await kitchen.identify('data:image/jpeg;base64,AAAA').catch((e) => e)
+    expect(err).toBeInstanceOf(PlanLimit)
+    expect(err.hit).toMatchObject({ limit: 'photos', used: 3, allowed: 3 })
+    expect(kitchen.explain(err, 'fallback')).toBe("You've used today's 3 free photos. They come back tomorrow.")
+    expect(seen[0].device).toMatch(/^[a-f0-9-]{16,}$/)
   })
 
   it('says so in plain words when the daily limit is reached', async () => {

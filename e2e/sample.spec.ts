@@ -204,3 +204,28 @@ test('signed in, deleting my data empties the list and saved recipes and signs o
   await expect(page.locator('.list-item')).toHaveCount(0)
   expect(await page.evaluate(() => [localStorage.getItem('feedme-session'), localStorage.getItem('feedme-list')])).toEqual([null, '[]'])
 })
+
+test("when today's free photos are used up, the first screen says so and still offers dinner", async ({ page }) => {
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true } })
+    if (url.pathname === '/v1/ai/identify') {
+      return route.fulfill({ status: 429, json: { error: "You've used today's 3 free photos. They come back tomorrow.", limit: 'photos', tier: 'free', used: 3, allowed: 3, per: 'day', resets: '2026-11-22T00:00:00.000Z' } })
+    }
+    if (url.pathname === '/v1/plan') return route.fulfill({ json: { tier: 'free', photos: { used: 3, allowed: 3, per: 'day', resets: '' }, compares: { used: 0, allowed: 2, per: 'week', resets: '' }, pictures: { used: 0, allowed: 0, per: 'month', resets: '' } } })
+    return route.abort()
+  })
+  await page.goto('/')
+  await page.locator('input[type="file"]').last().setInputFiles('public/food/sample-fridge.jpg')
+
+  const note = page.getByRole('status').filter({ hasText: "You've used today's 3 free photos." })
+  await expect(note).toBeVisible()
+  await expect(note).toContainText('They come back tomorrow.')
+  // not a dead end: the ways to dinner that cost nothing are still on the screen
+  await expect(page.getByRole('button', { name: 'Try a sample photo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Or cook one of these' })).toBeVisible()
+
+  await page.getByRole('button', { name: /^Account/ }).click()
+  await expect(page.getByRole('dialog').getByText('3 of 3 today')).toBeVisible()
+  await expect(page.getByRole('dialog').getByText('Free', { exact: true })).toBeVisible()
+})
