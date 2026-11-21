@@ -208,7 +208,7 @@ test('signed in, deleting my data empties the list and saved recipes and signs o
 test("when today's free photos are used up, the first screen says so and still offers dinner", async ({ page }) => {
   await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
     const url = new URL(route.request().url())
-    if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true } })
+    if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true, plans: true } })
     if (url.pathname === '/v1/ai/identify') {
       return route.fulfill({ status: 429, json: { error: "You've used today's 3 free photos. They come back tomorrow.", limit: 'photos', tier: 'free', used: 3, allowed: 3, per: 'day', resets: '2026-11-22T00:00:00.000Z' } })
     }

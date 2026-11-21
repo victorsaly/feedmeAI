@@ -10,7 +10,7 @@
  */
 import { recipes as localRecipes, categories } from '@/data'
 import { fetchRecipe, findRecipes, isSpoonacular, type Video } from '@/lib/spoonacular'
-import { PlanLimit, limitFrom, planHeaders } from '@/lib/plan'
+import { PlanLimit, limitFrom, planHeaders, setPlansLive } from '@/lib/plan'
 
 export type Meal = 'breakfast' | 'lunch' | 'dinner' | 'dessert'
 
@@ -140,7 +140,11 @@ export function hasKey(): boolean {
 export async function probeAI(): Promise<boolean> {
   try {
     const res = await fetch(`${API}/v1/ai`, { cache: 'no-store' })
-    if (res.ok) aiReady = Boolean(((await res.json()) as { ready?: boolean }).ready)
+    if (res.ok) {
+      const said = (await res.json()) as { ready?: boolean; plans?: boolean }
+      aiReady = Boolean(said.ready)
+      setPlansLive(Boolean(said.plans))
+    }
   } catch {
     // unreachable: leave the assumption; a call will settle it
   }

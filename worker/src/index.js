@@ -383,7 +383,8 @@ const ingredientItems = (a, max = 40) =>
 const describeItems = (items) => items.map((i) => (i.amount ? `${i.name} (${i.amount})` : i.name)).join(", ");
 
 async function ai(request, env, url) {
-  if (request.method === "GET" && url.pathname === "/v1/ai") return json({ ready: Boolean(env.OPENAI_API_KEY) });
+  // `plans` tells the app this Worker counts by plan and accepts its device header
+  if (request.method === "GET" && url.pathname === "/v1/ai") return json({ ready: Boolean(env.OPENAI_API_KEY), plans: true });
   if (request.method !== "POST") return json({ error: "not found" }, { status: 404 });
   if (!env.OPENAI_API_KEY) return json({ error: "the AI is not configured" }, { status: 503 });
 

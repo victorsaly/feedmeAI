@@ -43,14 +43,22 @@ export async function limitFrom(res: Response): Promise<LimitHit | null> {
   return { limit: body.limit, tier: body.tier ?? 'free', used: body.used ?? body.allowed, allowed: body.allowed, per: body.per ?? 'day', resets: body.resets ?? '', message: body.error ?? '' }
 }
 
+/** Whether the Worker counts by plan. An older Worker does not, and would
+ *  refuse a request carrying a header it has never heard of, so the app only
+ *  names its device once the Worker has said it understands (kitchen.probeAI).
+ *  This lets the app and the Worker be deployed in either order. */
+let plansLive = false
+export const setPlansLive = (live: boolean) => { plansLive = live }
+
 /** Every request that the plan counts says which device it is from. */
 export const planHeaders = (token?: string | null): Record<string, string> => ({
-  'x-feedme-device': deviceId(),
+  ...(plansLive ? { 'x-feedme-device': deviceId() } : {}),
   ...(token ? { authorization: `Bearer ${token}` } : {}),
 })
 
 /** Null when the Worker cannot say (offline, or an older Worker). */
 export async function fetchPlan(token: string | null): Promise<Plan | null> {
+  if (!plansLive) return null
   try {
     const res = await fetch(`${API}/v1/plan`, { headers: planHeaders(token), cache: 'no-store' })
     if (!res.ok) return null

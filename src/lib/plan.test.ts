@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchPlan, limitFrom, used } from '@/lib/plan'
+import { fetchPlan, limitFrom, planHeaders, setPlansLive, used } from '@/lib/plan'
 import { deviceId } from '@/lib/device'
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.unstubAllGlobals(); setPlansLive(false) })
 
 describe('the device id', () => {
   it('is made once and kept', () => {
@@ -30,7 +30,16 @@ describe('reading a refusal', () => {
 describe('the plan', () => {
   const plan = { tier: 'free', photos: { used: 1, allowed: 3, per: 'day', resets: '' }, compares: { used: 0, allowed: 2, per: 'week', resets: '' }, pictures: { used: 0, allowed: 0, per: 'month', resets: '' } }
 
+  it('says nothing of the device, and asks for no plan, until the Worker says it counts by plan', async () => {
+    const fetch = vi.fn(async () => Response.json(plan))
+    vi.stubGlobal('fetch', fetch)
+    expect(planHeaders('tok')).toEqual({ authorization: 'Bearer tok' })
+    expect(await fetchPlan('tok')).toBeNull()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   it('asks with the device id, and the account when there is one', async () => {
+    setPlansLive(true)
     const fetch = vi.fn(async () => Response.json(plan))
     vi.stubGlobal('fetch', fetch)
     expect(await fetchPlan('tok')).toEqual(plan)
@@ -40,6 +49,7 @@ describe('the plan', () => {
   })
 
   it('is null, not a guess, when the Worker cannot say', async () => {
+    setPlansLive(true)
     vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 404 })))
     expect(await fetchPlan(null)).toBeNull()
     vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline') }))

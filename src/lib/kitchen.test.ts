@@ -90,12 +90,21 @@ describe('identify', () => {
 
   it('raises a used-up allowance as a plan limit, not an error, and names the device', async () => {
     const seen = worker({ identify: { status: 429, body: { error: "You've used today's 3 free photos. They come back tomorrow.", limit: 'photos', tier: 'free', used: 3, allowed: 3, per: 'day', resets: '2026-11-22T00:00:00.000Z' } } })
-    const { PlanLimit } = await import('@/lib/plan')
+    const { PlanLimit, setPlansLive } = await import('@/lib/plan')
+    setPlansLive(true)
     const err = await kitchen.identify('data:image/jpeg;base64,AAAA').catch((e) => e)
     expect(err).toBeInstanceOf(PlanLimit)
     expect(err.hit).toMatchObject({ limit: 'photos', used: 3, allowed: 3 })
     expect(kitchen.explain(err, 'fallback')).toBe("You've used today's 3 free photos. They come back tomorrow.")
     expect(seen[0].device).toMatch(/^[a-f0-9-]{16,}$/)
+  })
+
+  it('learns from the Worker whether it counts by plan, and only then names the device', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ ready: true, plans: true })))
+    const { planHeaders } = await import('@/lib/plan')
+    expect(planHeaders()).toEqual({})
+    await kitchen.probeAI()
+    expect(planHeaders()['x-feedme-device']).toMatch(/^[a-f0-9-]{16,}$/)
   })
 
   it('says so in plain words when the daily limit is reached', async () => {

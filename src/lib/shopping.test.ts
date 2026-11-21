@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { COMPARE_CAP, compareShops, loadCountry, saveCountry, type ShoppingSearch } from '@/lib/shopping'
-import { PlanLimit } from '@/lib/plan'
+import { PlanLimit, setPlansLive } from '@/lib/plan'
 
 const item = (source: string, title: string, price: string | null) => ({ title, price, link: null, source, thumbnail: null, delivery: null })
 
@@ -64,7 +64,9 @@ describe('compareShops', () => {
   it('is one request however long the list, so a plan can count it as one price check', async () => {
     const fetch = vi.fn(async () => Response.json({ results: [{ items: [], shops: [] }, { items: [], shops: [] }] }))
     vi.stubGlobal('fetch', fetch)
+    setPlansLive(true)
     await compareShops('t', ['a', 'b'], 'gb')
+    setPlansLive(false)
     expect(fetch).toHaveBeenCalledTimes(1)
     const init = (fetch.mock.calls[0] as unknown as [string, RequestInit])[1]
     expect(JSON.parse(String(init.body))).toEqual({ items: ['a', 'b'], country: 'gb' })
