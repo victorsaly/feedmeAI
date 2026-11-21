@@ -41,7 +41,7 @@ React 19, TypeScript, Vite, Tailwind CSS, Radix UI / vaul, Cloudflare Workers + 
 
 ## Run locally
 
-Requires Node.js 20+.
+Requires Node.js 22+.
 
 ```bash
 git clone https://github.com/victorsaly/feedmeAI.git
