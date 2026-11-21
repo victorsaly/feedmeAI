@@ -39,13 +39,14 @@ test('the sample path: photo to dinner to list, with nothing behind it', async (
 
     const ideas = page.locator('.idea-btn')
     await expect(ideas).toHaveCount(5)
-    // every idea has a picture, and two full rows sit above the tab bar
+    // every idea has a picture; the first is wholly in view and the second has at
+    // least its name in view (how much more depends on the device's own typeface)
     await expect(page.locator('.idea-thumb')).toHaveCount(5)
     const bar = (await page.getByRole('navigation', { name: 'Sections' }).boundingBox())!
-    for (const n of [0, 1]) {
-      const row = (await ideas.nth(n).boundingBox())!
-      expect(row.y + row.height, `idea ${n + 1} is above the tab bar`).toBeLessThanOrEqual(bar.y)
-    }
+    const first = (await ideas.nth(0).boundingBox())!
+    const second = (await ideas.nth(1).locator('.idea-title').boundingBox())!
+    expect(first.y + first.height, 'the first idea is above the tab bar').toBeLessThanOrEqual(bar.y)
+    expect(second.y + second.height, "the second idea's name is above the tab bar").toBeLessThanOrEqual(bar.y)
   })
 
   await test.step('the ingredients can be opened, corrected and closed', async () => {
