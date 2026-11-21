@@ -66,31 +66,35 @@
       "missing": [
         "lime or lemon juice"
       ],
-      "recorded": false,
+      "recorded": true,
       "recipe": {
-        "description": "A crunchy slaw of shredded red cabbage and grated carrot, sharpened with lime and topped with sliced avocado. No cooking, and ready in the time it takes to shred the cabbage.",
+        "description": "This vibrant Cabbage and Carrot Slaw with Avocado is a refreshing dish that combines crunchy vegetables with creamy avocado. Perfect as a side or a light meal, it's easy to prepare and packed with nutrients.",
         "minutes": 15,
         "difficulty": "Easy",
         "ingredients": [
-          "1/4 red cabbage, finely shredded",
-          "2 carrots, grated",
-          "1 avocado, sliced",
-          "Juice of 1 lime or lemon",
-          "1 tablespoon olive oil",
-          "Salt and pepper to taste"
+          "200g red cabbage, shredded",
+          "150g carrots, grated",
+          "1 ripe avocado, diced",
+          "1 lime, juiced",
+          "50g cucumber, sliced",
+          "50g radish, sliced",
+          "50g green bell pepper, diced",
+          "30g fresh herbs (e.g., cilantro or parsley), chopped",
+          "Salt to taste"
         ],
         "steps": [
-          "Finely shred the red cabbage and put it in a large bowl.",
-          "Grate the carrots and add them to the cabbage.",
-          "Whisk the lime or lemon juice with the olive oil, salt and pepper.",
-          "Pour the dressing over the cabbage and carrots and toss well. Leave for 5 minutes to soften.",
-          "Halve, stone and slice the avocado. Lay it on top just before serving."
+          "In a large bowl, combine the shredded red cabbage and grated carrots.",
+          "Add the diced avocado and gently mix to combine.",
+          "Squeeze the juice of one lime over the mixture and toss gently to coat.",
+          "Add the sliced cucumber, radish, and diced green bell pepper.",
+          "Sprinkle chopped fresh herbs over the top and season with salt to taste.",
+          "Toss everything together until well mixed and serve immediately."
         ],
         "nutrition": {
-          "calories": 310,
-          "protein": "5g",
-          "carbs": "24g",
-          "fat": "23g"
+          "calories": 180,
+          "protein": "4g",
+          "carbs": "25g",
+          "fat": "8g"
         }
       }
     },
@@ -151,32 +155,31 @@
       "missing": [
         "cream cheese or hummus"
       ],
-      "recorded": false,
+      "recorded": true,
       "recipe": {
-        "description": "Cucumber halves hollowed out and filled with a creamy mix of diced tomato, radish and herbs. Light, crunchy and needs no cooking.",
-        "minutes": 25,
+        "description": "Stuffed cucumber boats are a refreshing and light meal, perfect for warm weather. Filled with a vibrant mix of tomato, radish, and fresh herbs, they are both crunchy and satisfying.",
+        "minutes": 15,
         "difficulty": "Easy",
         "ingredients": [
-          "1 cucumber, halved lengthways",
-          "1 tomato, finely diced",
-          "4 radishes, finely diced",
-          "A small handful of fresh herbs, chopped",
-          "100g cream cheese or hummus",
+          "2 medium cucumbers",
+          "100g (3.5 oz) tomatoes, diced",
+          "50g (1.75 oz) radish, thinly sliced",
+          "30g (1 oz) cream cheese or hummus",
+          "1 tablespoon fresh herbs (e.g., parsley or dill), chopped",
           "Salt and pepper to taste"
         ],
         "steps": [
-          "Halve the cucumber lengthways and scoop out the seeds with a teaspoon to make two boats.",
-          "Pat the inside of each boat dry with kitchen paper and season lightly with salt.",
-          "Finely dice the tomato and radishes, and chop the herbs.",
-          "Mix the tomato, radish and most of the herbs into the cream cheese or hummus. Season with salt and pepper.",
-          "Spoon the filling into the cucumber boats.",
-          "Scatter over the remaining herbs, cut each boat into three pieces and serve."
+          "Slice the cucumbers in half lengthwise and scoop out the seeds to create boats.",
+          "In a bowl, mix the diced tomatoes, sliced radish, and cream cheese or hummus until well combined.",
+          "Add the chopped fresh herbs to the mixture and season with salt and pepper to taste.",
+          "Fill each cucumber boat with the tomato and radish mixture, pressing down gently to pack it in.",
+          "Serve immediately as a light dinner or snack."
         ],
         "nutrition": {
-          "calories": 210,
-          "protein": "7g",
+          "calories": 120,
+          "protein": "4g",
           "carbs": "12g",
-          "fat": "15g"
+          "fat": "6g"
         }
       }
     },
@@ -192,31 +195,35 @@
       "missing": [
         "olive oil"
       ],
-      "recorded": false,
+      "recorded": true,
       "recipe": {
-        "description": "Carrots, broccoli and green pepper roasted until the edges catch and the carrots turn sweet. One tray, and the oven does the work.",
+        "description": "This Roasted Vegetable Medley features a delightful combination of carrots, broccoli, and green bell pepper, all roasted to perfection. It's a simple yet satisfying dish that can be enjoyed as a side or a main course.",
         "minutes": 30,
         "difficulty": "Easy",
         "ingredients": [
-          "3 carrots, cut into batons",
-          "1 small piece of broccoli, cut into florets",
-          "1/2 green bell pepper, cut into chunks",
+          "300g carrots",
+          "150g broccoli",
+          "100g green bell pepper",
           "2 tablespoons olive oil",
-          "Salt and pepper to taste"
+          "Salt to taste",
+          "Pepper to taste"
         ],
         "steps": [
-          "Heat the oven to 200°C (180°C fan).",
-          "Cut the carrots into batons, the broccoli into florets and the pepper into chunks.",
-          "Toss the carrots with half the olive oil, salt and pepper on a large baking tray. Roast for 10 minutes.",
-          "Add the broccoli and pepper with the rest of the oil and toss everything together.",
-          "Roast for another 12-15 minutes, until the carrots are tender and the broccoli is browned at the edges.",
-          "Taste, season again if needed, and serve hot."
+          "Preheat the oven to 200°C (400°F).",
+          "Wash and peel the carrots, then cut them into bite-sized pieces.",
+          "Wash the broccoli and cut it into florets.",
+          "Wash the green bell pepper, remove the seeds, and cut it into strips.",
+          "In a large bowl, combine the carrots, broccoli, and green bell pepper.",
+          "Drizzle the olive oil over the vegetables and season with salt and pepper.",
+          "Toss the vegetables until they are evenly coated with oil and seasoning.",
+          "Spread the vegetables in a single layer on a baking sheet.",
+          "Roast in the preheated oven for 20-25 minutes, or until the vegetables are tender and slightly caramelized, stirring halfway through."
         ],
         "nutrition": {
-          "calories": 240,
-          "protein": "5g",
-          "carbs": "22g",
-          "fat": "15g"
+          "calories": 150,
+          "protein": "3g",
+          "carbs": "20g",
+          "fat": "7g"
         }
       }
     },
@@ -232,32 +239,36 @@
       "missing": [
         "feta cheese"
       ],
-      "recorded": false,
+      "recorded": true,
       "recipe": {
-        "description": "Fresh spinach with tomato, cucumber and crumbled feta in a simple oil and vinegar dressing. On the table in ten minutes.",
-        "minutes": 10,
+        "description": "This refreshing Spinach and Tomato Salad features fresh spinach, juicy tomatoes, and crisp cucumber, topped with feta cheese for added flavor. It's a quick and healthy dish perfect for any meal.",
+        "minutes": 15,
         "difficulty": "Easy",
         "ingredients": [
-          "100g spinach",
-          "1 tomato, cut into wedges",
-          "1/2 cucumber, sliced",
-          "60g feta cheese, crumbled",
-          "1 tablespoon olive oil",
-          "1 teaspoon vinegar or lemon juice",
-          "Salt and pepper to taste"
+          "200g fresh spinach",
+          "100g tomato (about several slices)",
+          "100g cucumber (about several slices)",
+          "50g feta cheese",
+          "10ml olive oil",
+          "5ml balsamic vinegar",
+          "salt to taste",
+          "pepper to taste"
         ],
         "steps": [
-          "Wash the spinach, dry it well and put it in a large bowl.",
-          "Cut the tomato into wedges and slice the cucumber. Add both to the bowl.",
-          "Whisk the olive oil with the vinegar or lemon juice, salt and pepper.",
-          "Pour the dressing over the salad and toss gently.",
-          "Crumble the feta over the top and serve straight away."
+          "Wash the fresh spinach under cold water and dry it with a salad spinner or kitchen towel.",
+          "Slice the tomatoes into thin slices and set aside.",
+          "Slice the cucumber into rounds and set aside.",
+          "In a large bowl, combine the spinach, sliced tomatoes, and cucumber.",
+          "Crumble the feta cheese over the salad mixture.",
+          "In a small bowl, whisk together the olive oil, balsamic vinegar, salt, and pepper to create the dressing.",
+          "Drizzle the dressing over the salad and toss gently to combine all ingredients evenly.",
+          "Serve immediately for the best freshness."
         ],
         "nutrition": {
-          "calories": 260,
-          "protein": "10g",
-          "carbs": "9g",
-          "fat": "21g"
+          "calories": 220,
+          "protein": "7g",
+          "carbs": "12g",
+          "fat": "18g"
         }
       }
     }

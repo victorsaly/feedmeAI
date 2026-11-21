@@ -49,7 +49,7 @@ where it is cheapest. Recipe apps start from a recipe; this starts from the frid
 ## Evidence on Hand
 
 - Six built-in recipes with licensed photos (`public/food/`, credits in `public/food/CREDITS.md`).
-- One recorded sample run (`src/data/sample.json`). Only its stir-fry recipe is the model's own answer.
+- One recorded sample run (`src/data/sample.json`). All five recipes are the model's own answers.
 - Real UK shop prices recorded once, in `brag-output/work/` (not committed).
 - No testimonials, ratings, user counts or press. Do not invent any.
 

@@ -28,13 +28,17 @@ describe('sortIngredients', () => {
   })
 
   it('matches "lime or lemon juice" to a line that names either', () => {
+    const lines = ['200g red cabbage, shredded', 'Juice of 1 lime or lemon', '1 lemon, juiced', 'Salt to taste']
+    expect(sortIngredients(lines, ['red cabbage'], ['lime or lemon juice']).buy).toEqual(['Juice of 1 lime or lemon', '1 lemon, juiced'])
+    // and in the recorded sample, whatever words the model chose for it
     const { recipe, missing } = idea('Cabbage and Carrot Slaw with Avocado')
-    expect(sortIngredients(recipe.ingredients, have, missing).buy).toEqual(['Juice of 1 lime or lemon'])
+    expect(sortIngredients(recipe.ingredients, have, missing).buy.join(' ')).toMatch(/lime|lemon/)
   })
 
   it('treats a staple as something to buy when the idea says it is missing', () => {
-    const { recipe, missing } = idea('Roasted Vegetable Medley')
-    expect(sortIngredients(recipe.ingredients, have, missing).buy).toEqual(['2 tablespoons olive oil'])
+    expect(sortIngredients(['300g carrots', '2 tablespoons olive oil', 'Salt to taste'], ['carrots'], ['olive oil'])).toEqual({
+      have: ['300g carrots'], buy: ['2 tablespoons olive oil'], cupboard: ['Salt to taste'],
+    })
   })
 
   it('finds a plural in the fridge for a singular in the recipe', () => {

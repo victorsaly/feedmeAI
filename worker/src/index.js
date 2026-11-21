@@ -427,7 +427,8 @@ async function ai(request, env, url) {
         'Also judge roughly how much of each is visible, in 2-4 words ("a small piece", "half a bag", ' +
         '"plenty", "one"). This is a rough guess from a photo, not a measurement — keep it vague, never ' +
         "invent a precise weight or count you can't actually see. " +
-        'Reply with JSON: {"ingredients":[{"name":"...","confidence":0.9,"amount":"a small piece"}]}',
+        // No sample numbers or phrases in the shape below: the model copies them.
+        'Reply with JSON in this shape: {"ingredients":[{"name":"<the food>","confidence":<your own figure, 0.5 to 1>,"amount":"<2-4 words>"}]}',
       [
         { type: "text", text: "What food is in this photo?" },
         { type: "image_url", image_url: { url: image, detail: "low" } },
@@ -454,7 +455,7 @@ async function ai(request, env, url) {
         'never assume there is more of something than described. ' +
         'Mix quick and slower, plain and interesting. "uses" must repeat their item names exactly, without the amount. ' +
         'Reply with JSON: {"ideas":[{"title":"...","blurb":"one sentence, why it suits what they have",' +
-        '"minutes":25,"uses":["..."],"missing":["..."]}]}',
+        '"minutes":<whole minutes for this dish, start to table>,"uses":["..."],"missing":["..."]}]}',
       [{ type: "text", text: `They have: ${describeItems(items)}.` }],
       900,
     );
@@ -477,9 +478,13 @@ async function ai(request, env, url) {
         "realistic against that — don't call for far more of it than what's actually there. " +
         "Also estimate the nutrition per serving as best you reasonably can from the ingredients — " +
         "say so is an estimate, not a lab figure. " +
-        'Reply with JSON: {"description":"two sentences","minutes":25,"difficulty":"Easy|Medium|Hard",' +
-        '"ingredients":["quantity + item", ...],"steps":["...", ...],' +
-        '"nutrition":{"calories":420,"protein":"18g","carbs":"52g","fat":"14g"}}',
+        // The shape names what each figure is rather than giving a sample one:
+        // given "minutes":25 and "calories":420, every recipe came back as
+        // 25 minutes and 420 kcal.
+        "Work out the time and every nutrition figure for this recipe; they differ from dish to dish. " +
+        'Reply with JSON in this shape: {"description":"<two sentences>","minutes":<whole minutes, preparation and cooking together>,' +
+        '"difficulty":"<Easy, Medium or Hard>","ingredients":["<quantity + item>", ...],"steps":["<one action>", ...],' +
+        '"nutrition":{"calories":<kcal per serving>,"protein":"<grams>g","carbs":"<grams>g","fat":"<grams>g"}}',
       [
         {
           type: "text",

@@ -5,8 +5,8 @@
  * that, it makes no network call. It shows a newcomer a result before they
  * spend a photo, and gives the film and the tests a run that never changes.
  *
- * `recorded` in the data marks which recipes are the model's own words.
- * `scripts/record-sample.mjs` replaces the rest with real answers.
+ * Every recipe is the model's own words (`recorded` in the data says so);
+ * `scripts/record-sample.mjs` records any that are not.
  */
 
 import data from '@/data/sample.json'
