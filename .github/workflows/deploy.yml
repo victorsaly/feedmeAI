@@ -39,6 +39,19 @@ jobs:
       - name: Type check
         run: npm run type-check
         
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      # The sample path, end to end, on the built app with the network refused.
+      # A failure here stops the deploy.
+      - name: End-to-end test
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
       - name: Build project
         run: npm run build
         env:

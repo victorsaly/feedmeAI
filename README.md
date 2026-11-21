@@ -34,6 +34,15 @@ npm install
 # Or: npm run build
 ```
 
+### Tests
+
+```bash
+npm test            # unit tests: the kitchen, the list, shop prices, ingredient sorting
+npm run test:e2e    # the sample path end to end, on the built app, with the network refused
+```
+
+The end-to-end test needs a browser once: `npx playwright install chromium`. Both run before every deploy.
+
 ## What it does
 
 One photo of the fridge → the list of what's in it (editable) → a short draft of dinners you could make tonight → any one written out in full, with a step-by-step cook mode. Saved recipes live in local storage.

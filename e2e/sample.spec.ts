@@ -1,0 +1,137 @@
+import { expect, test, type Page } from '@playwright/test'
+
+/*
+ * The main path, start to finish, on the recorded sample: see a result,
+ * open it, pick a dinner, add what is missing, cook, and find the list
+ * waiting. The Workers are refused throughout, so a pass means the path
+ * needs no AI, no account and no signal.
+ */
+
+/** Refuse every call to the Workers and the sign-in service, and remember them. */
+async function offline(page: Page) {
+  const calls: string[] = []
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url())
+    // the app asks once at start-up whether an AI and a session exist; nothing else is expected
+    if (!['/v1/ai', '/v1/me'].includes(url.pathname)) calls.push(`${route.request().method()} ${url.pathname}`)
+    return route.abort()
+  })
+  return calls
+}
+
+test('the sample path: photo to dinner to list, with nothing behind it', async ({ page }) => {
+  const calls = await offline(page)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(String(e)))
+
+  await test.step('the first screen shows a real result before asking for a photo', async () => {
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Photograph it' })).toBeVisible()
+    await expect(page.getByText('10 things in, 5 dinners out')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Or cook one of these' })).toBeVisible()
+  })
+
+  await test.step('the sample opens with dinner in the first view', async () => {
+    await page.getByRole('button', { name: 'Try a sample photo' }).click()
+    await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Tonight' })).toBeVisible()
+
+    const ideas = page.locator('.idea-btn')
+    await expect(ideas).toHaveCount(5)
+    // every idea has a picture, and two full rows sit above the tab bar
+    await expect(page.locator('.idea-thumb')).toHaveCount(5)
+    const bar = (await page.getByRole('navigation', { name: 'Sections' }).boundingBox())!
+    for (const n of [0, 1]) {
+      const row = (await ideas.nth(n).boundingBox())!
+      expect(row.y + row.height, `idea ${n + 1} is above the tab bar`).toBeLessThanOrEqual(bar.y)
+    }
+  })
+
+  await test.step('the ingredients can be opened, corrected and closed', async () => {
+    await page.getByRole('button', { name: /more, edit/ }).click()
+    await expect(page.getByRole('button', { name: 'Remove red cabbage' })).toBeVisible()
+    await expect(page.locator('.magnet.is-full')).toHaveCount(10)
+    await page.getByRole('button', { name: 'Done' }).click()
+    await expect(page.locator('.door.is-folded')).toBeVisible()
+  })
+
+  await test.step('a recipe leads with what to buy, and adds it in one tap', async () => {
+    await page.getByRole('button', { name: /Vegetable Stir-Fry/ }).click()
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByRole('heading', { name: 'Vegetable Stir-Fry' })).toBeVisible()
+    await expect(sheet.getByRole('heading', { name: 'To buy · 2' })).toBeVisible()
+    await expect(sheet.getByRole('heading', { name: 'You have · 3' })).toBeVisible()
+    await expect(sheet.locator('.sheet-buy li')).toHaveText(['2 tablespoons soy sauce', '1 teaspoon grated ginger'])
+    await expect(sheet.getByText('From the cupboard:')).toBeVisible()
+
+    await sheet.getByRole('button', { name: 'Add both to the list' }).click()
+    await expect(sheet.getByRole('status').filter({ hasText: 'On your list' })).toBeVisible()
+    // the tab bar is hidden from assistive tech while the sheet is open, so read the badge directly
+    await expect(page.locator('.tab-badge')).toHaveText('2')
+  })
+
+  await test.step('cooking shows the step, what it needs, and a timer where it names a time', async () => {
+    await page.getByRole('button', { name: 'Cook step by step' }).click()
+    await expect(page.locator('.cook-step')).toHaveText('Wash and chop the broccoli into small florets.')
+    await expect(page.getByRole('list', { name: 'For this step' }).getByRole('listitem')).toHaveText(['150g broccoli'])
+    await expect(page.getByRole('timer')).toHaveCount(0)
+
+    for (let n = 0; n < 3; n++) await page.getByRole('button', { name: 'Next' }).click()
+    await expect(page.locator('.cook-step')).toContainText('stir-fry for 3-4 minutes')
+    await expect(page.getByRole('list', { name: 'For this step' }).getByRole('listitem')).toHaveText(['150g broccoli', '50g green bell pepper'])
+    await expect(page.getByRole('timer')).toContainText('4:00')
+    await page.getByRole('button', { name: 'Start timer' }).click()
+    await expect(page.getByRole('timer')).toContainText(/3:5\d/)
+
+    // the timer keeps running on the next step, as a chip in the header
+    await page.getByRole('button', { name: 'Next' }).click()
+    await expect(page.getByRole('button', { name: 'Timer from step 4' })).toBeVisible()
+  })
+
+  await test.step('back closes cooking, then the recipe, then the results, and never leaves the app', async () => {
+    await page.goBack()
+    await expect(page.getByRole('dialog').getByRole('heading', { name: 'Vegetable Stir-Fry' })).toBeVisible()
+    await page.goBack()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
+    await page.goBack()
+    await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
+    expect(new URL(page.url()).pathname).toBe('/')
+  })
+
+  await test.step('the list has both items, by shelf name, and survives a reload', async () => {
+    await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /List/ }).click()
+    await expect(page.locator('.list-item-name')).toHaveText(['Grated ginger', 'Soy sauce'])
+    await expect(page.getByText('for Vegetable Stir-Fry')).toHaveCount(2)
+
+    await page.getByRole('button', { name: /^Soy sauce/, pressed: false }).click()
+    await expect(page.getByText('Got it · 1')).toBeVisible()
+
+    await page.reload()
+    await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /List/ }).click()
+    await expect(page.getByText('To buy · 1')).toBeVisible()
+    await expect(page.getByText('Got it · 1')).toBeVisible()
+  })
+
+  await test.step('nothing overflowed, nothing threw, and nothing was asked of the Workers', async () => {
+    for (const tab of ['Fridge', 'List', 'Recipes']) {
+      await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: new RegExp(tab) }).click()
+      const { scroll, client } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }))
+      expect(scroll, `${tab} fits the screen`).toBe(client)
+    }
+    expect(errors).toEqual([])
+    expect(calls).toEqual([])
+  })
+})
+
+test('the sample is never written into Recent', async ({ page }) => {
+  await offline(page)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Try a sample photo' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: '10 things in' })).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('10 things in, 5 dinners out')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recent' })).toHaveCount(0)
+  expect(await page.evaluate(() => localStorage.getItem('feedme-history'))).toBeNull()
+})
