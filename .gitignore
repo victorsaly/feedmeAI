@@ -35,3 +35,17 @@ pids
 
 # wrangler local state
 .wrangler/
+
+# brag video intermediates (frames, recordings) — keep brag.mp4/jpg/plan
+brag-output/work/
+
+# the film: keep the scripts and the recorded answers it replays, not what they render
+brag-output/film/out/
+brag-output/film/appframes/
+brag-output/film/raw/
+brag-output/film/video/
+brag-output/film/audio.wav
+brag-output/film/still-*.png
+brag-output/film/sheet.jpg
+brag-output/film/strip.jpg
+brag-output/film/contact.jpg

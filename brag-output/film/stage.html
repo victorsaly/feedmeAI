@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --cold: #f2f6f9;
+    --white: #fff;
+    --ink: #0f1620;
+    --ink-2: #4b5665;
+    --ink-3: #5f6a78;
+    --blue: #3667c9;
+    --blue-tint: #e8eefa;
+    --tag: #ffe7a3;
+    --tag-ink: #5c3b00;
+    --display: "Bricolage Grotesque", -apple-system, system-ui, sans-serif;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  }
+  @font-face { font-family: "Bricolage Grotesque"; font-weight: 200 800; src: url("bricolage-grotesque-latin.woff2") format("woff2"); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; }
+  body { background: var(--cold); font-family: var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+
+  /* the interior light, drifting */
+  #glow {
+    position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(54,103,201,.15) 0%, rgba(54,103,201,.06) 38%, rgba(54,103,201,0) 68%);
+    will-change: transform;
+  }
+  #grain { position: absolute; inset: 0; opacity: .035; mix-blend-mode: multiply;
+    background-image: radial-gradient(#0f1620 1px, transparent 1px); background-size: 4px 4px; }
+
+  /* ---- the phone ---- */
+  #phone {
+    position: absolute; width: 390px; height: 844px;
+    border-radius: 46px; background: #000; padding: 7px;
+    box-shadow: 0 2px 4px rgba(15,22,32,.10), 0 60px 90px -40px rgba(15,22,32,.45), 0 0 0 1.5px rgba(15,22,32,.12);
+    will-change: transform, opacity;
+  }
+  #screen { position: relative; width: 376px; height: 830px; border-radius: 39px; overflow: hidden; background: var(--cold); }
+  #screen img { position: absolute; top: 0; left: 0; width: 376px; height: 830px; object-fit: cover; }
+  #notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 104px; height: 24px; border-radius: 14px; background: #000; z-index: 3; }
+
+  /* ---- the opening photo ---- */
+  #photo {
+    position: absolute; border-radius: 28px; overflow: hidden;
+    box-shadow: 0 2px 4px rgba(15,22,32,.10), 0 50px 80px -34px rgba(15,22,32,.5);
+    will-change: transform, opacity;
+  }
+  #photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---- type ---- */
+  .line { position: absolute; will-change: transform, opacity; }
+  .kicker {
+    font-size: 26px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--blue);
+  }
+  .head { font-family: var(--display); font-size: 112px; line-height: .96; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; max-width: 980px; }
+  .head.sm { font-size: 92px; }
+  .tag { display: inline-block; background: var(--tag); color: var(--tag-ink); border-radius: 18px; padding: 2px 22px 8px; rotate: -1.5deg; }
+  .sub { font-size: 40px; line-height: 1.3; font-weight: 500; color: var(--ink-2); max-width: 820px; }
+  .sub b { font-family: var(--display); color: var(--ink); font-weight: 700; }
+  .em { color: var(--blue); }
+
+  /* ---- outro ---- */
+  #outro { position: absolute; inset: 0; display: grid; place-items: center; will-change: opacity; }
+  #outro-in { display: flex; flex-direction: column; align-items: center; gap: 34px; }
+  .lockup { display: flex; align-items: center; gap: 22px; }
+  .wordmark { font-family: var(--display); font-size: 96px; font-weight: 700; letter-spacing: -.03em; }
+  .wordmark small { font-size: .42em; font-weight: 800; letter-spacing: .06em; color: var(--blue); vertical-align: .55em; margin-left: .18em; }
+  .punch { font-family: var(--display); font-size: 52px; font-weight: 600; letter-spacing: -.02em; color: var(--ink-2); }
+  .url {
+    font-size: 30px; font-weight: 700; letter-spacing: .02em; color: var(--blue);
+    background: var(--white); padding: 18px 34px; border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(15,22,32,.06), 0 18px 40px -22px rgba(15,22,32,.4);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div id="phone"><div id="screen"><img id="frame" src="appframes/0001.jpg" alt=""><div id="notch"></div></div></div>
+
+  <div id="photo"><img src="fridge.jpg"></div>
+
+  <div class="line" id="l1"></div>
+  <div class="line" id="l2"></div>
+  <div class="line" id="l3"></div>
+
+  <div id="outro">
+    <div id="outro-in">
+      <div class="lockup">
+        <svg viewBox="0 0 32 32" width="92" height="92" aria-hidden="true">
+          <defs><linearGradient id="fm-sheen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient></defs>
+          <rect x="5" y="1.5" width="22" height="29" rx="6" fill="#3667c9"/>
+          <rect x="5" y="1.5" width="22" height="29" rx="6" fill="url(#fm-sheen)"/>
+          <path d="M5 12.5h22" stroke="#fff" stroke-width="1.75"/>
+          <rect x="20.5" y="5" width="2.5" height="4.5" rx="1.25" fill="#fff"/>
+          <rect x="20.5" y="16" width="2.5" height="7" rx="1.25" fill="#fff"/>
+        </svg>
+        <div class="wordmark">FeedMe<small>AI</small></div>
+      </div>
+      <div class="punch">One photo. Dinner sorted, down to the till.</div>
+      <div class="url">feedmeai.victorsaly.com</div>
+    </div>
+  </div>
+  <div id="grain"></div>
+</div>
+
+<script>
+/* Every frame is a pure function of t. Nothing here reads the clock. */
+const FPS = 30, DUR = 20.5, MS = (ms) => Math.round(ms * 30 / 1000) + 1;
+const E = {
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  inOut: (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  back: (x) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2),
+};
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+/* progress of t through [a,b] */
+const p = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+
+/* --- app footage: stage time -> the moment in the recording (ms, from
+   marks.json), joined by straight lines. The step at 12.15 is a deliberate
+   cut: it drops closing the recipe and walking to the List tab, so the
+   caption's payoff lands instead. */
+const ANCHORS = [
+  [2.30, 1800], [3.00, 3150],   // the photo goes in; the results arrive with their magnets
+  [4.20, 3950],                 // ideas in
+  [6.00, 6200],                 // held: photo, magnets, two dinners
+  [6.55, 6698], [7.30, 7400],   // tap the stir-fry; the recipe rises
+  [10.00, 9000],                // read: to buy, you have
+  [10.30, 9359], [11.00, 10000],// "Add both to the list"; "On your list"
+  [12.15, 10800],
+  [12.25, 15600],               // cut -> the list, holding both
+  [13.60, 16673], [14.42, 17472], // "Find the cheapest shop"; Iceland, £2.25
+  [15.90, 19198],               // all shops
+  [17.60, 21300],
+].map(([t, ms]) => [t, MS(ms)]);
+function appFrame(t) {
+  if (t <= ANCHORS[0][0]) return ANCHORS[0][1];
+  for (let i = 0; i < ANCHORS.length - 1; i++) {
+    const [t0, f0] = ANCHORS[i], [t1, f1] = ANCHORS[i + 1];
+    if (t <= t1) return Math.round(lerp(f0, f1, (t - t0) / (t1 - t0)));
+  }
+  return ANCHORS[ANCHORS.length - 1][1];
+}
+
+/* --- the words --- */
+const PHONE_X = 1245, PHONE_Y = 118;
+const TEXT_X = 140;
+const SCENES = [
+  /* strictly sequential: one line is fully gone before the next arrives */
+  { t: 0.45, out: 1.24, y: 452, cls: 'head', html: 'You have this.' },
+  { t: 1.66, out: 2.30, y: 452, cls: 'head', html: 'Now what?', slot: 2 },
+  { t: 3.05, out: 5.75, y: 400, cls: 'head', html: 'One photo.<br>Ten ingredients.' },
+  { t: 6.35, out: 9.75, y: 360, cls: 'head', html: 'Dinner from what\u2019s <span class="em">actually</span> in there.' },
+  { t: 10.25, out: 13.25, y: 360, cls: 'head', html: 'The two things you\u2019re <span style="white-space:nowrap"><span class="tag">missing</span>,</span> on a list.' },
+  { t: 13.85, out: 17.25, y: 350, cls: 'head sm', html: 'Which shop has them. And for how much.' },
+  { t: 14.80, out: 17.25, y: 660, cls: 'sub', html: 'Both, at Iceland, for <b>\u00a32.25</b>.', slot: 3 },
+];
+
+const el = { phone: phone, photo: photo, frame: frame, glow: glow, outro: outro, outroIn: document.getElementById('outro-in') };
+const slots = [l1, l2, l3];
+
+function render(t) {
+  /* glow drifts the whole way, never still */
+  const g = t / DUR;
+  el.glow.style.transform = `translate(${lerp(-260, 560, E.inOut(g))}px, ${lerp(-180, 140, g)}px)`;
+
+  /* ---------- scene 1: the photo ---------- */
+  const pIn = E.out(p(t, 0.10, 0.95));
+  const toPhone = E.inOut(p(t, 2.02, 2.72));           // photo flies into the phone
+  const photoW = lerp(560, 376, toPhone), photoH = lerp(700, 830, toPhone);
+  const photoX = lerp(1080, PHONE_X + 7, toPhone);
+  const photoY = lerp(190, PHONE_Y + 7, toPhone);
+  el.photo.style.width = photoW + 'px';
+  el.photo.style.height = photoH + 'px';
+  el.photo.style.borderRadius = lerp(28, 39, toPhone) + 'px';
+  el.photo.style.transform =
+    `translate(${photoX}px, ${lerp(60, 0, pIn) + photoY}px) rotate(${lerp(-3.2, 0, toPhone)}deg) scale(${lerp(.92, 1, pIn)})`;
+  el.photo.style.opacity = toPhone > .97 ? 0 : pIn;
+
+  /* ---------- the phone ---------- */
+  const phoneIn = E.out(p(t, 2.26, 2.86));
+  const phoneOut = E.inOut(p(t, 17.45, 18.05));
+  el.phone.style.opacity = clamp(phoneIn - phoneOut);
+  el.phone.style.transform =
+    `translate(${PHONE_X}px, ${PHONE_Y + lerp(26, 0, phoneIn) + lerp(0, 40, phoneOut)}px) scale(${lerp(.97, 1, phoneIn) * lerp(1, .98, phoneOut)})`;
+  el.frame.src = 'appframes/' + String(appFrame(t)).padStart(4, '0') + '.jpg';
+
+  /* ---------- type ---------- */
+  const used = new Set();
+  for (const s of SCENES) {
+    const slot = slots[(s.slot ?? 1) - 1];
+    const vis = t >= s.t - .35 && t <= s.out + .35;
+    if (!vis) continue;
+    used.add(slot);
+    const inP = E.out(p(t, s.t, s.t + .52));
+    const outP = E.inOut(p(t, s.out, s.out + .34));
+    slot.className = 'line ' + s.cls;
+    slot.innerHTML = s.html;
+    slot.style.left = TEXT_X + 'px';
+    slot.style.top = s.y + 'px';
+    slot.style.opacity = clamp(inP - outP);
+    slot.style.transform = `translate(${lerp(0, -46, outP)}px, ${lerp(30, 0, inP)}px)`;
+  }
+  for (const slot of slots) if (!used.has(slot)) slot.style.opacity = 0;
+
+  /* ---------- outro ---------- */
+  const oIn = E.out(p(t, 17.75, 18.45));
+  el.outro.style.opacity = oIn;
+  el.outroIn.style.transform = `translateY(${lerp(26, 0, oIn)}px) scale(${lerp(.985, 1, oIn)})`;
+}
+
+window.seek = async (t) => {
+  render(t);
+  const img = el.frame;
+  if (img.getAttribute('src')) { try { await img.decode(); } catch {} }
+  await document.fonts.ready;
+  return true;
+};
+render(0);
+</script>
+</body>
+</html>
