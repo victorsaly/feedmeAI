@@ -58,6 +58,21 @@ describe('without an account', () => {
   })
 })
 
+describe('damaged storage', () => {
+  it('opens with an empty list rather than failing, and keeps what is still sound', async () => {
+    localStorage.setItem('feedme-list', '{"not":"a list"}')
+    localStorage.setItem('feedme-list-pending', '"nonsense"')
+    await load()
+    await list.addItem(null, 'milk')
+    expect(stored().map((i) => i.ingredient)).toEqual(['milk'])
+
+    localStorage.setItem('feedme-list', JSON.stringify([{ id: 'local-1', ingredient: 'eggs', checked: false }, null, { id: 7 }]))
+    await load()
+    await list.addItem(null, 'bread')
+    expect(stored().map((i) => i.ingredient)).toEqual(['bread', 'eggs'])
+  })
+})
+
 describe('with an account', () => {
   it('sends each change to the account as well', async () => {
     const s = server()

@@ -4,6 +4,14 @@ Each decision, with its date and why. Newest first.
 
 ## 22 November 2026
 
+- **The leftovers are gone.** Dead style rules, 56 unused colour palettes, an old warm-cream theme that a
+  duplicate import had been hiding, the old Tailwind config and theme file, nine unused scripts, the
+  component-generator config and an unused data file. The app's stylesheet went from 237 kB to 72 kB.
+  Every screen was captured before and after and compared byte for byte; none changed.
+- **Old documents replaced.** `docs/PRD.md` described a different product ("Smart Kitchen Assistant") and
+  was removed. `docs/deployment.md` and `docs/SECURITY.md` were generic templates (the security policy was
+  GitHub's own, pointing reports at GitHub) and were rewritten for this project.
+
 - **These documents are committed**, at Victor's request. Until now `product-plan.md` and `kickoff.md` were
   kept out of git on purpose.
 - **The FeedMe page on victorsaly.com is updated** (its pull request 9): new screenshot, the film, the

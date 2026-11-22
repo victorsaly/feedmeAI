@@ -6,8 +6,6 @@ import { ErrorFallback } from './ErrorFallback.tsx'
 import { isNative } from './lib/native'
 
 import "./main.css"
-import "./styles/theme.css"
-import "./index.css"
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>

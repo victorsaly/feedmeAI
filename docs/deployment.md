@@ -1,304 +1,67 @@
-# Deployment Guide
+# Deploying FeedMe AI
 
-This document provides comprehensive instructions for deploying FeedMe AI to various platforms.
+There are three things to deploy, and they deploy separately.
 
-## 🚀 GitHub Pages Deployment (Automated)
+## 1. The site and the web app
 
-### Prerequisites
+Pushing to `main` runs `.github/workflows/deploy.yml`: lint, type-check, unit tests, the end-to-end test,
+then a build that is published to GitHub Pages. A failure at any step stops the deploy and the live site
+stays as it was.
 
-1. **GitHub Repository**: Ensure your code is pushed to a GitHub repository
-2. **GitHub Pages Settings**: Enable GitHub Pages in your repository settings
-3. **Environment Variables**: Set up any required environment variables
+One build makes both:
 
-### Automatic Deployment
+- the product site at the root (`index.html`, `privacy/`, `support/`, `credits/`, `404.html`);
+- the app at `/app/` (`app/index.html`), with its service worker at `/app/sw.js`.
 
-The project is configured for automatic deployment using GitHub Actions:
+The address is `feedmeai.victorsaly.com`, set by `public/CNAME`.
 
-1. **Push to Main**: Every push to the `main` branch automatically triggers deployment
-2. **Manual Deployment**: You can also trigger deployment manually from the Actions tab
+**GitHub Pages setting:** Settings, Pages, Source must be **GitHub Actions**. If it is "Deploy from a
+branch", GitHub also publishes the repository as it is on every push, and the two race.
 
-### Setup Steps
+To check a build locally before pushing:
 
-1. **Enable GitHub Pages**:
-   ```
-   Repository → Settings → Pages → Source: GitHub Actions
-   ```
-
-2. **Give the worker its keys** (the page itself needs none):
-   ```bash
-   cd worker
-   npx wrangler secret put OPENAI_API_KEY      # photo → ideas → recipe
-   npx wrangler secret put SPOONACULAR_KEY     # real recipes, photos, videos, search
-   npx wrangler secret put SEARCHAPI_KEY       # shopping search
-   npx wrangler secret put YOUTUBE_API_KEY     # optional: more cooking videos
-   npx wrangler deploy
-   ```
-   Without `OPENAI_API_KEY` the app still runs, in its built-in demo mode.
-
-3. **Push Your Code**:
-   ```bash
-   git add .
-   git commit -m "Deploy to GitHub Pages"
-   git push origin main
-   ```
-
-4. **Monitor Deployment**:
-   - Go to your repository's **Actions** tab
-   - Watch the "Deploy to GitHub Pages" workflow run
-   - Deployment typically takes 2-3 minutes
-   - Green checkmark = successful deployment
-
-5. **Access Your App**:
-   Your app will be available at: `https://yourusername.github.io/food-inventory-recip/`
-
-### Custom Domain Configuration
-
-**Important**: When using a custom domain, the Vite configuration must be set correctly:
-
-#### For Custom Domain (e.g., feedmeai.victorsaly.com):
-```typescript
-// vite.config.ts
-export default defineConfig({
-  base: '/',  // Root path for custom domains
-  // ... rest of config
-})
-```
-
-#### For GitHub Pages Subdirectory (username.github.io/repo-name):
-```typescript
-// vite.config.ts  
-export default defineConfig({
-  base: '/repository-name/',  // Subdirectory path
-  // ... rest of config
-})
-```
-
-The current configuration uses `base: '/'` for the custom domain `feedmeai.victorsaly.com`.
-
-### Custom Domain Setup
-
-To use a custom domain like `feedmeai.victorsaly.com`:
-
-1. **Add CNAME File**:
-   ```bash
-   echo "feedmeai.victorsaly.com" > public/CNAME
-   ```
-
-2. **Configure DNS**:
-   Add a CNAME record in your DNS settings:
-   ```
-   CNAME: feedmeai.victorsaly.com → yourusername.github.io
-   ```
-
-3. **Update GitHub Pages Settings**:
-   - Go to Repository → Settings → Pages
-   - Enter your custom domain: `feedmeai.victorsaly.com`
-   - Enable "Enforce HTTPS"
-
-### 🔧 Troubleshooting GitHub Pages Deployment
-
-#### Deployment Fails
-
-1. **Check GitHub Actions Log**:
-   - Go to repository **Actions** tab
-   - Click on the failed workflow run
-   - Review build logs for specific errors
-
-2. **Common Issues**:
-
-   **The app says "Running without an AI behind it"**:
-   The worker has no `OPENAI_API_KEY`. Set it with `npx wrangler secret put OPENAI_API_KEY` in `worker/` and redeploy the worker.
-
-   **Build Failures**:
-   ```
-   Error: TypeScript errors in production build
-   ```
-   Solution: Fix TypeScript errors locally first:
-   ```bash
-   npm run type-check
-   npm run build
-   ```
-
-   **Node Version Issues**:
-   ```
-   Error: Node version compatibility
-   ```
-   Solution: Workflow uses Node.js 20, ensure local development uses compatible version
-
-#### Site Not Loading
-
-1. **Check GitHub Pages Settings**:
-   - Repository → Settings → Pages
-   - Source should be: **GitHub Actions**
-   - Custom domain configured correctly
-
-2. **Clear Browser Cache**:
-   - Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
-   - Try incognito/private browsing
-
-3. **Check DNS Propagation** (for custom domains):
-   ```bash
-   nslookup feedmeai.victorsaly.com
-   ```
-
-#### API Not Working
-
-1. **Check Console Errors**:
-   - Open browser dev tools → Console
-   - Look for API key or CORS errors
-
-2. **Verify the worker**:
-   - `curl https://feedmeai-api.still-union-ef8a.workers.dev/v1/ai` should answer `{"ready":true}`
-   - Check the key has OpenAI permissions and a spending cap
-
-## 🌐 Alternative Deployment Platforms
-
-### Vercel
-
-1. **Install Vercel CLI**:
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy**:
-   ```bash
-   vercel --prod
-   ```
-
-3. **Custom Domain**: Configure in Vercel dashboard
-
-### Netlify
-
-1. **Build the project**:
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy via CLI**:
-   ```bash
-   npm i -g netlify-cli
-   netlify deploy --prod --dir=dist
-   ```
-
-3. **Or use Git**: Connect your GitHub repository in Netlify dashboard
-
-### Firebase Hosting
-
-1. **Install Firebase CLI**:
-   ```bash
-   npm i -g firebase-tools
-   ```
-
-2. **Initialize Firebase**:
-   ```bash
-   firebase init hosting
-   ```
-
-3. **Deploy**:
-   ```bash
-   npm run build
-   firebase deploy
-   ```
-
-## 🔧 Build Configuration
-
-### Environment Variables
-
-The page needs no secrets. To point a local build at a different worker:
 ```bash
-VITE_FEEDME_API=http://localhost:8787
+npm run build && npm run preview   # http://localhost:4173, the app at /app/
+npm test && npm run test:e2e
 ```
 
-### Build Scripts
+## 2. The Workers
 
-Available npm scripts:
+Pushing does **not** deploy them. From each folder:
+
 ```bash
-# Development server
-npm run dev
-
-# Production build
-npm run build
-
-# Preview production build
-npm run preview
-
-# Type checking
-npm run type-check
+cd worker && npx wrangler deploy                 # feedmeai-api: AI, recipes, shop prices, list, plans, reports
+cd workers/favorites-api && npx wrangler deploy  # saved recipes
 ```
 
-### Vite Configuration
+Secrets are set once per Worker and are not in the repository:
 
-The `vite.config.ts` is configured for:
-- ✅ GitHub Pages compatibility
-- ✅ Automatic base path configuration
-- ✅ Optimized chunking for performance
-- ✅ Asset optimization
-
-## 🎯 SEO & Social Sharing
-
-### Included Features
-
-- ✅ **Open Graph Tags**: Optimized for Facebook sharing
-- ✅ **Twitter Cards**: Rich previews on Twitter/X
-- ✅ **LinkedIn Optimization**: Professional sharing format
-- ✅ **JSON-LD**: Structured data for search engines
-- ✅ **PWA Support**: App-like experience on mobile
-- ✅ **Favicon & Icons**: All device sizes covered
-
-### Social Media Images
-
-Create these images in the `public/` directory:
-- `og-image.png` (1200×630px) - For Open Graph/Twitter
-- `screenshot-wide.png` (1280×800px) - PWA screenshot
-- `screenshot-narrow.png` (750×1334px) - Mobile screenshot
-
-## 🔍 Monitoring & Analytics
-
-### Adding Analytics
-
-To add Google Analytics, add to `index.html`:
-```html
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
-</script>
+```bash
+npx wrangler secret put OPENAI_API_KEY
+npx wrangler secret put SPOONACULAR_KEY
+npx wrangler secret put SEARCHAPI_KEY
+npx wrangler secret put YOUTUBE_API_KEY   # optional
 ```
 
-### Performance Monitoring
+Settings that are in `worker/wrangler.toml`: `ALLOWED_ORIGINS` (the site, the iPhone app's
+`capacitor://localhost`, and local development) and, to grant Plus by hand for testing, `PLUS_USERS`
+(a comma-separated list of account ids). The plan limits are in `worker/src/plan.js`.
 
-Consider adding:
-- **Sentry** for error tracking
-- **Lighthouse** for performance monitoring
-- **Hotjar** for user behavior analysis
+The app and the Worker can be deployed in either order: the app only uses what the Worker says it supports.
 
-## 🚨 Troubleshooting
+To try a change to the Worker against the real services without affecting the live one:
 
-### Common Issues
+```bash
+cd worker && npx wrangler dev --remote --port 8799
+```
 
-1. **Build Fails**:
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   npm run build
-   ```
+To see why a request failed on the live Worker: `npx wrangler tail`.
 
-2. **Routing Issues**: Ensure proper base configuration in `vite.config.ts`
+## 3. The iPhone app
 
-3. **API Keys**: Verify environment variables are set correctly
+```bash
+npm run ios   # builds the web app, copies it into ios/, opens Xcode
+```
 
-4. **CORS Issues**: Check API endpoints and CORS configuration
-
-### Support
-
-- **Issues**: Create GitHub issues for bugs
-- **Discussions**: Use GitHub Discussions for questions
-- **Documentation**: Check this docs folder for updates
-
----
-
-Last updated: $(date)
-Generated by: FeedMe AI deployment system
+In Xcode: choose the signing team, then Product, Archive, and Distribute App. The listing text, privacy
+answers, review notes and screenshots are in `store/`. `store/listing.md` ends with the steps in order.

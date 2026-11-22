@@ -32,8 +32,11 @@ const write = (key: string, value: unknown) => {
   try { localStorage.setItem(key, JSON.stringify(value)) } catch { /* private mode: kept for this visit only */ }
 }
 
-let items: Item[] = read<Item[]>(KEY, [])
-let pending: Pending = read<Pending>(PENDING_KEY, { checked: {}, removed: [] })
+// what is in storage is only trusted if it has the shape it should: a list that is not a list would stop the app opening
+const kept = read<unknown>(KEY, [])
+let items: Item[] = Array.isArray(kept) ? (kept as Item[]).filter((i) => i && typeof i.id === 'string' && typeof i.ingredient === 'string') : []
+const queued = read<Partial<Pending> | null>(PENDING_KEY, null)
+let pending: Pending = { checked: queued?.checked && typeof queued.checked === 'object' ? queued.checked : {}, removed: Array.isArray(queued?.removed) ? queued.removed : [] }
 const listeners = new Set<() => void>()
 
 function set(next: Item[]) {

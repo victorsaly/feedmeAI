@@ -2,8 +2,7 @@
 
 Written 21 November 2026. The shared rules are in the portfolio repository:
 `victorsaly.com/docs/product-core.md` (what every app shares, Apple's rules, the order of work). Read that
-first. This file is only what is particular to FeedMe AI. `docs/PRD.md` here is older; where they disagree,
-decide and update one of them.
+first. This file is only what is particular to FeedMe AI. The older `docs/PRD.md` was removed on 22 November 2026; `PRODUCT.md` is the product record.
 
 ## The brief (a draft for Victor to correct)
 

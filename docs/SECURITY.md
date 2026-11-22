@@ -1,31 +1,24 @@
-Thanks for helping make GitHub safe for everyone.
-
 # Security
 
-GitHub takes the security of our software products and services seriously, including all of the open source code repositories managed through our GitHub organizations, such as [GitHub](https://github.com/GitHub).
+If you find a security problem in FeedMe AI, please report it privately, not in a public issue.
 
-Even though [open source repositories are outside of the scope of our bug bounty program](https://bounty.github.com/index.html#scope) and therefore not eligible for bounty rewards, we will ensure that your finding gets passed along to the appropriate maintainers for remediation. 
+Use GitHub's private reporting on this repository: the **Security** tab, then **Report a vulnerability**.
+If that option is not shown, open an issue that says only that you have a security report, with no details,
+and you will be contacted.
 
-## Reporting Security Issues
+Helpful to include: what the problem is, where it is (a file, an address, or a request), how to reproduce
+it, and what someone could do with it.
 
-If you believe you have found a security vulnerability in any GitHub-owned repository, please report it to us through coordinated disclosure.
+## What is in scope
 
-**Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
+- The web app and site at `feedmeai.victorsaly.com`.
+- The two Workers in `worker/` and `workers/favorites-api/`.
+- The iPhone app built from `ios/`.
 
-Instead, please send an email to opensource-security[@]github.com.
+Sign-in is handled by a separate service shared with other victorsaly.com apps; a problem there is still
+worth reporting here.
 
-Please include as much of the information listed below as you can to help us better understand and resolve the issue:
+## How secrets are kept
 
-  * The type of issue (e.g., buffer overflow, SQL injection, or cross-site scripting)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
-
-This information will help us triage your report more quickly.
-
-## Policy
-
-See [GitHub's Safe Harbor Policy](https://docs.github.com/en/site-policy/security-policies/github-bug-bounty-program-legal-safe-harbor#1-safe-harbor-terms)
+No API key is in the browser or in this repository. The keys for OpenAI, Spoonacular, SearchAPI and YouTube
+are Cloudflare Worker secrets, set with `wrangler secret put`.

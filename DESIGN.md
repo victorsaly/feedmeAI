@@ -384,4 +384,4 @@ Skeleton bars shimmer across pale cool grey in the shape of the row they stand i
 - **Don't** invent a fourth shadow, or put a shadow on the primary button.
 - **Don't** show a list of dinners as text-only rows under a title.
 - **Don't** hand-edit the PNG app icons or the share image. They are drawn from the logo in Denim by `scripts/make-icons.mjs`; change that and run `npm run icons`.
-- **Don't** take tokens from the Tailwind and shadcn theme files (`src/styles/theme.css`, `src/index.css`). They are leftovers that only reach the dialog and drawer shells, the toast and the error fallback. The system is `src/styles/flow.css`.
+- **Don't** take tokens from the Tailwind and shadcn token file (`src/index.css`). It is a leftover that only reaches the dialog and drawer shells, the toast and the error fallback. The system is `src/styles/flow.css`.
