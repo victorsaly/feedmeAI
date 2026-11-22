@@ -243,6 +243,8 @@ test('the product site is the home page and leads into the app', async ({ page }
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible()
   await expect(page.locator('#root')).toHaveCount(0) // the site, not the app
+  await expect(page.getByText('Coming soon to the App Store').first()).toBeVisible()
+  await expect(page.getByRole('link', { name: /App Store/ })).toHaveCount(0) // not a link until it is out
   const { scroll, client } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }))
   expect(scroll, 'the site fits the screen').toBe(client)
 
