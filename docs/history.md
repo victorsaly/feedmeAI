@@ -4,6 +4,12 @@ Each decision, with its date and why. Newest first.
 
 ## 22 November 2026
 
+- **Cooking ends on a finish screen**: "Done. Enjoy it.", a large "Save this recipe", and "How did it turn
+  out?" with "It was good" or "Something was missing" (an ingredient, a step, the timing, the amounts,
+  something else, and a note). Feedback goes to the Worker (`POST /v1/feedback`, 30 a day per person) and
+  is kept with the recipe as cooked for a person to read; nobody is notified. The privacy page and the
+  App Store privacy answers mention it.
+
 - **A photo with no food in it is said plainly** ("No food in that photo. It looks like …") on the first
   screen, with a way to type in what you have. It does not use one of the day's free photos.
 - **Save is on the cooking screen too**, always in its top bar, as well as at the foot of the recipe.

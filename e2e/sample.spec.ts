@@ -326,3 +326,39 @@ test('cooking can save the recipe, and pictures each step on request', async ({ 
   await expect(page.getByRole('img', { name: /^Step 1:/ })).toBeVisible()
   expect(asked.length).toBe(steps)
 })
+
+test('the last step leads to a finish: save it, and say how it went', async ({ page }) => {
+  const sent: { verdict: string; missed: string[]; note: string }[] = []
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/v1/feedback') { sent.push(route.request().postDataJSON()); return route.fulfill({ status: 201, json: { ok: true } }) }
+    return route.abort()
+  })
+  await page.goto('/app/?sample')
+  await page.getByRole('button', { name: /Vegetable Stir-Fry/ }).click()
+  await page.getByRole('button', { name: 'Cook step by step' }).click()
+  for (let i = 0; i < 6; i++) await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Done' }).click()
+
+  await expect(page.getByRole('heading', { name: 'Done. Enjoy it.' })).toBeVisible()
+  await page.getByRole('button', { name: 'Save this recipe' }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'Saved, in Recipes' })).toBeVisible()
+
+  // something was missing: nothing sends until something is said
+  await page.getByRole('button', { name: 'Something was missing' }).click()
+  await expect(page.getByRole('button', { name: 'Send' })).toBeDisabled()
+  await page.getByText('An ingredient').click()
+  await page.getByLabel(/Tell us more/).fill('It needed garlic.')
+  await page.getByRole('button', { name: 'Send' }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'A person reads every note.' })).toBeVisible()
+  expect(sent).toEqual([expect.objectContaining({ verdict: 'missed', missed: ['ingredient'], note: 'It needed garlic.', title: 'Vegetable Stir-Fry' })])
+
+  // back to the steps and out again; Finish leaves cooking
+  await page.getByRole('button', { name: 'Back to the steps' }).click()
+  await expect(page.locator('.cook-step')).toContainText('Season with salt and pepper')
+  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'It was good' }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'Glad it worked.' })).toBeVisible()
+  await page.getByRole('button', { name: 'Finish' }).click()
+  await expect(page.locator('.cook-step')).toHaveCount(0)
+})

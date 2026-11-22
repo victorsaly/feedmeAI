@@ -96,7 +96,7 @@ Data collected, all **not linked to the user** and **not used for tracking**:
 | --- | --- | --- |
 | Photos or Videos | The photo you take is sent to be read into a list of ingredients. It is not stored. | App Functionality |
 | Device ID | A random number the app makes, used to count the daily photo allowance. | App Functionality |
-| Other User Content | A recipe you report, with your reason and note. | App Functionality |
+| Other User Content | A recipe you report or say how it turned out, with your note. | App Functionality |
 
 Not collected: contact info, location, identifiers tied to a person, usage analytics, diagnostics, purchases.
 The same answers are in the app's privacy manifest, `ios/App/App/PrivacyInfo.xcprivacy`.

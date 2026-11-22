@@ -9,6 +9,7 @@ import { useSave } from '@/hooks/use-save'
 import { useSessionToken } from '@/lib/account'
 import { PlanLimit } from '@/lib/plan'
 import { isIllustrated, stepPicture } from '@/lib/steps'
+import { CookFinish } from '@/components/CookFinish'
 
 interface CookScreenProps {
   recipe: Recipe
@@ -76,6 +77,8 @@ export function CookScreen({ recipe, photo, onRecipe, onBack, onDone }: CookScre
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per tap, works from what it has
   }, [drawing])
   const pic = pics[n]
+  const [finished, setFinished] = useState(false)
+  const withPictures = () => ({ ...recipe, stepImages: pics.length ? pics : recipe.stepImages })
 
   // one timer for the recipe: which step set it, and when it ends
   const [timer, setTimer] = useState<{ step: number; ends: number } | null>(null)
@@ -131,7 +134,7 @@ export function CookScreen({ recipe, photo, onRecipe, onBack, onDone }: CookScre
           <button
             type="button"
             className={`cook-chip cook-save ${saved ? 'is-saved' : ''}`}
-            onClick={() => toggle({ ...recipe, stepImages: pics.length ? pics : recipe.stepImages })}
+            onClick={() => toggle(withPictures())}
             aria-pressed={saved}
           >
             <Heart size={16} weight={saved ? 'fill' : 'bold'} /> {saved ? 'Saved' : 'Save'}
@@ -139,6 +142,17 @@ export function CookScreen({ recipe, photo, onRecipe, onBack, onDone }: CookScre
         </div>
       </header>
 
+      {finished ? (
+        <CookFinish
+          recipe={recipe}
+          picture={pics[steps.length - 1] ?? photo}
+          saved={saved}
+          onSave={() => toggle(withPictures())}
+          onSteps={() => setFinished(false)}
+          onDone={onDone}
+        />
+      ) : (
+      <>
       <main className="page cook-page">
         <figure className="cook-picture">
           {pic
@@ -194,7 +208,7 @@ export function CookScreen({ recipe, photo, onRecipe, onBack, onDone }: CookScre
           <CaretLeft size={20} weight="bold" />
         </button>
         {last ? (
-          <button type="button" className="btn btn-primary" onClick={onDone}>
+          <button type="button" className="btn btn-primary" onClick={() => { cancelRing(); setFinished(true); window.scrollTo({ top: 0 }) }}>
             <Check size={20} weight="bold" /> Done
           </button>
         ) : (
@@ -203,6 +217,8 @@ export function CookScreen({ recipe, photo, onRecipe, onBack, onDone }: CookScre
           </button>
         )}
       </div>
+      </>
+      )}
     </div>
   )
 }

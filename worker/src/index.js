@@ -107,6 +107,8 @@ async function paint(env, key, recipe, prompt) {
 
 const REPORT_REASONS = ["unsafe", "wrong", "other"];
 const REPORTS_A_DAY = 20;
+const FEEDBACK_A_DAY = 30;
+const FEEDBACK_MISSED = ["ingredient", "step", "timing", "amounts", "other"];
 const SEARCHES_A_DAY = 100;
 const COMPARE_ITEMS = 10;
 
@@ -242,6 +244,36 @@ async function route(request, env, url) {
    * not, and capped per caller per day so it cannot be used to fill the table.
    * What is kept: the recipe as shown, the reason, an optional note, and the
    * account id when there is one. No address is stored with a report. */
+  /* ---------- how a cooked recipe turned out ----------
+   * Good, or what was missing, with an optional note. Open to everyone and
+   * capped per caller per day. Kept with the recipe as cooked; no address. */
+  if (method === "POST" && pathname === "/v1/feedback") {
+    const user = await currentUser(request, env);
+    const body = await request.json().catch(() => null);
+    const title = str(body?.title, 200).trim();
+    const verdict = ["good", "missed"].includes(body?.verdict) ? body.verdict : "";
+    if (!title || !verdict) return json({ error: "a recipe and a verdict are required" }, { status: 400 });
+    const missed = (Array.isArray(body?.missed) ? body.missed : []).filter((m) => FEEDBACK_MISSED.includes(m));
+
+    await usage(env);
+    const who = callerKey(user, request.headers.get("x-feedme-device"), request.headers.get("cf-connecting-ip"));
+    const key = `feedback:${who}:${new Date().toISOString().slice(0, 10)}`;
+    if ((await usedOf(env, key)) >= FEEDBACK_A_DAY) return json({ error: "that is enough for today, thank you" }, { status: 429 });
+
+    await env.DB.prepare(
+      "CREATE TABLE IF NOT EXISTS feedback (id TEXT PRIMARY KEY, user_id TEXT, recipe_id TEXT, title TEXT NOT NULL, verdict TEXT NOT NULL, missed TEXT, note TEXT, recipe TEXT, created_at INTEGER NOT NULL)",
+    ).run();
+    const recipe = JSON.stringify({
+      ingredients: Array.isArray(body?.ingredients) ? body.ingredients.filter((x) => typeof x === "string").slice(0, 60).map((x) => x.slice(0, 300)) : [],
+      steps: Array.isArray(body?.steps) ? body.steps.filter((x) => typeof x === "string").slice(0, 60).map((x) => x.slice(0, 1000)) : [],
+    });
+    await env.DB.prepare("INSERT INTO feedback (id, user_id, recipe_id, title, verdict, missed, note, recipe, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(crypto.randomUUID(), user?.id ?? null, str(body?.recipeId, 100) || null, title, verdict, JSON.stringify(missed), str(body?.note, 500).trim() || null, recipe, now())
+      .run();
+    await bump(env, key);
+    return json({ ok: true }, { status: 201 });
+  }
+
   if (method === "POST" && pathname === "/v1/reports") {
     const user = await currentUser(request, env);
     const body = await request.json().catch(() => null);
@@ -284,6 +316,7 @@ async function route(request, env, url) {
     try { gone.favorites = (await env.DB.prepare("DELETE FROM favorites WHERE user_id = ?").bind(user.id).run()).meta.changes ?? 0; } catch { /* no favorites table */ }
     try { await env.DB.prepare("DELETE FROM usage WHERE key LIKE ? OR key LIKE ?").bind(`u:${user.id}:%`, `report:u:${user.id}:%`).run(); } catch { /* no usage table */ }
     try { await env.DB.prepare("UPDATE reports SET user_id = NULL WHERE user_id = ?").bind(user.id).run(); } catch { /* no reports table */ }
+    try { await env.DB.prepare("UPDATE feedback SET user_id = NULL WHERE user_id = ?").bind(user.id).run(); } catch { /* no feedback table */ }
     return json({ ok: true, deleted: gone });
   }
 
