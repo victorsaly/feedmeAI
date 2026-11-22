@@ -8,7 +8,7 @@
  * native project is generated from into assets/ (then: npm run ios:assets).
  */
 import { chromium } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 
 const root = new URL('..', import.meta.url).pathname
 const DENIM = '#3667c9', ENAMEL = '#f2f6f9', INK = '#0f1620', INK2 = '#4b5665'
@@ -78,3 +78,20 @@ await draw(tile(1024, 0.7, ENAMEL), 1024, 1024, 'assets/icon-only.png')
 await draw(tile(2732, 0.16, ENAMEL), 2732, 2732, 'assets/splash.png')
 await draw(tile(2732, 0.16, ENAMEL), 2732, 2732, 'assets/splash-dark.png')
 await browser.close()
+
+// favicon.ico, for the browsers that still ask for one: an .ico is a small
+// directory in front of ordinary PNGs, so the two just drawn go straight in.
+const pngs = [16, 32].map((size) => ({ size, data: readFileSync(`${root}public/favicon-${size}x${size}.png`) }))
+const head = Buffer.alloc(6 + 16 * pngs.length)
+head.writeUInt16LE(1, 2)                 // type: icon
+head.writeUInt16LE(pngs.length, 4)
+let offset = head.length
+pngs.forEach(({ size, data }, i) => {
+  const at = 6 + 16 * i
+  head.writeUInt8(size, at); head.writeUInt8(size, at + 1)
+  head.writeUInt16LE(1, at + 4); head.writeUInt16LE(32, at + 6)   // one plane, 32 bits a pixel
+  head.writeUInt32LE(data.length, at + 8); head.writeUInt32LE(offset, at + 12)
+  offset += data.length
+})
+writeFileSync(`${root}public/favicon.ico`, Buffer.concat([head, ...pngs.map((p) => p.data)]))
+console.log('public/favicon.ico')

@@ -16,7 +16,7 @@
   --card-foreground: #0f1620;
   --popover: #ffffff;
   --popover-foreground: #0f1620;
-  --primary: #1f57ff;
+  --primary: #3667c9;
   --primary-foreground: #ffffff;
   --secondary: #e9eff4;
   --secondary-foreground: #0f1620;
@@ -31,7 +31,7 @@
   --ring: #a6d8fb;
   --radius: 0.875rem;
 
-  --chart-1: #1f57ff;
+  --chart-1: #3667c9;
   --chart-2: #a6d8fb;
   --chart-3: #6b7683;
   --chart-4: #0f1620;
@@ -39,7 +39,7 @@
 
   --sidebar: #ffffff;
   --sidebar-foreground: #0f1620;
-  --sidebar-primary: #1f57ff;
+  --sidebar-primary: #3667c9;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #d9efff;
   --sidebar-accent-foreground: #0f1620;

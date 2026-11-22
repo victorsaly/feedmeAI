@@ -62,6 +62,3 @@ Updated 22 November 2026. The plan is `docs/product-plan.md`; why each thing was
 - **GitHub Pages is still set to deploy from the `main` branch** as well as from the workflow, so two
   deploys race on every push. Settings, Pages, Source: "GitHub Actions".
 - **`workers/favorites-api`** still answers any origin. Fold it into the main Worker.
-- **Leftover styles and scripts**: rules in `flow.css` for parts that no longer exist, and unused scripts
-  in `scripts/`.
-- **`brag-output/`**, which holds the film and the scripts that make it, is not committed.

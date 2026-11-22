@@ -102,19 +102,6 @@
 }
 .top-title { flex: 1; min-width: 0; margin: 0; font-size: 1rem; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .top-spacer { width: 4.5rem; }
-.count {
-  font-size: .72rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  background: var(--blue);
-  color: var(--blue-ink);
-  border-radius: 999px;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding: 0 .3rem;
-  display: inline-grid;
-  place-items: center;
-}
 
 /* ---------- tab bar ---------- */
 
@@ -188,7 +175,6 @@
   flex-direction: column;
 }
 .hero { padding: 1.25rem 0 1.25rem; }
-.hero .mark { display: block; margin-bottom: 1rem; }
 .hero-tab { padding: .5rem 0 1.5rem; }
 .hero-tab h1 { font-size: clamp(1.9rem, 8vw, 2.4rem); }
 .hero h1 {
@@ -459,36 +445,6 @@
 
 /* ---------- what you've got: magnets on the door ---------- */
 
-.haul-head {
-  display: flex;
-  align-items: center;
-  gap: .9rem;
-  padding: .5rem 0 .25rem;
-}
-.haul-head h1 {
-  margin: 0;
-  font-size: clamp(1.9rem, 8vw, 2.4rem);
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: 1.05;
-}
-.haul-sub { margin: .25rem 0 0; color: var(--ink-2); font-size: .95rem; }
-.haul-photo {
-  flex: none;
-  width: 64px;
-  height: 64px;
-  padding: 0;
-  border: 0;
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--light);
-  box-shadow: var(--shadow-magnet);
-  cursor: pointer;
-  transition: transform .12s var(--ease-out);
-}
-.haul-photo:active { transform: scale(var(--press)); }
-.haul-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
 .door {
   list-style: none;
   margin: 0;
@@ -513,14 +469,6 @@
   font-size: .95rem;
   animation: snap .32s var(--ease-out) both;
 }
-.magnet-dot {
-  width: .55rem;
-  height: .55rem;
-  border-radius: 50%;
-  background: var(--blue);
-  flex: none;
-}
-.magnet.is-unsure .magnet-dot { background: var(--amber); }
 .magnet-name { text-transform: capitalize; }
 .magnet-amount {
   appearance: none;
@@ -690,7 +638,6 @@
 .sk-line { width: 100%; }
 .sk-meta { width: 40%; height: .65rem; }
 
-
 /* ---------- the sheet ---------- */
 
 .sheet { box-shadow: var(--shadow-sheet); background: var(--cold); }
@@ -740,29 +687,6 @@
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
-.sheet-shot-swap {
-  position: absolute;
-  right: .6rem;
-  bottom: .6rem;
-  appearance: none;
-  border: 0;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  padding: .3rem .7rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .92);
-  color: var(--ink);
-  font: inherit;
-  font-size: .72rem;
-  font-weight: 600;
-  letter-spacing: .02em;
-  cursor: pointer;
-  box-shadow: var(--shadow-magnet);
-  transition: transform .12s var(--ease-out);
-}
-.sheet-shot-swap:active { transform: scale(var(--press)); }
 .sheet-desc { margin: 0 0 .5rem; line-height: 1.55; text-wrap: pretty; }
 .sheet-body h3 {
   margin: 1.5rem 0 .5rem .25rem;
@@ -788,15 +712,6 @@
   line-height: 1.4;
 }
 .sheet-ings li:first-child { border-top: 0; }
-.sheet-dot {
-  flex: none;
-  width: .55rem;
-  height: .55rem;
-  border-radius: 50%;
-  border: 1.5px solid var(--hairline);
-  transform: translateY(-.1rem);
-}
-.sheet-ings li.got .sheet-dot, .sheet-dot.got { background: var(--blue); border-color: var(--blue); }
 .sheet-ings li { align-items: center; }
 .sheet-ing-text { flex: 1; }
 .sheet-ing-add {
@@ -828,20 +743,6 @@
 .signin-btn { font-size: .82rem; white-space: nowrap; }
 
 /* ---------- the list tab ---------- */
-
-.list-toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; }
-.list-country {
-  flex: none;
-  border: 1.5px solid var(--hairline);
-  border-radius: 999px;
-  background: var(--white);
-  padding: 0 .8rem;
-  font: inherit;
-  font-size: .85rem;
-  font-weight: 500;
-  color: var(--ink);
-  max-width: 9rem;
-}
 .list-items {
   list-style: none;
   margin: 0 0 1.25rem;
@@ -852,92 +753,10 @@
   overflow: hidden;
 }
 .list-item + .list-item { border-top: 1px solid var(--hairline); }
-.list-item-row { display: flex; align-items: center; gap: .65rem; padding: .7rem .9rem; }
-.list-check {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-.list-check .magnet-dot { width: 1.1rem; height: 1.1rem; border: 1.5px solid var(--hairline); background: transparent; }
-.list-item.is-checked .list-check .magnet-dot { background: var(--blue); border-color: var(--blue); }
 .list-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .1rem; }
 .list-item-name { font-weight: 600; line-height: 1.3; }
 .list-item.is-checked .list-item-name { color: var(--ink-3); text-decoration: line-through; }
 .list-item-recipe { font-size: .76rem; color: var(--ink-3); }
-.list-shopping { padding: 0 .9rem .8rem 2.4rem; display: flex; flex-direction: column; gap: .5rem; }
-.list-shopping-item {
-  display: grid;
-  grid-template-columns: 2.2rem 1fr;
-  gap: .55rem;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-  border-radius: 10px;
-  padding: .3rem;
-}
-@media (hover: hover) and (pointer: fine) {
-  .list-shopping-item:hover { background: var(--cold); }
-}
-.list-shopping-item img { width: 2.2rem; height: 2.2rem; object-fit: contain; border-radius: 6px; background: var(--cold); grid-row: 1 / 3; }
-.list-shopping-title { font-size: .85rem; font-weight: 600; line-height: 1.25; }
-.list-shopping-meta { font-size: .72rem; color: var(--ink-3); }
-.list-shopping-meta b { color: var(--blue); font-weight: 700; }
-.list-shops { display: flex; flex-wrap: wrap; gap: .4rem; padding-top: .25rem; }
-.list-shop {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 .7rem;
-  border-radius: 999px;
-  background: var(--white);
-  box-shadow: var(--shadow-magnet);
-  font-size: .78rem;
-  font-weight: 600;
-  color: var(--ink);
-  text-decoration: none;
-}
-.list-shop:active { transform: scale(var(--press)); }
-
-/* the list compared across shops */
-.compare-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 0 0 1rem; }
-.compare { margin-bottom: 1.5rem; }
-.compare .label { margin-top: 0; align-items: center; }
-.compare-shop {
-  border-radius: var(--r-list);
-  background: var(--white);
-  box-shadow: var(--shadow-list);
-  margin-bottom: .75rem;
-  overflow: hidden;
-}
-.compare-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: .8rem .9rem .6rem;
-}
-.compare-head b { display: block; font-size: 1.05rem; letter-spacing: -.01em; }
-.compare-cover { font-size: .78rem; color: var(--ink-3); }
-.compare-lines { list-style: none; margin: 0; padding: 0 .9rem .35rem; }
-.compare-lines li { border-top: 1px solid var(--hairline); }
-.compare-lines a {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "ing price" "item price";
-  column-gap: .75rem;
-  padding: .55rem 0;
-  text-decoration: none;
-  color: inherit;
-}
-.compare-ing { grid-area: ing; font-weight: 600; font-size: .9rem; text-transform: capitalize; }
-.compare-item { grid-area: item; font-size: .76rem; color: var(--ink-3); line-height: 1.3; }
-.compare-price { grid-area: price; align-self: center; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* four stat blocks, iOS health-app style */
 .sheet-nutri {
@@ -1106,7 +925,7 @@
   .scan::after { animation: none; opacity: 0; }
   .sk { animation-duration: 3s; }
   :root { --press: 1; }
-  .haul-photo:active, .magnet-remove:active, .magnet-plus:active { transform: none; }
+  .magnet-remove:active, .magnet-plus:active { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
   .top, .sheet-actions, .tabs, .cook-bar { background: var(--cold); -webkit-backdrop-filter: none; backdrop-filter: none; }
@@ -1411,10 +1230,6 @@
 .cook-chip.is-rung { background: var(--tag); color: var(--tag-ink); }
 .cook-awake { margin: auto 0 0; padding: 1.75rem .1rem .5rem; display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--ink-3); }
 
-/* ---------- the list tab fits the phone ---------- */
-.list-toolbar .magnet-add { flex: 1 1 0; min-width: 0; }
-.list-country { min-width: 0; min-height: 44px; }
-
 /* ---------- after the review: headings speak, cooking is not empty ---------- */
 .label, .sheet-body h3 {
   font-family: var(--display);
@@ -1545,7 +1360,6 @@
 
 /* ---------- three tabs ---------- */
 .tabs { grid-template-columns: repeat(3, 1fr); }
-.meals.seg-two { grid-template-columns: 1fr 1fr; margin: 0 0 1rem; }
 .signin-btn { min-width: 44px; min-height: 44px; }
 .signin-name { max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
