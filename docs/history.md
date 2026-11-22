@@ -4,6 +4,11 @@ Each decision, with its date and why. Newest first.
 
 ## 22 November 2026
 
+- **The iPhone app is signed with Victor's own team** ("Victor Saly", `Z452L5C5VZ`), not the client
+  company whose distribution certificate is also on this machine. A development build was installed on
+  his iPhone 16, and a distribution-signed build was exported. Signing registered the bundle ID
+  `com.victorsaly.feedmeai` with that team. Nothing has been uploaded to App Store Connect.
+
 - **The leftovers are gone.** Dead style rules, 56 unused colour palettes, an old warm-cream theme that a
   duplicate import had been hiding, the old Tailwind config and theme file, nine unused scripts, the
   component-generator config and an unused data file. The app's stylesheet went from 237 kB to 72 kB.

@@ -132,11 +132,17 @@ Contact: *(your name, phone and email for App Review go here; they are not publi
 
 ## Before you can submit
 
-1. In Xcode, open `ios/App/App.xcodeproj` (`npm run ios`), select the App target, **Signing & Capabilities**,
-   and choose the team. This is the seller decision: your own name or a company.
-2. Run it on a real iPhone. Nobody has yet. Check: the camera, the first-photo question, a timer ringing
-   with the phone locked, the screen staying on while cooking, the list with flight mode on.
-3. Product, Archive, then Distribute App to App Store Connect. An unsigned release archive already builds.
-4. In App Store Connect: create the app with the bundle ID above, paste this file's fields, upload the
-   five screenshots, fill the privacy answers, and add yourself as a TestFlight tester.
+Done on 22 November 2026: the project is signed with the "Victor Saly" team (`Z452L5C5VZ`), a development
+build is installed on an iPhone 16, and a distribution-signed build exports with `npm run ios:ipa`
+(to `ios/App/build/export/App.ipa`).
+
+1. Try it on the iPhone. Check: the camera, the first-photo question, a timer ringing with the phone
+   locked, the screen staying on while cooking, the list with flight mode on.
+2. In App Store Connect, create the app: platform iOS, name "FeedMe AI", bundle ID
+   `com.victorsaly.feedmeai`, SKU `feedmeai-ios`. This is where the seller becomes fixed: the team's name
+   is what the store shows as the developer.
+3. Upload the build: open `ios/App/build/FeedMeAI.xcarchive` in Xcode's Organizer and choose Distribute
+   App, or drag `App.ipa` into the Transporter app.
+4. Paste this file's fields, upload the five screenshots, fill the privacy answers, and add yourself as a
+   TestFlight tester.
 5. Cook from the TestFlight build for a week (step 9 of the plan), then submit for review.
