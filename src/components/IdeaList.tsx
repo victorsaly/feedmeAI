@@ -67,7 +67,7 @@ export function IdeaList({ ideas, state, source, onOpen, onRefresh, quiet, error
         </div>
       )}
 
-      {(state === 'ready' || state === 'stale') && ideas.length === 0 && (
+      {state === 'ready' && ideas.length === 0 && (
         <div className="ideas-empty">
           <p>{emptyMessage ?? 'Nothing came back for that list. Add a couple more things and try again.'}</p>
         </div>

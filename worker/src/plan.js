@@ -15,15 +15,18 @@ export const PLANS = {
     photos: { allowed: 3, per: "day" },
     compares: { allowed: 2, per: "week" },
     pictures: { allowed: 0, per: "month" },
+    // a recipe with a picture for each step: about 4 US cents each, all its steps together
+    illustrated: { allowed: 1, per: "week" },
   },
   plus: {
     photos: { allowed: 30, per: "day" },
     compares: { allowed: 10, per: "day" },
     pictures: { allowed: 10, per: "month" },
+    illustrated: { allowed: 10, per: "month" },
   },
 };
 
-export const FEATURES = ["photos", "compares", "pictures"];
+export const FEATURES = ["photos", "compares", "pictures", "illustrated"];
 
 const pad = (n) => String(n).padStart(2, "0");
 const DAY = 24 * 60 * 60 * 1000;
@@ -65,10 +68,12 @@ export function callerKey(user, device, ip) {
 
 export const usageKey = (feature, caller, per, date) => `${feature}:${caller}:${periodKey(per, date)}`;
 
-/** Plus, if this account was granted it by hand (PLUS_USERS, for testing) or holds a purchase that has not run out. */
-export function tierOf(env, user, entitlement, nowSeconds) {
+/** Plus, if this account or device was granted it by hand (PLUS_USERS, for testing) or holds a purchase that has not run out. */
+export function tierOf(env, user, entitlement, nowSeconds, caller) {
   const granted = String(env?.PLUS_USERS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   if (user?.id && granted.includes(String(user.id))) return "plus";
+  // a caller key ("d:<device id>") may be granted too, for testing on a phone with no account
+  if (caller && granted.includes(caller)) return "plus";
   if (entitlement && Number(entitlement.expires_at) > nowSeconds) return "plus";
   return "free";
 }
@@ -80,7 +85,7 @@ export function decide(tier, feature, used, date) {
 }
 
 const WHEN = { day: ["today's", "tomorrow"], week: ["this week's", "on Monday"], month: ["this month's", "next month"] };
-const WHAT = { photos: ["photo", "photos"], compares: ["price check", "price checks"], pictures: ["generated picture", "generated pictures"] };
+const WHAT = { photos: ["photo", "photos"], compares: ["price check", "price checks"], pictures: ["generated picture", "generated pictures"], illustrated: ["recipe with step pictures", "recipes with step pictures"] };
 
 /** A sentence a person can act on, for clients that show the server's words. */
 export function sentence(d) {

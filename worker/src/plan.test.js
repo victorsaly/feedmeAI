@@ -40,6 +40,11 @@ describe('who is counted', () => {
 
 describe('free or Plus', () => {
   const now = 1_800_000_000
+  it('can be granted to a device by its caller key, for testing on a phone with no account', () => {
+    expect(tierOf({ PLUS_USERS: 'd:abc' }, null, null, now, 'd:abc')).toBe('plus')
+    expect(tierOf({ PLUS_USERS: 'd:abc' }, null, null, now, 'd:xyz')).toBe('free')
+  })
+
   it('is free unless granted by hand or holding a purchase that has not run out', () => {
     expect(tierOf({}, { id: 'u1' }, null, now)).toBe('free')
     expect(tierOf({ PLUS_USERS: 'u9, u1' }, { id: 'u1' }, null, now)).toBe('plus')
@@ -72,5 +77,6 @@ describe('the limits', () => {
     expect(sentence(decide('free', 'compares', 2, d))).toBe("You've used this week's 2 free price checks. They come back on Monday.")
     expect(sentence(decide('plus', 'pictures', 10, d))).toBe("You've used this month's 10 generated pictures. They come back next month.")
     expect(sentence(decide('free', 'pictures', 0, d))).toBe('Generated pictures come with Plus.')
+    expect(sentence(decide('free', 'illustrated', 1, d))).toBe("You've used this week's 1 free recipe with step pictures. It comes back on Monday.")
   })
 })

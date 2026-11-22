@@ -79,6 +79,13 @@ describe('identify', () => {
     expect(seen[0]).toMatchObject({ path: 'identify', auth: 'Bearer tok' })
   })
 
+  it('passes on what the photo showed instead, when it had no food in it', async () => {
+    worker({ identify: { body: { ingredients: [], seen: 'a shopping list interface' } } })
+    expect(await kitchen.identify('data:image/jpeg;base64,AAAA')).toEqual({ items: [], source: 'ai', seen: 'a shopping list interface' })
+    worker({ identify: { body: { ingredients: [{ name: 'eggs', confidence: 0.9 }] } } })
+    expect((await kitchen.identify('data:image/jpeg;base64,AAAA')).seen).toBeUndefined()
+  })
+
   it('shows the demo list, with no AI, when the Worker has no model', async () => {
     vi.useFakeTimers()
     worker({ identify: { status: 503, body: { error: 'off' } } })

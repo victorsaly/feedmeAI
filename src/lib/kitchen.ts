@@ -79,6 +79,8 @@ export interface Recipe {
   credit?: { name: string; url: string }
   /** someone making it; undefined = not looked yet, null = looked, nothing */
   video?: Video | null
+  /** a picture of each step, by step number, once asked for; null where one could not be made */
+  stepImages?: (string | null)[]
   createdAt: string
   isFavorite?: boolean
 }
@@ -172,12 +174,13 @@ async function ask<T>(path: string, body: unknown, token?: string | null): Promi
 
 /* ---------- 1. what's in the photo ---------- */
 
-export async function identify(imageDataUrl: string, token?: string | null): Promise<{ items: Ingredient[]; source: Source }> {
+/** `seen` is what the photo showed instead, when it had no food in it. */
+export async function identify(imageDataUrl: string, token?: string | null): Promise<{ items: Ingredient[]; source: Source; seen?: string }> {
   if (!hasKey()) {
     await wait(900)
     return { items: DEMO_ITEMS, source: 'local' }
   }
-  let out: { ingredients: { name: string; confidence: number; amount?: string }[] }
+  let out: { ingredients: { name: string; confidence: number; amount?: string }[]; seen?: string | null }
   try {
     out = await ask('identify', { image: imageDataUrl }, token)
   } catch (err) {
@@ -187,7 +190,7 @@ export async function identify(imageDataUrl: string, token?: string | null): Pro
   const items = (out.ingredients ?? [])
     .filter((i) => i && typeof i.name === 'string' && i.name.trim())
     .map((i) => ({ name: i.name.trim().toLowerCase(), confidence: clamp(i.confidence), amount: cleanAmount(i.amount) }))
-  return { items: dedupe(items), source: 'ai' }
+  return { items: dedupe(items), source: 'ai', seen: typeof out.seen === 'string' && out.seen.trim() ? out.seen.trim() : undefined }
 }
 
 /* ---------- 2. draft ideas from the list ---------- */

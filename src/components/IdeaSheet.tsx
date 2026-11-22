@@ -5,7 +5,6 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/compone
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useSessionToken } from '@/lib/account'
-import { ensureFavoritesLoaded, saveFavorite, removeFavorite, useFavorites } from '@/lib/favorites'
 import { addItem } from '@/lib/list'
 import { expand, generateDishImage, hasKey, type Idea, type Ingredient, type Recipe } from '@/lib/kitchen'
 import { findVideo } from '@/lib/spoonacular'
@@ -13,6 +12,7 @@ import { isSample } from '@/lib/sample'
 import { sortIngredients } from '@/lib/pantry'
 import { haptic } from '@/lib/native'
 import { ReportRecipe } from '@/components/ReportRecipe'
+import { useSave } from '@/hooks/use-save'
 
 interface IdeaSheetProps {
   idea: Idea | null
@@ -40,12 +40,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
   const report = useRef(onRecipe)
   report.current = onRecipe
   useEffect(() => { if (recipe) report.current?.(recipe) }, [recipe])
-  const favorites = useFavorites()
-
-  // Saved is server-backed (see src/lib/favorites.ts); load the account's
-  // list once so the heart below reflects reality the moment it can.
-  useEffect(() => { ensureFavoritesLoaded(token) }, [token])
-  const saved = recipe ? (favorites?.some((f) => f.id === recipe.id) ?? false) : false
+  const { saved, toggle } = useSave(recipe)
 
   useEffect(() => {
     if (!idea) return
@@ -115,19 +110,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
     toast.success(fresh.length === 1 ? 'Added to your list' : `${fresh.length} added to your list`)
   }
 
-  async function toggleSave() {
-    if (!recipe) return
-    if (saved) {
-      const ok = await removeFavorite(token, recipe.id)
-      if (!ok) toast.error("Couldn't remove that. Try again.")
-    } else {
-      // The photo you took stays on this device — only the recipe itself
-      // (and whichever dish photo it already has) is kept.
-      const ok = await saveFavorite(token, { ...recipe, image: recipe.image ?? dish, isFavorite: true })
-      if (ok) { haptic('done'); toast.success('Saved') }
-      else toast.error("Couldn't save that. Try again.")
-    }
-  }
+
 
   // Only ever the dish: a real or built-in photo, else the AI's suggested
   // look. A photo of raw ingredients is not a picture of dinner.
@@ -302,7 +285,7 @@ export function IdeaSheet({ idea, items, lateImage, onClose, onRecipe, onCook }:
 
   const footer = recipe && !failed && (
     <div className="sheet-actions">
-      <button type="button" className={`btn btn-quiet ${saved ? 'is-saved' : ''}`} onClick={toggleSave}>
+      <button type="button" className={`btn btn-quiet ${saved ? 'is-saved' : ''}`} onClick={() => recipe && toggle({ ...recipe, image: recipe.image ?? dish })}>
         <Heart size={18} weight={saved ? 'fill' : 'regular'} /> {saved ? 'Saved' : 'Save'}
       </button>
       <button type="button" className="btn btn-primary" onClick={() => onCook(recipe)}>

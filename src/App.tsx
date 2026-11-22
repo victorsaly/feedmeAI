@@ -63,6 +63,7 @@ function App() {
   const [cameFrom, setCameFrom] = useState<Tab>('fridge') // the tab Cook was opened from
   const [account, setAccount] = useState(false)
   const [photoLimit, setPhotoLimit] = useState<string>() // today's photos are used up: the Worker's own sentence
+  const [noFood, setNoFood] = useState<{ seen?: string }>() // the last photo had no food in it
   const [tab, setTab] = useState<Tab>('fridge')
   const [meal, setMeal] = useState<Meal>(() => loadMeal())
   const [hauls, setHauls] = useState<Haul[]>(() => loadHauls())
@@ -91,7 +92,6 @@ function App() {
     url.searchParams.delete('sample')
     window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
     reopen(SAMPLE)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
   }, [])
 
   // Ask the worker once whether a model is behind it, so the start screen
@@ -118,9 +118,13 @@ function App() {
     setOpened({})
     const id = ++run.current
     try {
-      const [{ items }, thumb, large] = await Promise.all([identify(small, token), thumbnail(small), thumbnail(small, LARGE)])
+      const [{ items, seen }, thumb, large] = await Promise.all([identify(small, token), thumbnail(small), thumbnail(small, LARGE)])
       if (id !== run.current) return
       setPhotoLimit(undefined)
+      // Nothing to cook from: say so on the first screen, rather than open
+      // an empty results page. The photo was not counted.
+      if (items.length === 0) { setPhoto(undefined); setNoFood({ seen }); window.scrollTo({ top: 0 }); return }
+      setNoFood(undefined)
       setItems(items)
       setHaul({ id: `h-${Date.now()}`, createdAt: new Date().toISOString(), photo: thumb, photoLarge: large })
       setStage('haul')
@@ -173,6 +177,20 @@ function App() {
     // meal, mark them stale rather than refetch — same pattern as editing
     // the ingredient list. A tap on "Update ideas" redraws with the new meal.
     if (ideasState === 'ready' && items.length > 0) setIdeasState('stale')
+  }
+
+  /** No photo, or a photo with nothing in it: type in what you have instead. */
+  function byHand() {
+    run.current++
+    setNoFood(undefined)
+    setPhoto(undefined)
+    setItems([])
+    setIdeas([])
+    setIdeasState('idle')
+    setOpened({})
+    setHaul({ id: `h-${Date.now()}`, createdAt: new Date().toISOString() })
+    setStage('haul')
+    window.scrollTo({ top: 0 })
   }
 
   function startOver() {
@@ -235,6 +253,7 @@ function App() {
     return (
       <CookScreen
         recipe={cooking}
+        onRecipe={(r) => { setCooking(r); primeRecipe(r); onRecipe(r) }}
         photo={cooking.image ?? cooking.previewImage ?? (cameFrom === 'fridge' ? photo : undefined)}
         onBack={() => { leaveCook(); setOpenIdea(lastIdea) }}
         onDone={() => { setCooking(null); setLastIdea(null); leaveCook() }}
@@ -273,6 +292,16 @@ function App() {
               <p className="offline-note" role="status">
                 No connection. A new photo needs one; your list, saved recipes and earlier photos still work.
               </p>
+            )}
+            {noFood && !analyzing && !photoLimit && (
+              <div className="nofood" role="status">
+                <b>No food in that photo.</b>
+                <span>
+                  {noFood.seen ? `It looks like ${noFood.seen.replace(/\.$/, '')}. ` : ''}
+                  Try the fridge with the door open, or the food laid out on the worktop. That one wasn’t counted.
+                </span>
+                <button type="button" className="btn btn-quiet" onClick={byHand}>Type in what you have</button>
+              </div>
             )}
             {photoLimit && !analyzing && (
               <div className="offline-note limit-note" role="status">
@@ -320,8 +349,8 @@ function App() {
             )}
             {ideasState === 'stale' && (
               <div className="update-bar" role="status">
-                <span>The list changed.</span>
-                <button type="button" className="btn btn-primary" onClick={() => draft(items, meal)}>Update ideas</button>
+                <span>{ideas.length ? 'The list changed.' : `${items.length} thing${items.length === 1 ? '' : 's'} on the list.`}</span>
+                <button type="button" className="btn btn-primary" onClick={() => draft(items, meal)}>{ideas.length ? 'Update ideas' : 'Get ideas'}</button>
               </div>
             )}
             </div>

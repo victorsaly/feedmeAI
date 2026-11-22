@@ -4,6 +4,20 @@ Each decision, with its date and why. Newest first.
 
 ## 22 November 2026
 
+- **A photo with no food in it is said plainly** ("No food in that photo. It looks like …") on the first
+  screen, with a way to type in what you have. It does not use one of the day's free photos.
+- **Save is on the cooking screen too**, always in its top bar, as well as at the foot of the recipe.
+- **A picture for each step, on request.** "Picture each step" on the cooking screen asks the Worker to
+  draw every step, the one on screen first. Pictures are made with OpenAI's `gpt-image-2` at low quality
+  (about $0.006 each by third-party price lists), kept in the Worker's database under a key made from the
+  step's words, and never made twice. A recipe counts once against a new allowance, "recipes with step
+  pictures": free 1 a week, Plus 10 a month. **Proposed, not confirmed.** The pictures are kept with the
+  recipe on the device; an account's saved copy does not keep them, but asking again costs nothing.
+- **Dish pictures were broken**: they used DALL·E 3, which OpenAI removed in May 2026, and kept a link
+  that expired after an hour. They now use the same model and the same lasting store.
+- **The "Or cook one of these" row was empty before 11am**, because none of the built-in recipes is a
+  breakfast. It now shows all of them when the meal has none.
+
 - **The iPhone app is signed with Victor's own team** ("Victor Saly", `Z452L5C5VZ`), not the client
   company whose distribution certificate is also on this machine. A development build was installed on
   his iPhone 16, and a distribution-signed build was exported. Signing registered the bundle ID

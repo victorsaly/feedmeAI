@@ -55,10 +55,8 @@ async function planFor(request, env, user) {
   if (user?.id) {
     try { row = await env.DB.prepare("SELECT expires_at FROM plus WHERE who = ?").bind(`u:${user.id}`).first(); } catch { /* no purchases yet, so no table */ }
   }
-  return {
-    tier: tierOf(env, user, row, now()),
-    caller: callerKey(user, request.headers.get("x-feedme-device"), request.headers.get("cf-connecting-ip")),
-  };
+  const caller = callerKey(user, request.headers.get("x-feedme-device"), request.headers.get("cf-connecting-ip"));
+  return { tier: tierOf(env, user, row, now(), caller), caller };
 }
 
 /** Where this caller stands on one feature: counted only once the thing
@@ -69,6 +67,43 @@ async function standing(env, plan, feature) {
   return { ...decide(plan.tier, feature, await usedOf(env, key), date), key };
 }
 const refuse = (d, status = 429) => json({ error: sentence(d), limit: d.feature, tier: d.tier, used: d.used, allowed: d.allowed, per: d.per, resets: d.resets }, { status });
+
+/* ---------- generated pictures, made once and kept ----------
+ * OpenAI hands back a picture's bytes, not a link that lasts, so each one is
+ * kept here in D1 under a key made from what it shows. Asking again for the
+ * same picture returns the kept one: it is never paid for twice. */
+
+const IMAGE_MODEL = (env) => env.IMAGE_MODEL || "gpt-image-2";
+
+const hex = async (text) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)))]
+  .map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+
+let picturesTable = false;
+async function pictures(env) {
+  if (picturesTable) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS pictures (key TEXT PRIMARY KEY, recipe TEXT, mime TEXT NOT NULL, data TEXT NOT NULL, created_at INTEGER NOT NULL)").run();
+  picturesTable = true;
+}
+const pictureUrl = (url, key) => `${url.origin}/v1/pictures/${key}`;
+
+/** One picture from the prompt, kept under `key`. Null when the model would not make it. */
+async function paint(env, key, recipe, prompt) {
+  const response = await fetch(`${OPENAI}/images/generations`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_API_KEY}` },
+    body: JSON.stringify({ model: IMAGE_MODEL(env), prompt, n: 1, size: "1024x1024", quality: "low", output_format: "webp", output_compression: 60 }),
+  }).catch(() => null);
+  if (!response || !response.ok) {
+    const why = await response?.json().catch(() => null);
+    console.error("openai would not paint", response?.status, why?.error?.code ?? "", why?.error?.message ?? "");
+    return null;
+  }
+  const b64 = (await response.json().catch(() => null))?.data?.[0]?.b64_json;
+  if (!b64) return null;
+  await env.DB.prepare("INSERT OR REPLACE INTO pictures (key, recipe, mime, data, created_at) VALUES (?, ?, ?, ?, ?)")
+    .bind(key, recipe, "image/webp", b64, now()).run();
+  return key;
+}
 
 const REPORT_REASONS = ["unsafe", "wrong", "other"];
 const REPORTS_A_DAY = 20;
@@ -309,6 +344,15 @@ async function route(request, env, url) {
   }
 
   if (method === "GET" && pathname.startsWith("/v1/recipes/")) return recipes(request, env, url);
+  const picture = pathname.match(/^\/v1\/pictures\/([a-f0-9]{32})$/);
+  if (method === "GET" && picture) {
+    await pictures(env);
+    const row = await env.DB.prepare("SELECT mime, data FROM pictures WHERE key = ?").bind(picture[1]).first();
+    if (!row) return json({ error: "not found" }, { status: 404 });
+    const bytes = Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0));
+    return new Response(bytes, { headers: { "content-type": row.mime, "cache-control": "public, max-age=31536000, immutable" } });
+  }
+
   if (pathname === "/v1/ai" || pathname.startsWith("/v1/ai/")) return ai(request, env, url);
 
   return json({ error: "not found" }, { status: 404 });
@@ -427,8 +471,10 @@ async function ai(request, env, url) {
         'Also judge roughly how much of each is visible, in 2-4 words ("a small piece", "half a bag", ' +
         '"plenty", "one"). This is a rough guess from a photo, not a measurement — keep it vague, never ' +
         "invent a precise weight or count you can't actually see. " +
+        "If there is no food in the photo at all (a person, a pet, a room, a screen, an empty shelf), list nothing " +
+        'and say in 2-6 plain words what the photo shows instead, as "seen". ' +
         // No sample numbers or phrases in the shape below: the model copies them.
-        'Reply with JSON in this shape: {"ingredients":[{"name":"<the food>","confidence":<your own figure, 0.5 to 1>,"amount":"<2-4 words>"}]}',
+        'Reply with JSON in this shape: {"ingredients":[{"name":"<the food>","confidence":<your own figure, 0.5 to 1>,"amount":"<2-4 words>"}],"seen":"<only when there is no food>"}',
       [
         { type: "text", text: "What food is in this photo?" },
         { type: "image_url", image_url: { url: image, detail: "low" } },
@@ -436,8 +482,10 @@ async function ai(request, env, url) {
       500,
     );
     if (error) return error;
-    await bump(env, where.key);
-    return json({ ingredients: Array.isArray(data.ingredients) ? data.ingredients : [] });
+    const ingredients = Array.isArray(data.ingredients) ? data.ingredients : [];
+    // A photo with no food in it is not counted: nothing came of it.
+    if (ingredients.length) await bump(env, where.key);
+    return json({ ingredients, ...(ingredients.length ? {} : { seen: str(data.seen, 60) || null }) });
   }
 
   if (pathname === "/v1/ai/suggest") {
@@ -504,24 +552,42 @@ async function ai(request, env, url) {
     const title = str(body.title);
     const blurb = str(body.blurb, 300);
     if (!title) return json({ error: "a title is required" }, { status: 400 });
-    const response = await fetch(`${OPENAI}/images/generations`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_API_KEY}` },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt:
-          `A simple, appetising photo of the finished dish "${title}" — ${blurb} ` +
-          "Natural light, on a plate, shot from above. No text, no hands, no branding.",
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-      }),
-    }).catch(() => null);
-    if (!response || !response.ok) return json({ url: null });
-    const data = await response.json().catch(() => null);
-    const made = data?.data?.[0]?.url ?? null;
+    await pictures(env);
+    const key = await hex(`dish|v1|${title}|${blurb}`);
+    const kept = await env.DB.prepare("SELECT 1 FROM pictures WHERE key = ?").bind(key).first();
+    if (kept) return json({ url: pictureUrl(url, key) });
+    const made = await paint(env, key, null,
+      `A simple, appetising photo of the finished dish "${title}": ${blurb} ` +
+      "Natural light, on a plate, shot from above. No text, no hands, no branding.");
     if (made) await bump(env, where.key);
-    return json({ url: made });
+    return json({ url: made ? pictureUrl(url, key) : null });
+  }
+
+  /* A picture of one step of a recipe. The first new picture for a recipe
+   * counts it as illustrated; the rest of its steps, and any picture already
+   * made, are free. */
+  if (pathname === "/v1/ai/step-picture") {
+    const title = str(body.title);
+    const steps = Array.isArray(body.steps) ? body.steps.filter((x) => typeof x === "string").slice(0, 30).map((x) => x.trim().slice(0, 500)) : [];
+    const n = Number(body.n);
+    if (!title || !steps.length || !Number.isInteger(n) || n < 0 || n >= steps.length) return json({ error: "a recipe and a step are required" }, { status: 400 });
+    await pictures(env);
+    const recipe = await hex(`recipe|${title}|${steps.join("\n")}`);
+    const key = await hex(`step|v1|${title}|${steps[n]}`);
+    const kept = await env.DB.prepare("SELECT 1 FROM pictures WHERE key = ?").bind(key).first();
+    if (kept) return json({ url: pictureUrl(url, key) });
+
+    const begun = await env.DB.prepare("SELECT 1 FROM pictures WHERE recipe = ? LIMIT 1").bind(recipe).first();
+    const where = begun ? null : await standing(env, plan, "illustrated");
+    if (where && !where.ok) return refuse(where, where.allowed === 0 ? 403 : 429);
+
+    const made = await paint(env, key, recipe,
+      `One step of the home recipe "${title}", shown as a clear, appetising photograph of exactly this moment: ${steps[n]} ` +
+      "A home kitchen in natural light, seen from slightly above, close enough to see what is happening in the pan or bowl. " +
+      "Hands may appear; no faces, no text, no labels, no branding.");
+    if (!made) return json({ error: "The picture could not be made. Try again in a moment." }, { status: 502 });
+    if (where) await bump(env, where.key);
+    return json({ url: pictureUrl(url, key) });
   }
 
   return json({ error: "not found" }, { status: 404 });

@@ -1,9 +1,13 @@
 import { ideaFromLocal, recipesForMeal, type Idea, type Meal } from '@/lib/kitchen'
+import { recipes as localRecipes } from '@/data'
 
 /* Dinner with no photo at all: the built-in recipes for this time of day,
  * as pictures to flick through. Each opens the same sheet an idea does. */
 export function RecipeStrip({ meal, onOpen }: { meal: Meal; onOpen: (idea: Idea) => void }) {
-  const recipes = recipesForMeal(meal)
+  // None of the built-in recipes is a breakfast: rather than show nothing
+  // before eleven, show them all.
+  const forMeal = recipesForMeal(meal)
+  const recipes = forMeal.length ? forMeal : localRecipes
   if (recipes.length === 0) return null
   return (
     <section aria-labelledby="strip-title" className="strip">

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 
 /*
@@ -258,4 +259,70 @@ test('the product site is the home page and leads into the app', async ({ page }
   await page.goto('/')
   await page.getByRole('link', { name: 'Open the app' }).first().click()
   await expect(page.getByRole('button', { name: 'Photograph it' })).toBeVisible()
+})
+
+test('a photo with no food in it is said plainly, and the list can be typed in instead', async ({ page }) => {
+  await page.route(/workers\.dev|api\.victorsaly\.com/, (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true, plans: true } })
+    if (url.pathname === '/v1/ai/identify') return route.fulfill({ json: { ingredients: [], seen: 'a cat on a sofa' } })
+    if (url.pathname === '/v1/ai/suggest') return route.fulfill({ json: { ideas: [{ title: 'Omelette', blurb: 'Eggs, quickly.', minutes: 10, uses: ['eggs'], missing: [] }] } })
+    return route.abort()
+  })
+  await page.addInitScript(() => localStorage.setItem('feedme-ai-consent', 'yes'))
+  await page.goto('/app/')
+  await page.locator('input[type="file"]').last().setInputFiles('public/food/sample-fridge.jpg')
+
+  const note = page.getByRole('status').filter({ hasText: 'No food in that photo.' })
+  await expect(note).toBeVisible()
+  await expect(note).toContainText('It looks like a cat on a sofa.')
+  await expect(note).toContainText('wasn’t counted')
+  await expect(page.getByRole('heading', { level: 1, name: "What's in the fridge?" })).toBeVisible() // still the first screen
+
+  await page.getByRole('button', { name: 'Type in what you have' }).click()
+  await page.getByLabel('Add an ingredient').fill('eggs')
+  await page.getByLabel('Add an ingredient').press('Enter')
+  await page.getByRole('button', { name: 'Get ideas' }).click()
+  await expect(page.getByRole('button', { name: /Omelette/ })).toBeVisible()
+})
+
+test('cooking can save the recipe, and pictures each step on request', async ({ page }) => {
+  const sample = JSON.parse(readFileSync('src/data/sample.json', 'utf8')) as { ideas: { title: string; recipe: { steps: string[] } }[] }
+  const steps = sample.ideas.find((i) => i.title === 'Roasted Vegetable Medley')!.recipe.steps.length
+  const asked: number[] = []
+  const pixel = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+  await page.route(/workers\.dev|api\.victorsaly\.com/, async (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname === '/v1/ai') return route.fulfill({ json: { ready: true, plans: true } })
+    if (url.pathname === '/v1/ai/step-picture') {
+      const n = route.request().postDataJSON().n
+      asked.push(n)
+      return route.fulfill({ json: { url: `https://feedmeai-api.still-union-ef8a.workers.dev/v1/pictures/${String(n).padStart(32, 'a')}` } })
+    }
+    if (url.pathname.startsWith('/v1/pictures/')) return route.fulfill({ contentType: 'image/png', body: Buffer.from(pixel, 'base64') })
+    return route.abort()
+  })
+  await page.goto('/app/?sample')
+  await page.getByRole('button', { name: /Roasted Vegetable Medley/ }).click()
+  await page.getByRole('button', { name: 'Cook step by step' }).click()
+
+  // Save is always to hand while cooking
+  await page.getByRole('button', { name: 'Save', pressed: false }).click()
+  await expect(page.getByRole('button', { name: 'Saved', pressed: true })).toBeVisible()
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('feedme-saved') ?? '[]').map((r: { title: string }) => r.title))).toEqual(['Roasted Vegetable Medley'])
+
+  // nothing is drawn until asked; then the step on screen comes first and every step gets one
+  expect(asked).toEqual([])
+  await page.getByRole('button', { name: 'Picture each step' }).click()
+  await expect(page.getByRole('img', { name: /^Step 1:/ })).toBeVisible()
+  await expect.poll(() => asked.length).toBe(steps)
+  expect(asked[0]).toBe(0)
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.getByRole('img', { name: /^Step 2:/ })).toBeVisible()
+
+  // kept with the recipe: back and in again draws nothing new
+  await page.goBack()
+  await page.getByRole('button', { name: 'Cook step by step' }).click()
+  await expect(page.getByRole('img', { name: /^Step 1:/ })).toBeVisible()
+  expect(asked.length).toBe(steps)
 })
